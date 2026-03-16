@@ -7,6 +7,27 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 
+def _winner_text(base_value: float, ft_value: float, lower_is_better: bool) -> str:
+    if math.isnan(base_value) or math.isnan(ft_value):
+        return "n/a"
+    if math.isclose(base_value, ft_value, rel_tol=1e-9, abs_tol=1e-9):
+        return "Tie"
+    if lower_is_better:
+        return "Fine-tuned" if ft_value < base_value else "Base"
+    return "Fine-tuned" if ft_value > base_value else "Base"
+
+
+def _metric_note(base_value: float, ft_value: float) -> str | None:
+    missing = []
+    if math.isnan(base_value):
+        missing.append("Base")
+    if math.isnan(ft_value):
+        missing.append("Fine-tuned")
+    if not missing:
+        return None
+    return f"{' and '.join(missing)} unavailable"
+
+
 def plot_eval_comparison(
     baseline_eval_path: Path,
     finetuned_eval_path: Path,
@@ -39,43 +60,55 @@ def plot_eval_comparison(
         finetuned_values,
         strict=True,
     ):
+        ax.set_title(label)
+        plotted = [
+            ("Base", base_value, "#9aa1a9"),
+            ("Fine-tuned", ft_value, "#1f77b4"),
+        ]
+        plotted = [item for item in plotted if not math.isnan(item[1])]
         bars = ax.bar(
-            ["Base", "Fine-tuned"],
-            [base_value, ft_value],
-            color=["#9aa1a9", "#1f77b4"],
+            [item[0] for item in plotted],
+            [item[1] for item in plotted],
+            color=[item[2] for item in plotted],
             width=0.55,
         )
-        ax.set_title(label)
-        finite_values = [value for value in [base_value, ft_value] if not math.isnan(value)]
+        finite_values = [value for _, value, _ in plotted]
+        if lower_is_better and finite_values:
+            ax.set_ylim(0, max(finite_values) * 1.08)
         if not lower_is_better and finite_values:
             ax.set_ylim(0, max(1.0, *finite_values) * 1.15)
         for bar in bars:
             height = bar.get_height()
-            label_text = "n/a" if math.isnan(height) else f"{height:.3f}"
             ax.text(
                 bar.get_x() + bar.get_width() / 2,
-                (0.02 if math.isnan(height) else height + max(0.01, height * 0.02)),
-                label_text,
+                height + max(0.01, height * 0.02),
+                f"{height:.3f}",
                 ha="center",
                 va="bottom",
                 fontsize=9,
             )
-        if math.isnan(base_value) or math.isnan(ft_value):
-            winner = "n/a"
-        elif lower_is_better:
-            winner = "Fine-tuned" if ft_value < base_value else "Base"
-        else:
-            winner = "Fine-tuned" if ft_value > base_value else "Base"
         ax.text(
             0.5,
             0.92,
-            f"Better: {winner}",
+            f"Better: {_winner_text(base_value, ft_value, lower_is_better)}",
             transform=ax.transAxes,
             ha="center",
             va="top",
             fontsize=9,
             color="#444",
         )
+        note = _metric_note(base_value, ft_value)
+        if note is not None:
+            ax.text(
+                0.5,
+                0.84,
+                note,
+                transform=ax.transAxes,
+                ha="center",
+                va="top",
+                fontsize=8,
+                color="#666",
+            )
 
     fig.suptitle("Base Model vs Fine-tuned Model on Held-out Manim Cases", fontsize=14)
     fig.tight_layout()
