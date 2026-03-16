@@ -4,7 +4,7 @@ import random
 from pathlib import Path
 from typing import Any
 
-from mac_pipeline.types import SplitConfig
+from mac_pipeline.types import DatasetFilterConfig, SplitConfig
 from mac_pipeline.utils import ensure_dir, load_records, write_json
 from mac_pipeline.utils import write_jsonl
 
@@ -62,6 +62,15 @@ def _split_cases(cases: list[dict[str, Any]], split_config: SplitConfig) -> dict
     }
 
 
+def _matches_filter(case: dict[str, Any], dataset_filter: DatasetFilterConfig) -> bool:
+    tags = set(case.get("tags", []))
+    if dataset_filter.include_tags and not set(dataset_filter.include_tags).issubset(tags):
+        return False
+    if dataset_filter.exclude_tags and set(dataset_filter.exclude_tags) & tags:
+        return False
+    return True
+
+
 def _to_record(case: dict[str, Any]) -> dict[str, Any]:
     record = {
         "case_id": case["case_id"],
@@ -81,12 +90,23 @@ def _to_record(case: dict[str, Any]) -> dict[str, Any]:
     return record
 
 
-def build_dataset(source_path: Path, output_dir: Path, split_config: SplitConfig) -> dict[str, Any]:
+def build_dataset(
+    source_path: Path,
+    output_dir: Path,
+    split_config: SplitConfig,
+    dataset_filter: DatasetFilterConfig | None = None,
+) -> dict[str, Any]:
     source_cases = [_validate_case(case) for case in load_records(source_path)]
-    case_ids = [case["case_id"] for case in source_cases]
+    effective_filter = dataset_filter or DatasetFilterConfig()
+    filtered_cases = [
+        case for case in source_cases if _matches_filter(case, effective_filter)
+    ]
+    if not filtered_cases:
+        raise ValueError(f"No dataset cases matched filter for {source_path}.")
+    case_ids = [case["case_id"] for case in filtered_cases]
     if len(case_ids) != len(set(case_ids)):
         raise ValueError(f"Duplicate case_id values found in {source_path}.")
-    split_map = _split_cases(source_cases, split_config)
+    split_map = _split_cases(filtered_cases, split_config)
     ensure_dir(output_dir)
     counts: dict[str, int] = {}
     for split_name, cases in split_map.items():
@@ -97,6 +117,10 @@ def build_dataset(source_path: Path, output_dir: Path, split_config: SplitConfig
         "source_dataset": str(source_path),
         "output_dir": str(output_dir),
         "split_seed": split_config.seed,
+        "dataset_filter": {
+            "include_tags": effective_filter.include_tags,
+            "exclude_tags": effective_filter.exclude_tags,
+        },
         "counts": counts,
     }
     write_json(output_dir / "manifest.json", manifest)

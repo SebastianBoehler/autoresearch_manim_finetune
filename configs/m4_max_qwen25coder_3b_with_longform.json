@@ -1,10 +1,10 @@
 {
-  "name": "m4-max-qwen25coder-3b-baseline",
+  "name": "m4-max-qwen25coder-3b-with-longform",
   "base_model": "Qwen/Qwen2.5-Coder-3B-Instruct",
   "source_dataset": "data/manim_dataset.jsonl",
-  "dataset_dir": "artifacts/datasets/m4-max-qwen25coder-3b",
-  "adapter_path": "artifacts/adapters/m4-max-qwen25coder-3b",
-  "eval_output_path": "artifacts/evals/m4-max-qwen25coder-3b.json",
+  "dataset_dir": "artifacts/datasets/m4-max-qwen25coder-3b-with-longform",
+  "adapter_path": "artifacts/adapters/m4-max-qwen25coder-3b-with-longform",
+  "eval_output_path": "artifacts/evals/m4-max-qwen25coder-3b-with-longform.json",
   "results_tsv": "results.tsv",
   "run_loss_eval": true,
   "dataset_filter": {
@@ -39,7 +39,7 @@
     "restore_best_checkpoint": true
   },
   "generation": {
-    "max_tokens": 1024,
+    "max_tokens": 1536,
     "temperature": 0.2,
     "top_p": 0.95,
     "top_k": 40,
@@ -49,7 +49,7 @@
     "run_render": true,
     "max_cases": 0,
     "render_quality": "low",
-    "max_render_seconds": 120,
+    "max_render_seconds": 180,
     "allowed_render_regression": 0.05,
     "min_loss_delta": 0.01,
     "tie_loss_delta": 0.003,

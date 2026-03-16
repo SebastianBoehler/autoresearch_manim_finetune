@@ -14,6 +14,12 @@ class SplitConfig:
 
 
 @dataclass
+class DatasetFilterConfig:
+    include_tags: list[str] = field(default_factory=list)
+    exclude_tags: list[str] = field(default_factory=list)
+
+
+@dataclass
 class TrainConfig:
     fine_tune_type: str = "lora"
     optimizer: str = "adamw"
@@ -77,6 +83,7 @@ class ExperimentConfig:
     eval_output_path: str
     results_tsv: str = "results.tsv"
     run_loss_eval: bool = True
+    dataset_filter: DatasetFilterConfig = field(default_factory=DatasetFilterConfig)
     splits: SplitConfig = field(default_factory=SplitConfig)
     train: TrainConfig = field(default_factory=TrainConfig)
     generation: GenerationConfig = field(default_factory=GenerationConfig)
@@ -94,6 +101,7 @@ class ExperimentConfig:
             eval_output_path=raw["eval_output_path"],
             results_tsv=raw.get("results_tsv", "results.tsv"),
             run_loss_eval=raw.get("run_loss_eval", True),
+            dataset_filter=DatasetFilterConfig(**raw.get("dataset_filter", {})),
             splits=SplitConfig(**raw.get("splits", {})),
             train=TrainConfig(**raw.get("train", {})),
             generation=GenerationConfig(**raw.get("generation", {})),

@@ -46,24 +46,22 @@ uv sync
 
 ## Quick Start
 
-Refresh the official-docs seed set and merge it with the local hand-written cases:
+Refresh the official-docs seed set:
 
 ```bash
 uv run python -m mac_pipeline.cli import-doc-seeds \
   --manifest data/manim_docs_sources.json \
   --output data/manim_docs_seed_cases.jsonl
 
-uv run python -m mac_pipeline.cli merge-case-files \
-  --inputs data/manim_seed_cases.json data/manim_docs_seed_cases.jsonl \
-  --output data/manim_bootstrap_cases.jsonl
+uv run python -m mac_pipeline.cli import-doc-seeds \
+  --manifest data/manim_docs_feature_sources.json \
+  --output data/manim_docs_feature_cases.jsonl
 ```
 
-Merge the converted ML and chemistry gold cases into the active bootstrap dataset:
+Rebuild the single canonical dataset file:
 
 ```bash
-uv run python -m mac_pipeline.cli merge-case-files \
-  --inputs data/manim_seed_cases.json data/manim_docs_seed_cases.jsonl data/manim_converted_cases.jsonl data/manim_converted_cases_round2.jsonl \
-  --output data/manim_full_bootstrap_cases_v2.jsonl
+uv run python scripts/rebuild_canonical_dataset.py
 ```
 
 Import external example repositories and split them into plain-Manim candidates versus custom-library conversion candidates:
@@ -93,6 +91,12 @@ Run one baseline fine-tuning experiment end-to-end:
 ```bash
 uv run python -m mac_pipeline.cli run \
   --config configs/m4_max_qwen25coder_3b.json
+```
+
+Install the lightweight git hook that refreshes the comparison figure from the local eval JSONs before each commit:
+
+```bash
+./scripts/install_hooks.sh
 ```
 
 Re-run evaluation only after you already have adapter weights:
@@ -131,12 +135,15 @@ data/manim_seed_cases.json    Hand-written starter dataset
 data/manim_docs_sources.json  Official docs example manifest
 data/manim_docs_seed_cases.jsonl
                               Imported official docs examples
-data/manim_bootstrap_cases.jsonl
-                              Combined bootstrap dataset used by the config
+data/manim_docs_feature_cases.jsonl
+                              Imported official docs examples focused on feature coverage
+data/manim_dataset.jsonl      Canonical training dataset used by experiment configs
 data/manim_converted_cases.jsonl
                               Plain-Manim ML and chemistry conversions inspired by MIT repos
-data/manim_full_bootstrap_cases.jsonl
-                              Active merged dataset used by the config
+data/manim_converted_cases_round3.json
+                              Additional converted ML and chemistry gold cases
+data/manim_longform_cases.json
+                              Curated 30s and 50s long-form scenes with richer animation structure
 data/manim_repo_sources.json  GitHub repo source manifest
 data/manim_repo_raw_candidates.jsonl
                               Imported repo-derived scene candidates
@@ -162,14 +169,15 @@ Good next expansions:
 5. Keep prompts concrete: scene objective, visual constraints, and required constructs.
 6. Prefer short, correct, idiomatic scenes over flashy long ones.
 
-Current external-source findings:
+Current dataset structure:
 
 - `ManimML` and `manim-Chemistry` are both MIT-licensed.
-- The current repo import produced `46` scene candidates total.
-- Only `1` candidate was plain Manim without custom-library dependencies.
-- The remaining `45` candidates are still valuable as concept seeds, but they should be reviewed or converted before joining the core training set.
-- Two manual conversion passes added `14` new plain-Manim gold cases, all verified with real low-quality renders.
-- The active merged dataset is now `28` cases total with a `21 / 3 / 4` train / valid / test split.
+- The canonical dataset is a single file with metadata tags such as `tier:gold`, `tier:silver`, `source:*`, and duration buckets like `duration:5s`.
+- The dataset now also includes explicit `duration:30s` and `duration:50s` cases for longer multi-beat scenes, not just short clips.
+- Recent long-form additions intentionally cover moving-camera calculus, vector-field flow, 3D surface orbit, and dynamic-programming table-fill patterns so the model sees richer multi-step scene logic.
+- Experiment configs can filter by tags without forking the dataset file.
+- Repo-derived plain-Manim examples stay inside the same dataset and are tagged `tier:silver` instead of being stored as a separate training corpus.
+- Source manifests and import outputs remain in `data/` for provenance and rebuilds, but `data/manim_dataset.jsonl` is the only dataset file the experiment configs should point at.
 
 ## Using the Karpathy Loop
 
@@ -181,25 +189,16 @@ Point your coding agent at `program.md`. The adapted loop treats:
 
 ## Current Comparison
 
-Below is the current direct comparison on the 4-case held-out split after expanding the converted gold set.
+Below is the current direct comparison figure for the latest locally available base-vs-fine-tuned eval pair. If you install the repo hook above, the plot is refreshed automatically from the local eval JSONs before each commit.
 
 ![Base vs Fine-tuned model comparison](docs/figures/base-vs-finetuned.png)
 
-Observed results:
-
-| Metric | Base model | Fine-tuned |
-| --- | ---: | ---: |
-| Syntax success rate | 1.000 | 1.000 |
-| Render success rate | 0.500 | 0.000 |
-| Mean case score | 0.725 | 0.544 |
-| Test loss | n/a | 1.441 |
-| Test perplexity | n/a | 4.225 |
-
 Interpretation:
 
-- The expanded dataset improved training stability, but the final checkpoint still overfit and regressed against the base model on held-out render success and case score.
-- The best validation loss in the training log appeared early, so the next loop should add checkpoint selection or early stopping rather than always taking the last adapter snapshot.
-- The base-model loss is marked `n/a` because `mlx_lm lora --test` requires an adapter path; the base comparison here is generation-based.
+- The latest early-stopped run improved held-out loss compared with the overfit final-checkpoint run, but the base model still performs better on held-out render success and mean case score.
+- The comparison inputs live in `artifacts/evals/m4-max-qwen25coder-3b-base-v2.json` and `artifacts/evals/m4-max-qwen25coder-3b.json`.
+- The base-model loss is still `n/a` in the plot because `mlx_lm lora --test` requires an adapter path; the base comparison remains generation-based.
+- Long-form curriculum experiments live in `configs/m4_max_qwen25coder_3b_with_longform.json` and `configs/m4_max_qwen25coder_3b_without_longform.json` so you can compare long-form mixing without forking the dataset.
 
 ## Notes
 

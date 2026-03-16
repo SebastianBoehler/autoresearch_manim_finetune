@@ -1,0 +1,16 @@
+#!/bin/sh
+set -eu
+
+ROOT="$(git rev-parse --show-toplevel)"
+
+if [ ! -f "$ROOT/artifacts/evals/m4-max-qwen25coder-3b-base-v2.json" ] || [ ! -f "$ROOT/artifacts/evals/m4-max-qwen25coder-3b.json" ]; then
+  exit 0
+fi
+
+if [ -x "$ROOT/.venv/bin/python" ]; then
+  "$ROOT/.venv/bin/python" "$ROOT/scripts/refresh_comparison_plot.py"
+else
+  python3 "$ROOT/scripts/refresh_comparison_plot.py"
+fi
+
+git add "$ROOT/docs/figures/base-vs-finetuned.png" 2>/dev/null || true

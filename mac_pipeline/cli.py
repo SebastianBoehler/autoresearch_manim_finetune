@@ -40,7 +40,7 @@ def cmd_build_dataset(args: argparse.Namespace) -> None:
     config, repo_root = _load_config(Path(args.config))
     source_path = resolve_path(repo_root, args.source or config.source_dataset)
     dataset_dir = resolve_path(repo_root, config.dataset_dir)
-    manifest = build_dataset(source_path, dataset_dir, config.splits)
+    manifest = build_dataset(source_path, dataset_dir, config.splits, config.dataset_filter)
     print(f"Built dataset at {dataset_dir}")
     print(manifest)
 
@@ -134,7 +134,7 @@ def cmd_run(args: argparse.Namespace) -> None:
     dataset_dir = resolve_path(repo_root, config.dataset_dir)
     adapter_path = resolve_path(repo_root, config.adapter_path)
     output_path = resolve_path(repo_root, config.eval_output_path)
-    build_dataset(source_path, dataset_dir, config.splits)
+    build_dataset(source_path, dataset_dir, config.splits, config.dataset_filter)
     train_adapter(
         config,
         dataset_dir,
