@@ -30,7 +30,7 @@
     "grad_accumulation_steps": 8,
     "save_every": 25,
     "test_batches": -1,
-    "max_seq_length": 2048,
+    "max_seq_length": 3072,
     "grad_checkpoint": true,
     "seed": 42,
     "early_stopping_patience": 3,
@@ -39,7 +39,7 @@
     "restore_best_checkpoint": true
   },
   "generation": {
-    "max_tokens": 1024,
+    "max_tokens": 1536,
     "temperature": 0.2,
     "top_p": 0.95,
     "top_k": 40,

@@ -10,9 +10,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from mac_pipeline.repo_ingest_ast import collect_imports, extract_scene_module, scene_classes
 from mac_pipeline.utils import ensure_parent, load_records, write_json, write_jsonl
 
-SCENE_BASES = {"Scene", "ThreeDScene", "MovingCameraScene", "ZoomedScene"}
 REPO_URL_PATTERN = re.compile(r"https://github\.com/([^/]+)/([^/]+?)(?:\.git)?/?$")
 CUSTOM_LIBRARY_PREFIXES = ("manim_ml", "manim_chemistry", "manim_physics")
 PLAIN_ALLOWED_PREFIXES = {
@@ -62,38 +62,6 @@ def _repo_slug(repo_url: str) -> str:
         raise ValueError(f"Unsupported GitHub URL: {repo_url}")
     owner, repo = match.groups()
     return f"{owner}--{repo}"
-
-
-def _base_name(node: ast.expr) -> str:
-    if isinstance(node, ast.Name):
-        return node.id
-    if isinstance(node, ast.Attribute):
-        return node.attr
-    return ""
-
-
-def _scene_classes(tree: ast.AST) -> list[str]:
-    classes: list[str] = []
-    for node in getattr(tree, "body", []):
-        if isinstance(node, ast.ClassDef) and any(_base_name(base) in SCENE_BASES for base in node.bases):
-            classes.append(node.name)
-    return classes
-
-
-def _collect_imports(tree: ast.AST) -> tuple[list[str], list[str]]:
-    imports: list[str] = []
-    local_imports: list[str] = []
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            for alias in node.names:
-                imports.append(alias.name)
-        elif isinstance(node, ast.ImportFrom):
-            module = node.module or ""
-            if node.level > 0:
-                local_imports.append("." * node.level + module)
-            else:
-                imports.append(module)
-    return sorted(set(filter(None, imports))), sorted(set(filter(None, local_imports)))
 
 
 def _custom_imports(imports: list[str], local_imports: list[str]) -> list[str]:
@@ -147,19 +115,20 @@ def _build_cases(config: RepoConfig, repo_root: Path) -> list[dict[str, Any]]:
                     tree = ast.parse(code)
             except SyntaxError:
                 continue
-            scene_classes = _scene_classes(tree)
-            if not scene_classes:
+            scene_names = scene_classes(tree)
+            if not scene_names:
                 continue
-            imports, local_imports = _collect_imports(tree)
+            imports, local_imports = collect_imports(tree)
             custom_imports = _custom_imports(imports, local_imports)
             plain_candidate = _is_plain_manim_candidate(imports, local_imports)
             rel_path = str(file_path.relative_to(repo_root))
-            for scene_name in scene_classes:
+            for scene_name in scene_names:
+                scene_code = extract_scene_module(code, scene_name)
                 cases.append(
                     {
                         "case_id": _case_id(config.name, rel_path, scene_name),
                         "prompt": _derive_prompt(scene_name, config.domain, config.name),
-                        "completion": code.rstrip() + "\n",
+                        "completion": scene_code,
                         "entry_scene": scene_name,
                         "tags": ["repo-import", config.domain, config.name.lower()],
                         "must_contain": [],
