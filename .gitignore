@@ -18,6 +18,8 @@ AGENTS.md
 
 # Experimental code/artifacts
 dev/
+artifacts/
+media/
 
 # Results file
 results.tsv
