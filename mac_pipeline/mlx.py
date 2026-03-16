@@ -8,22 +8,29 @@ from pathlib import Path
 from mac_pipeline.types import ExperimentConfig, GenerationConfig
 from mac_pipeline.utils import ensure_parent
 
+FLOAT_PATTERN = r"([0-9]+(?:\.[0-9]+)?)"
 LOSS_PATTERNS = [
-    re.compile(r"\btest loss\b[:=]?\s*([0-9.]+)", re.IGNORECASE),
-    re.compile(r"\bloss\b[:=]?\s*([0-9.]+)", re.IGNORECASE),
+    re.compile(rf"\btest loss\b[:=]?\s*{FLOAT_PATTERN}", re.IGNORECASE),
+    re.compile(rf"\bloss\b[:=]?\s*{FLOAT_PATTERN}", re.IGNORECASE),
 ]
 PERPLEXITY_PATTERNS = [
-    re.compile(r"\bperplexity\b[:=]?\s*([0-9.]+)", re.IGNORECASE),
-    re.compile(r"\bppl\b[:=]?\s*([0-9.]+)", re.IGNORECASE),
+    re.compile(rf"\bperplexity\b[:=]?\s*{FLOAT_PATTERN}", re.IGNORECASE),
+    re.compile(rf"\bppl\b[:=]?\s*{FLOAT_PATTERN}", re.IGNORECASE),
 ]
 
 
-def _run(command: list[str], log_path: Path | None = None) -> str:
+def _run(
+    command: list[str],
+    log_path: Path | None = None,
+    include_stderr: bool = True,
+) -> str:
     if log_path is None:
         result = subprocess.run(command, capture_output=True, text=True, check=False)
-        output = f"{result.stdout}\n{result.stderr}".strip()
+        output = result.stdout.strip()
+        if include_stderr and result.stderr.strip():
+            output = f"{output}\n{result.stderr.strip()}".strip()
         if result.returncode != 0:
-            raise RuntimeError(output)
+            raise RuntimeError(output or result.stderr.strip())
         return output
     ensure_parent(log_path)
     with log_path.open("w") as handle:
@@ -151,5 +158,4 @@ def generate_completion(
         command.extend(["--top-k", str(generation.top_k)])
     if system_prompt:
         command.extend(["--system-prompt", system_prompt])
-    return _run(command).strip()
-
+    return _run(command, include_stderr=False).strip()
