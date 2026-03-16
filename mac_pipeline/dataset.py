@@ -12,6 +12,14 @@ DEFAULT_SYSTEM_PROMPT = (
     "You write runnable Manim Community Edition Python files. "
     "Return only Python code, use `from manim import *`, and define exactly one scene class."
 )
+PASSTHROUGH_FIELDS = [
+    "source_name",
+    "source_url",
+    "source_anchor",
+    "license",
+    "target_duration_seconds",
+    "target_duration_tolerance_seconds",
+]
 
 
 def _validate_case(case: dict[str, Any]) -> dict[str, Any]:
@@ -46,7 +54,7 @@ def _split_cases(cases: list[dict[str, Any]], split_config: SplitConfig) -> dict
 
 
 def _to_record(case: dict[str, Any]) -> dict[str, Any]:
-    return {
+    record = {
         "case_id": case["case_id"],
         "tags": case["tags"],
         "entry_scene": case.get("entry_scene"),
@@ -58,10 +66,17 @@ def _to_record(case: dict[str, Any]) -> dict[str, Any]:
             {"role": "assistant", "content": case["completion"]},
         ],
     }
+    for field in PASSTHROUGH_FIELDS:
+        if field in case:
+            record[field] = case[field]
+    return record
 
 
 def build_dataset(source_path: Path, output_dir: Path, split_config: SplitConfig) -> dict[str, Any]:
     source_cases = [_validate_case(case) for case in load_records(source_path)]
+    case_ids = [case["case_id"] for case in source_cases]
+    if len(case_ids) != len(set(case_ids)):
+        raise ValueError(f"Duplicate case_id values found in {source_path}.")
     split_map = _split_cases(source_cases, split_config)
     ensure_dir(output_dir)
     counts: dict[str, int] = {}
@@ -77,4 +92,3 @@ def build_dataset(source_path: Path, output_dir: Path, split_config: SplitConfig
     }
     write_json(output_dir / "manifest.json", manifest)
     return manifest
-

@@ -5,6 +5,7 @@ from pathlib import Path
 
 from mac_pipeline.compare import compare_runs
 from mac_pipeline.dataset import build_dataset
+from mac_pipeline.docs_seed import import_doc_examples, merge_case_files
 from mac_pipeline.eval import evaluate_adapter
 from mac_pipeline.mlx import train_adapter
 from mac_pipeline.types import ExperimentConfig
@@ -40,6 +41,20 @@ def cmd_build_dataset(args: argparse.Namespace) -> None:
     manifest = build_dataset(source_path, dataset_dir, config.splits)
     print(f"Built dataset at {dataset_dir}")
     print(manifest)
+
+
+def cmd_import_doc_seeds(args: argparse.Namespace) -> None:
+    manifest_path = Path(args.manifest).resolve()
+    output_path = Path(args.output).resolve()
+    cases = import_doc_examples(manifest_path, output_path)
+    print(f"Imported {len(cases)} official docs examples into {output_path}")
+
+
+def cmd_merge_case_files(args: argparse.Namespace) -> None:
+    input_paths = [Path(path).resolve() for path in args.inputs]
+    output_path = Path(args.output).resolve()
+    merged = merge_case_files(input_paths, output_path)
+    print(f"Merged {len(merged)} cases into {output_path}")
 
 
 def cmd_train(args: argparse.Namespace) -> None:
@@ -126,13 +141,22 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     for name, handler in {
+        "import-doc-seeds": cmd_import_doc_seeds,
+        "merge-case-files": cmd_merge_case_files,
         "build-dataset": cmd_build_dataset,
         "train": cmd_train,
         "eval": cmd_eval,
         "run": cmd_run,
     }.items():
         subparser = subparsers.add_parser(name)
-        subparser.add_argument("--config", required=True)
+        if name in {"build-dataset", "train", "eval", "run"}:
+            subparser.add_argument("--config", required=True)
+        if name == "import-doc-seeds":
+            subparser.add_argument("--manifest", required=True)
+            subparser.add_argument("--output", required=True)
+        if name == "merge-case-files":
+            subparser.add_argument("--inputs", nargs="+", required=True)
+            subparser.add_argument("--output", required=True)
         if name in {"build-dataset", "run"}:
             subparser.add_argument("--source")
         subparser.set_defaults(func=handler)

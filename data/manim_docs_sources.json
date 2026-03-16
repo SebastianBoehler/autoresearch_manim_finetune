@@ -1,0 +1,98 @@
+[
+  {
+    "case_id": "docs_create_circle",
+    "source_name": "CreateCircle",
+    "source_url": "https://docs.manim.community/en/stable/tutorials/quickstart.html",
+    "source_anchor": "animating-a-circle",
+    "prompt": "Create a short Manim scene that draws a filled pink circle in the center of the frame using the basic Create animation.",
+    "tags": ["docs", "quickstart", "shape", "intro"],
+    "must_contain": ["Circle(", "set_fill(", "Create("],
+    "must_not_contain": ["Axes("],
+    "target_duration_seconds": 5,
+    "target_duration_tolerance_seconds": 2
+  },
+  {
+    "case_id": "docs_square_to_circle",
+    "source_name": "SquareToCircle",
+    "source_url": "https://docs.manim.community/en/stable/tutorials/quickstart.html",
+    "source_anchor": "transforming-a-square-into-a-circle",
+    "prompt": "Create a basic Manim scene that first draws a rotated square and then transforms it into a filled circle.",
+    "tags": ["docs", "quickstart", "transform", "shape"],
+    "must_contain": ["Square(", "Circle(", "Transform("],
+    "must_not_contain": ["Axes("],
+    "target_duration_seconds": 8,
+    "target_duration_tolerance_seconds": 3
+  },
+  {
+    "case_id": "docs_vector_arrow",
+    "source_name": "VectorArrow",
+    "source_url": "https://docs.manim.community/en/stable/examples.html",
+    "source_anchor": "vectorarrow",
+    "prompt": "Build a Manim scene showing the origin, a vector arrow from (0, 0) to (2, 2), and text labels for both coordinates on a NumberPlane.",
+    "tags": ["docs", "vector", "geometry", "plane"],
+    "must_contain": ["Dot(", "Arrow(", "NumberPlane(", "Text("],
+    "must_not_contain": ["BarChart("],
+    "target_duration_seconds": 5,
+    "target_duration_tolerance_seconds": 2
+  },
+  {
+    "case_id": "docs_moving_frame_box",
+    "source_name": "MovingFrameBox",
+    "source_url": "https://docs.manim.community/en/stable/examples.html",
+    "source_anchor": "movingframebox",
+    "prompt": "Write a Manim math scene that displays the product rule and moves a surrounding highlight box from one derivative term to the other.",
+    "tags": ["docs", "mathtex", "highlight", "algebra"],
+    "must_contain": ["MathTex(", "SurroundingRectangle(", "ReplacementTransform("],
+    "must_not_contain": ["Axes("],
+    "target_duration_seconds": 10,
+    "target_duration_tolerance_seconds": 3
+  },
+  {
+    "case_id": "docs_sin_and_cos_plot",
+    "source_name": "SinAndCosFunctionPlot",
+    "source_url": "https://docs.manim.community/en/stable/examples.html",
+    "source_anchor": "sinandcosfunctionplot",
+    "prompt": "Create a Manim plotting scene with axes that draws both the sine and cosine curves, labels them, and highlights the graphing setup clearly.",
+    "tags": ["docs", "plot", "axes", "trigonometry"],
+    "must_contain": ["Axes(", ".plot(", "MathTex("],
+    "must_not_contain": ["ThreeDScene"],
+    "target_duration_seconds": 10,
+    "target_duration_tolerance_seconds": 3
+  },
+  {
+    "case_id": "docs_argmin_example",
+    "source_name": "ArgMinExample",
+    "source_url": "https://docs.manim.community/en/stable/examples.html",
+    "source_anchor": "argminexample",
+    "prompt": "Create a Manim scene that plots a convex function, tracks a moving point on the curve with a ValueTracker, and marks the argmin with a dashed line and label.",
+    "tags": ["docs", "plot", "tracker", "optimization"],
+    "must_contain": ["Axes(", "ValueTracker(", "DashedLine(", "MathTex("],
+    "must_not_contain": ["ThreeDScene"],
+    "target_duration_seconds": 15,
+    "target_duration_tolerance_seconds": 4
+  },
+  {
+    "case_id": "docs_graph_area_plot",
+    "source_name": "GraphAreaPlot",
+    "source_url": "https://docs.manim.community/en/stable/examples.html",
+    "source_anchor": "graphareaplot",
+    "prompt": "Create a Manim graph scene with two plotted curves, vertical guide lines, labeled x-values, and shaded areas between the curves over two intervals.",
+    "tags": ["docs", "plot", "area", "axes"],
+    "must_contain": ["Axes(", ".plot(", "get_area(", "get_vertical_line("],
+    "must_not_contain": ["ThreeDAxes("],
+    "target_duration_seconds": 15,
+    "target_duration_tolerance_seconds": 4
+  },
+  {
+    "case_id": "docs_boolean_operations",
+    "source_name": "BooleanOperations",
+    "source_url": "https://docs.manim.community/en/stable/examples.html",
+    "source_anchor": "booleanoperations",
+    "prompt": "Build a Manim scene that demonstrates boolean operations on overlapping ellipses, including intersection, union, exclusion, and difference with labels.",
+    "tags": ["docs", "boolean", "geometry", "shapes"],
+    "must_contain": ["Ellipse(", "Intersection(", "Union(", "Exclusion("],
+    "must_not_contain": ["Axes("],
+    "target_duration_seconds": 20,
+    "target_duration_tolerance_seconds": 5
+  }
+]

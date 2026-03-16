@@ -5,6 +5,7 @@ description = "Autonomous pretraining research swarm"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "beautifulsoup4>=4.14.2",
     "matplotlib>=3.10.8",
     "manim>=0.20.1; sys_platform == 'darwin' and platform_machine == 'arm64'",
     "mlx-lm[train]>=0.31.1; sys_platform == 'darwin' and platform_machine == 'arm64'",

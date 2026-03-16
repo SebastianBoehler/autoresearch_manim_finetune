@@ -46,6 +46,18 @@ uv sync
 
 ## Quick Start
 
+Refresh the official-docs seed set and merge it with the local hand-written cases:
+
+```bash
+uv run python -m mac_pipeline.cli import-doc-seeds \
+  --manifest data/manim_docs_sources.json \
+  --output data/manim_docs_seed_cases.jsonl
+
+uv run python -m mac_pipeline.cli merge-case-files \
+  --inputs data/manim_seed_cases.json data/manim_docs_seed_cases.jsonl \
+  --output data/manim_bootstrap_cases.jsonl
+```
+
 Build the train/valid/test splits from the seed dataset:
 
 ```bash
@@ -83,7 +95,12 @@ uv run python -m mac_pipeline.cli compare \
 mac_pipeline/                 MLX fine-tuning, evaluation, and A/B tooling
 configs/m4_max_qwen25coder_3b.json
                               Baseline experiment config for Apple Silicon
-data/manim_seed_cases.json    Curated starter dataset
+data/manim_seed_cases.json    Hand-written starter dataset
+data/manim_docs_sources.json  Official docs example manifest
+data/manim_docs_seed_cases.jsonl
+                              Imported official docs examples
+data/manim_bootstrap_cases.jsonl
+                              Combined bootstrap dataset used by the config
 program.md                    Autoresearch loop instructions for the agent
 results.tsv                   Run log for keep / discard decisions
 prepare.py, train.py          Legacy upstream CUDA baseline
@@ -91,15 +108,16 @@ prepare.py, train.py          Legacy upstream CUDA baseline
 
 ## Dataset Guidance
 
-The seed dataset is intentionally small. It is there to bootstrap the loop, not to finish the job.
+The bootstrap dataset is intentionally small. It is there to bootstrap the loop, not to finish the job.
 
 Good next expansions:
 
 1. Add your own known-good Manim scenes first.
-2. Create prompt variants around the same concept without changing correctness criteria.
-3. Add hard evaluation-only prompts that never enter training.
-4. Keep prompts concrete: scene objective, visual constraints, and required constructs.
-5. Prefer short, correct, idiomatic scenes over flashy long ones.
+2. Import more official Manim examples through `data/manim_docs_sources.json`.
+3. Create prompt variants around the same concept without changing correctness criteria.
+4. Add hard evaluation-only prompts that never enter training.
+5. Keep prompts concrete: scene objective, visual constraints, and required constructs.
+6. Prefer short, correct, idiomatic scenes over flashy long ones.
 
 ## Using the Karpathy Loop
 

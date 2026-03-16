@@ -1,7 +1,7 @@
 {
   "name": "m4-max-qwen25coder-3b-baseline",
   "base_model": "Qwen/Qwen2.5-Coder-3B-Instruct",
-  "source_dataset": "data/manim_seed_cases.json",
+  "source_dataset": "data/manim_bootstrap_cases.jsonl",
   "dataset_dir": "artifacts/datasets/m4-max-qwen25coder-3b",
   "adapter_path": "artifacts/adapters/m4-max-qwen25coder-3b",
   "eval_output_path": "artifacts/evals/m4-max-qwen25coder-3b.json",
@@ -54,4 +54,3 @@
     }
   }
 }
-
