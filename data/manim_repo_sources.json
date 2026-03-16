@@ -12,5 +12,12 @@
     "license": "MIT",
     "domain": "chemistry",
     "include_paths": ["examples"]
+  },
+  {
+    "name": "manim-tutorial",
+    "repo_url": "https://github.com/jeertmans/manim-tutorial.git",
+    "license": "MIT",
+    "domain": "tutorial",
+    "include_paths": ["examples"]
   }
 ]
