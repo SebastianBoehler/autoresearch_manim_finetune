@@ -26,11 +26,15 @@ class TrainConfig:
     steps_per_report: int = 10
     steps_per_eval: int = 25
     grad_accumulation_steps: int = 8
-    save_every: int = 100
+    save_every: int = 25
     test_batches: int = -1
     max_seq_length: int = 2048
     grad_checkpoint: bool = True
     seed: int = 42
+    early_stopping_patience: int = 3
+    early_stopping_min_delta: float = 0.01
+    early_stopping_chunk_size: int = 25
+    restore_best_checkpoint: bool = True
 
 
 @dataclass
@@ -107,4 +111,3 @@ class ExperimentConfig:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
-

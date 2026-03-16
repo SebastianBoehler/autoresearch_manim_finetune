@@ -1,7 +1,7 @@
 {
   "name": "m4-max-qwen25coder-3b-baseline",
   "base_model": "Qwen/Qwen2.5-Coder-3B-Instruct",
-  "source_dataset": "data/manim_bootstrap_cases.jsonl",
+  "source_dataset": "data/manim_full_bootstrap_cases_v2.jsonl",
   "dataset_dir": "artifacts/datasets/m4-max-qwen25coder-3b",
   "adapter_path": "artifacts/adapters/m4-max-qwen25coder-3b",
   "eval_output_path": "artifacts/evals/m4-max-qwen25coder-3b.json",
@@ -24,11 +24,15 @@
     "steps_per_report": 10,
     "steps_per_eval": 25,
     "grad_accumulation_steps": 8,
-    "save_every": 100,
+    "save_every": 25,
     "test_batches": -1,
     "max_seq_length": 2048,
     "grad_checkpoint": true,
-    "seed": 42
+    "seed": 42,
+    "early_stopping_patience": 3,
+    "early_stopping_min_delta": 0.01,
+    "early_stopping_chunk_size": 25,
+    "restore_best_checkpoint": true
   },
   "generation": {
     "max_tokens": 1024,
