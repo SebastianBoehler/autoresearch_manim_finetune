@@ -8,6 +8,8 @@ from mac_pipeline.dataset import build_dataset
 from mac_pipeline.docs_seed import import_doc_examples, merge_case_files
 from mac_pipeline.eval import evaluate_adapter
 from mac_pipeline.mlx import train_adapter
+from mac_pipeline.plotting import plot_eval_comparison
+from mac_pipeline.repo_ingest import filter_repo_candidates, import_repo_examples
 from mac_pipeline.types import ExperimentConfig
 from mac_pipeline.utils import append_tsv, resolve_path, write_json
 
@@ -57,6 +59,25 @@ def cmd_merge_case_files(args: argparse.Namespace) -> None:
     print(f"Merged {len(merged)} cases into {output_path}")
 
 
+def cmd_import_repo_examples(args: argparse.Namespace) -> None:
+    output_path = Path(args.output).resolve()
+    metadata_path = Path(args.metadata).resolve() if args.metadata else None
+    cases = import_repo_examples(Path(args.manifest).resolve(), output_path, metadata_path)
+    print(f"Imported {len(cases)} repo-derived candidates into {output_path}")
+    if metadata_path is not None:
+        print(f"Metadata written to {metadata_path}")
+
+
+def cmd_filter_repo_candidates(args: argparse.Namespace) -> None:
+    summary = filter_repo_candidates(
+        input_path=Path(args.input).resolve(),
+        plain_output_path=Path(args.plain_output).resolve(),
+        custom_output_path=Path(args.custom_output).resolve() if args.custom_output else None,
+        summary_path=Path(args.summary).resolve() if args.summary else None,
+    )
+    print(summary)
+
+
 def cmd_train(args: argparse.Namespace) -> None:
     config, repo_root = _load_config(Path(args.config))
     dataset_dir = resolve_path(repo_root, config.dataset_dir)
@@ -90,13 +111,18 @@ def _append_results(config: ExperimentConfig, repo_root: Path, payload: dict) ->
 
 def cmd_eval(args: argparse.Namespace) -> None:
     config, repo_root = _load_config(Path(args.config))
+    if args.base_only:
+        config.run_loss_eval = False
     dataset_dir = resolve_path(repo_root, config.dataset_dir)
     _require_path(dataset_dir / "test.jsonl", "Test split")
-    adapter_path = resolve_path(repo_root, config.adapter_path)
-    _require_path(adapter_path, "Adapter path")
-    output_path = resolve_path(repo_root, config.eval_output_path)
+    adapter_path = None
+    if not args.base_only:
+        adapter_path = resolve_path(repo_root, config.adapter_path)
+        _require_path(adapter_path, "Adapter path")
+    output_path = resolve_path(repo_root, args.output or config.eval_output_path)
     payload = evaluate_adapter(config, dataset_dir, adapter_path, output_path)
-    _append_results(config, repo_root, payload)
+    if not args.base_only:
+        _append_results(config, repo_root, payload)
     print(f"Evaluation written to {output_path}")
     print(payload["summary"])
 
@@ -136,17 +162,29 @@ def cmd_compare(args: argparse.Namespace) -> None:
     print(result)
 
 
+def cmd_plot_comparison(args: argparse.Namespace) -> None:
+    plot_eval_comparison(
+        baseline_eval_path=Path(args.baseline).resolve(),
+        finetuned_eval_path=Path(args.finetuned).resolve(),
+        output_path=Path(args.output).resolve(),
+    )
+    print(f"Comparison plot written to {Path(args.output).resolve()}")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="MLX Manim fine-tuning pipeline")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     for name, handler in {
         "import-doc-seeds": cmd_import_doc_seeds,
+        "import-repo-examples": cmd_import_repo_examples,
+        "filter-repo-candidates": cmd_filter_repo_candidates,
         "merge-case-files": cmd_merge_case_files,
         "build-dataset": cmd_build_dataset,
         "train": cmd_train,
         "eval": cmd_eval,
         "run": cmd_run,
+        "plot-comparison": cmd_plot_comparison,
     }.items():
         subparser = subparsers.add_parser(name)
         if name in {"build-dataset", "train", "eval", "run"}:
@@ -154,11 +192,27 @@ def build_parser() -> argparse.ArgumentParser:
         if name == "import-doc-seeds":
             subparser.add_argument("--manifest", required=True)
             subparser.add_argument("--output", required=True)
+        if name == "import-repo-examples":
+            subparser.add_argument("--manifest", required=True)
+            subparser.add_argument("--output", required=True)
+            subparser.add_argument("--metadata")
+        if name == "filter-repo-candidates":
+            subparser.add_argument("--input", required=True)
+            subparser.add_argument("--plain-output", required=True)
+            subparser.add_argument("--custom-output")
+            subparser.add_argument("--summary")
         if name == "merge-case-files":
             subparser.add_argument("--inputs", nargs="+", required=True)
             subparser.add_argument("--output", required=True)
+        if name == "eval":
+            subparser.add_argument("--base-only", action="store_true")
+            subparser.add_argument("--output")
         if name in {"build-dataset", "run"}:
             subparser.add_argument("--source")
+        if name == "plot-comparison":
+            subparser.add_argument("--baseline", required=True)
+            subparser.add_argument("--finetuned", required=True)
+            subparser.add_argument("--output", required=True)
         subparser.set_defaults(func=handler)
 
     compare = subparsers.add_parser("compare")

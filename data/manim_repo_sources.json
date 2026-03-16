@@ -1,0 +1,16 @@
+[
+  {
+    "name": "ManimML",
+    "repo_url": "https://github.com/helblazer811/ManimML.git",
+    "license": "MIT",
+    "domain": "ml",
+    "include_paths": ["examples"]
+  },
+  {
+    "name": "manim-Chemistry",
+    "repo_url": "https://github.com/UnMolDeQuimica/manim-Chemistry.git",
+    "license": "MIT",
+    "domain": "chemistry",
+    "include_paths": ["examples"]
+  }
+]

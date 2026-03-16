@@ -5,6 +5,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -30,7 +31,9 @@ def _base_name(node: ast.expr) -> str:
 
 
 def detect_scene_class(code: str) -> str | None:
-    tree = ast.parse(code)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", SyntaxWarning)
+        tree = ast.parse(code)
     for node in tree.body:
         if isinstance(node, ast.ClassDef):
             if any(_base_name(base) in SCENE_BASES for base in node.bases):
@@ -121,7 +124,12 @@ def score_case(case: dict[str, Any], code: str, render_enabled: bool, weights: M
     }
 
 
-def evaluate_adapter(config: ExperimentConfig, dataset_dir: Path, adapter_path: Path, output_path: Path) -> dict[str, Any]:
+def evaluate_adapter(
+    config: ExperimentConfig,
+    dataset_dir: Path,
+    adapter_path: Path | None,
+    output_path: Path,
+) -> dict[str, Any]:
     records = load_records(dataset_dir / "test.jsonl")
     max_cases = config.evaluation.max_cases or len(records)
     selected = records[:max_cases]
@@ -166,7 +174,7 @@ def evaluate_adapter(config: ExperimentConfig, dataset_dir: Path, adapter_path: 
     payload = {
         "run_name": config.name,
         "base_model": config.base_model,
-        "adapter_path": str(adapter_path),
+        "adapter_path": str(adapter_path) if adapter_path is not None else None,
         "dataset_dir": str(dataset_dir),
         "summary": {
             "num_cases": len(per_case),
