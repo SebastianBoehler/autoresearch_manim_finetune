@@ -13,6 +13,9 @@ SOURCE_SPECS = [
     ("data/manim_converted_cases.jsonl", ["tier:gold", "source:local"]),
     ("data/manim_converted_cases_round2.jsonl", ["tier:gold", "source:local"]),
     ("data/manim_converted_cases_round3.json", ["tier:gold", "source:local"]),
+    ("data/manim_animation_cases.json", ["tier:gold", "source:docs"]),
+    ("data/manim_coverage_expansion_cases.json", ["tier:gold", "source:local"]),
+    ("data/manim_feature_fusion_cases.json", ["tier:gold", "source:local"]),
     ("data/manim_longform_cases.json", ["tier:gold", "source:local"]),
     ("data/manim_repo_plain_verified.jsonl", ["tier:silver", "source:repo"]),
 ]

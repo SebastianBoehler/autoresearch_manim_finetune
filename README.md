@@ -142,6 +142,12 @@ data/manim_converted_cases.jsonl
                               Plain-Manim ML and chemistry conversions inspired by MIT repos
 data/manim_converted_cases_round3.json
                               Additional converted ML and chemistry gold cases
+data/manim_animation_cases.json
+                              Animation-focused gold cases derived from official docs APIs and guides
+data/manim_coverage_expansion_cases.json
+                              Additional coverage cases for underrepresented Manim APIs like polar plots, zoomed scenes, tables, stream lines, and braces
+data/manim_feature_fusion_cases.json
+                              Derived gold cases that fuse multiple Manim features into one scene
 data/manim_longform_cases.json
                               Curated 30s and 50s long-form scenes with richer animation structure
 data/manim_repo_sources.json  GitHub repo source manifest

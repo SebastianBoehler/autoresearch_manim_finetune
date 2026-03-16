@@ -1,0 +1,90 @@
+[
+  {
+    "case_id": "math_polar_rose_curve_demo",
+    "tags": ["coverage", "math", "polar", "10s"],
+    "entry_scene": "PolarRoseCurveDemo",
+    "prompt": "Create a 10-second Manim scene on a PolarPlane that draws a rose curve and labels the polar setup clearly.",
+    "must_contain": ["PolarPlane(", "plot_polar_graph(", "Text("],
+    "must_not_contain": ["ThreeDScene"],
+    "target_duration_seconds": 10,
+    "target_duration_tolerance_seconds": 3,
+    "completion": "from manim import *\n\nclass PolarRoseCurveDemo(Scene):\n    def construct(self):\n        title = Text(\"A Polar Rose Curve\", font_size=34).to_edge(UP)\n        plane = PolarPlane(radius_max=3).add_coordinates()\n        graph = plane.plot_polar_graph(lambda theta: 2 * np.sin(5 * theta), [0, TAU], color=ORANGE)\n        caption = Text(\"Polar curves encode radius as a function of angle.\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(plane), run_time=3)\n        self.play(Create(graph), FadeIn(caption), run_time=4)\n        self.wait(3)\n"
+  },
+  {
+    "case_id": "physics_streamlines_divergence_demo",
+    "tags": ["coverage", "physics", "streamlines", "10s"],
+    "entry_scene": "StreamlinesDivergenceDemo",
+    "prompt": "Create a 10-second Manim scene showing stream lines in a simple outward flow field with a short caption explaining divergence.",
+    "must_contain": ["StreamLines(", "start_animation(", "Text("],
+    "must_not_contain": ["ThreeDScene"],
+    "target_duration_seconds": 10,
+    "target_duration_tolerance_seconds": 3,
+    "completion": "from manim import *\n\nclass StreamlinesDivergenceDemo(Scene):\n    def construct(self):\n        title = Text(\"Stream Lines for an Outward Flow\", font_size=34).to_edge(UP)\n        stream_lines = StreamLines(\n            lambda pos: 0.35 * pos + 0.1 * RIGHT,\n            stroke_width=2,\n            max_anchors_per_line=30,\n            x_range=[-4, 4, 0.5],\n            y_range=[-3, 3, 0.5],\n        )\n        caption = Text(\"Divergence means nearby trajectories spread apart.\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), run_time=2)\n        self.add(stream_lines)\n        stream_lines.start_animation(warm_up=False, flow_speed=1.4)\n        self.play(FadeIn(caption), run_time=2)\n        self.wait(stream_lines.virtual_time / stream_lines.flow_speed)\n        self.wait(1)\n"
+  },
+  {
+    "case_id": "camera_zoomed_pixel_focus",
+    "tags": ["coverage", "camera", "zoomed", "20s"],
+    "entry_scene": "ZoomedPixelFocus",
+    "prompt": "Create a 20-second ZoomedScene that zooms into a small pixel image, moves the zoom frame to a highlighted pixel block, and then pops the zoomed display back out.",
+    "must_contain": ["ZoomedScene", "activate_zooming(", "get_zoomed_display_pop_out_animation(", "ImageMobject("],
+    "must_not_contain": ["ThreeDScene"],
+    "target_duration_seconds": 20,
+    "target_duration_tolerance_seconds": 5,
+    "completion": "from manim import *\n\nclass ZoomedPixelFocus(ZoomedScene):\n    def __init__(self, **kwargs):\n        super().__init__(\n            zoom_factor=0.35,\n            zoomed_display_height=2.2,\n            zoomed_display_width=4.2,\n            image_frame_stroke_width=12,\n            zoomed_camera_config={\"default_frame_stroke_width\": 3},\n            **kwargs,\n        )\n\n    def construct(self):\n        title = Text(\"ZoomedScene Is Useful for Tiny Motion Details\", font_size=32).to_edge(UP)\n        image = ImageMobject(np.uint8([\n            [[15, 25, 120, 255], [30, 60, 160, 255], [180, 80, 40, 255], [230, 210, 60, 255]],\n            [[40, 100, 180, 255], [60, 150, 210, 255], [210, 110, 70, 255], [240, 220, 110, 255]],\n            [[80, 140, 70, 255], [100, 200, 100, 255], [220, 170, 90, 255], [250, 235, 150, 255]],\n            [[120, 170, 90, 255], [150, 220, 140, 255], [235, 205, 120, 255], [255, 245, 180, 255]],\n        ])).scale(1.6)\n        focus = SurroundingRectangle(image, color=GRAY_C, buff=0.02)\n        target_dot = Dot(image.get_center() + RIGHT * 0.55 + DOWN * 0.55, color=YELLOW, radius=0.05)\n        frame = self.zoomed_camera.frame\n        display = self.zoomed_display\n        display.shift(DOWN * 2.1)\n        frame.move_to(target_dot)\n        frame.set_color(PURPLE)\n        display.display_frame.set_color(RED_D)\n        caption = Text(\"The zoom window can travel, expand, and then fold back in.\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), FadeIn(image), Create(focus), FadeIn(target_dot), run_time=3)\n        self.play(Create(frame), run_time=2)\n        self.activate_zooming()\n        self.play(self.get_zoomed_display_pop_out_animation(), run_time=3)\n        self.play(frame.animate.shift(LEFT * 0.8 + UP * 0.8), run_time=3)\n        self.play(display.animate.scale(1.2), FadeIn(caption), run_time=3)\n        self.play(self.get_zoomed_display_pop_out_animation(), rate_func=lambda t: smooth(1 - t), run_time=3)\n        self.wait(1)\n"
+  },
+  {
+    "case_id": "math_brace_interval_measurement",
+    "tags": ["coverage", "math", "brace", "measurement", "5s"],
+    "entry_scene": "BraceIntervalMeasurement",
+    "prompt": "Create a short Manim scene on a NumberLine that marks an interval with two dots and uses BraceBetweenPoints to label the interval length.",
+    "must_contain": ["NumberLine(", "BraceBetweenPoints(", "MathTex(", "Dot("],
+    "must_not_contain": ["ThreeDScene"],
+    "target_duration_seconds": 5,
+    "target_duration_tolerance_seconds": 2,
+    "completion": "from manim import *\n\nclass BraceIntervalMeasurement(Scene):\n    def construct(self):\n        line = NumberLine(x_range=[-1, 6, 1], include_numbers=True, length=8)\n        left = Dot(line.n2p(1), color=BLUE_D)\n        right = Dot(line.n2p(4), color=BLUE_D)\n        brace = BraceBetweenPoints(left.get_bottom(), right.get_bottom(), DOWN)\n        label = MathTex(\"3\\ units\", color=YELLOW_D).next_to(brace, DOWN)\n\n        self.play(Create(line), FadeIn(left), FadeIn(right), run_time=2)\n        self.play(GrowFromCenter(brace), FadeIn(label), run_time=2)\n        self.wait(1)\n"
+  },
+  {
+    "case_id": "stats_math_table_highlight",
+    "tags": ["coverage", "stats", "table", "10s"],
+    "entry_scene": "MathTableHighlight",
+    "prompt": "Create a 10-second Manim scene with a small MathTable of experiment results and highlight the best row with a caption.",
+    "must_contain": ["MathTable(", "SurroundingRectangle(", "Text("],
+    "must_not_contain": ["ThreeDScene"],
+    "target_duration_seconds": 10,
+    "target_duration_tolerance_seconds": 3,
+    "completion": "from manim import *\n\nclass MathTableHighlight(Scene):\n    def construct(self):\n        title = Text(\"A MathTable Can Summarize Model Results\", font_size=32).to_edge(UP)\n        table = MathTable(\n            [[\"0.71\", \"0.62\"], [\"0.68\", \"0.75\"], [\"0.64\", \"0.81\"]],\n            row_labels=[Text(\"A\"), Text(\"B\"), Text(\"C\")],\n            col_labels=[Text(\"loss\"), Text(\"score\")],\n            include_outer_lines=True,\n        ).scale(0.75)\n        highlight = SurroundingRectangle(table.get_rows()[3], color=YELLOW_D, buff=0.08)\n        caption = Text(\"Row C trades lower loss for the strongest case score.\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(table), run_time=4)\n        self.play(Create(highlight), FadeIn(caption), run_time=3)\n        self.wait(3)\n"
+  },
+  {
+    "case_id": "math_parametric_curve_probe",
+    "tags": ["coverage", "math", "parametric", "10s"],
+    "entry_scene": "ParametricCurveProbe",
+    "prompt": "Create a 10-second Manim scene with a ParametricFunction, a dot moving along it, and a traced path captioned as a parametric trajectory.",
+    "must_contain": ["ParametricFunction(", "MoveAlongPath(", "TracedPath(", "Axes("],
+    "must_not_contain": ["ThreeDScene"],
+    "target_duration_seconds": 10,
+    "target_duration_tolerance_seconds": 3,
+    "completion": "from manim import *\n\nclass ParametricCurveProbe(Scene):\n    def construct(self):\n        title = Text(\"Parametric Curves Trace Position Over Time\", font_size=32).to_edge(UP)\n        axes = Axes(x_range=[-4, 4, 1], y_range=[-3, 3, 1], x_length=8, y_length=5, tips=False)\n        curve = ParametricFunction(lambda t: np.array([2.6 * np.cos(t), 1.5 * np.sin(2 * t), 0]), t_range=[0, TAU], color=PURPLE_D)\n        dot = Dot(curve.get_start(), color=YELLOW, radius=0.08)\n        trace = TracedPath(dot.get_center, stroke_color=YELLOW_D, stroke_width=4)\n        caption = Text(\"The parameter controls where the probe sits on the curve.\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(axes), Create(curve), run_time=4)\n        self.add(trace)\n        self.play(MoveAlongPath(dot, curve), FadeIn(dot), FadeIn(caption), rate_func=linear, run_time=4)\n        self.wait(2)\n"
+  },
+  {
+    "case_id": "stats_probability_numberline_masses",
+    "tags": ["coverage", "stats", "probability", "number-line", "10s"],
+    "entry_scene": "ProbabilityNumberLineMasses",
+    "prompt": "Create a 10-second Manim scene on a NumberLine that marks a small discrete probability distribution with vertical lines, dots, and probability labels.",
+    "must_contain": ["NumberLine(", "Line(", "Dot(", "MathTex("],
+    "must_not_contain": ["ThreeDScene"],
+    "target_duration_seconds": 10,
+    "target_duration_tolerance_seconds": 3,
+    "completion": "from manim import *\n\nclass ProbabilityNumberLineMasses(Scene):\n    def construct(self):\n        title = Text(\"Discrete Probability Mass on a Number Line\", font_size=32).to_edge(UP)\n        line = NumberLine(x_range=[0, 6, 1], include_numbers=True, length=8)\n        xs = [1, 2, 4, 5]\n        probs = [0.2, 0.35, 0.3, 0.15]\n        stems = VGroup()\n        labels = VGroup()\n        dots = VGroup()\n        for x, p in zip(xs, probs):\n            base = line.n2p(x)\n            top = base + UP * (2.8 * p + 0.3)\n            stems.add(Line(base, top, color=BLUE_D, stroke_width=6))\n            dots.add(Dot(top, color=YELLOW_D, radius=0.06))\n            labels.add(MathTex(f\"{p:.2f}\", color=YELLOW_D).next_to(top, UP, buff=0.12))\n        caption = Text(\"Each stem height encodes the probability mass at one value.\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(line), run_time=3)\n        self.play(LaggedStart(*[Create(stem) for stem in stems], lag_ratio=0.15), LaggedStart(*[FadeIn(dot) for dot in dots], lag_ratio=0.15), LaggedStart(*[FadeIn(label) for label in labels], lag_ratio=0.15), FadeIn(caption), run_time=4)\n        self.wait(3)\n"
+  },
+  {
+    "case_id": "chart_bar_growth_with_update",
+    "tags": ["coverage", "chart", "bar-chart", "10s"],
+    "entry_scene": "BarGrowthWithUpdate",
+    "prompt": "Create a 10-second Manim scene with a BarChart that first shows baseline values and then updates the bars to a second set of values with a caption about growth.",
+    "must_contain": ["BarChart(", "change_bar_values(", "Text("],
+    "must_not_contain": ["ThreeDScene"],
+    "target_duration_seconds": 10,
+    "target_duration_tolerance_seconds": 3,
+    "completion": "from manim import *\n\nclass BarGrowthWithUpdate(Scene):\n    def construct(self):\n        title = Text(\"Bars Can Update Over Time\", font_size=34).to_edge(UP)\n        chart = BarChart(\n            values=[2, 3, 2.5],\n            bar_names=[\"A\", \"B\", \"C\"],\n            y_range=[0, 6, 1],\n            y_length=4.5,\n            x_length=7,\n        )\n        chart.set_color_by_gradient(BLUE_D, TEAL_D)\n        caption = Text(\"The same chart can animate from a baseline to a new state.\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(chart), run_time=4)\n        self.play(chart.animate.change_bar_values([3.5, 5.0, 4.2]), FadeIn(caption), run_time=3)\n        self.wait(3)\n"
+  }
+]
