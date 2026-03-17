@@ -156,6 +156,10 @@ data/manim_targeted_composite_cases.json
                               Targeted composite scenes for weak spots like camera motion, 3D walkthroughs, stream lines, and graph-table hybrids
 data/manim_targeted_composite_variations.json
                               Variations on the targeted composite patterns so the model sees the same API families in multiple scene choreographies
+data/manim_underrepresented_longform_cases.json
+                              Longer animation-heavy cases that specifically patch still-underrepresented areas like complex-plane reasoning and boolean geometry
+data/manim_3b1b_style_cases.json
+                              Style-inspired explanatory math scenes that mimic 3Blue1Brown pacing and reveal structure while staying native to Manim Community Edition
 data/manim_repo_sources.json  GitHub repo source manifest
 data/manim_repo_raw_candidates.jsonl
                               Imported repo-derived scene candidates
@@ -190,9 +194,22 @@ Current dataset structure:
 - Composite long-form cases deliberately combine multiple APIs like trackers, tables, traced paths, residual-style flow diagrams, and staged captions inside one scene class so the model sees longer coherent walkthroughs without training on raw multi-scene files.
 - A separate targeted composite layer now pushes specifically on camera motion, 3D surface walkthroughs, stream-line explanations, and graph-table hybrids where the model has recently struggled.
 - Additional targeted variations reuse those same weak API families with different pacing and layouts so the model does not only memorize one canonical template for each hard pattern.
+- Underrepresented long-form cases are added as their own source layer so rare but important APIs such as `ComplexPlane` and boolean geometry operations can be expanded without bloating the more general curated files.
+- A dedicated 3b1b-style source layer captures progressive reveal, basis-vector reasoning, secant-to-tangent narration, and discrete-to-continuous visual storytelling patterns without copying the original video code.
 - Experiment configs can filter by tags without forking the dataset file.
 - Repo-derived plain-Manim examples stay inside the same dataset and are tagged `tier:silver` instead of being stored as a separate training corpus.
 - Source manifests and import outputs remain in `data/` for provenance and rebuilds, but `data/manim_dataset.jsonl` is the only dataset file the experiment configs should point at.
+
+OpenRouter frontier benchmark:
+```bash
+export OPENROUTER_API_KEY=...
+uv run python -m mac_pipeline.cli benchmark --config configs/openrouter_frontier_benchmark.json
+```
+
+- The benchmark uses the same held-out `test.jsonl` split as the local eval pipeline and writes one JSON file per target plus a leaderboard to `artifacts/benchmarks/openrouter-frontier/`.
+- The default benchmark lineup in [openrouter_frontier_benchmark.json](/Users/sebastianboehler/Documents/GitHub/autoresearch_manim_finetune/configs/openrouter_frontier_benchmark.json) compares the local base model, the local fine-tuned adapter, and OpenRouter-hosted Claude frontier models on identical prompts and scoring rules.
+- OpenRouter requests use the official `chat/completions` API endpoint with OpenAI-style `messages`. `HTTP-Referer` and `X-Title` are configurable in the benchmark config for attribution.
+- Remote benchmark runs will incur API cost. Keep `evaluation.max_cases` small while iterating on the pipeline.
 
 ## Using the Karpathy Loop
 
