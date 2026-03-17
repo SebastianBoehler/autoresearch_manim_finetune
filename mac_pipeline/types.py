@@ -74,6 +74,27 @@ class EvaluationConfig:
 
 
 @dataclass
+class OpenRouterConfig:
+    api_base: str = "https://openrouter.ai/api/v1"
+    api_key_env: str = "OPENROUTER_API_KEY"
+    site_url: str | None = None
+    app_name: str = "autoresearch-manim-finetune"
+    timeout_seconds: int = 180
+    route: str | None = None
+    transforms: list[str] = field(default_factory=list)
+
+
+@dataclass
+class BenchmarkTargetConfig:
+    name: str
+    backend: str
+    model: str
+    adapter_path: str | None = None
+    route: str | None = None
+    transforms: list[str] = field(default_factory=list)
+
+
+@dataclass
 class ExperimentConfig:
     name: str
     base_model: str
@@ -115,6 +136,42 @@ class ExperimentConfig:
                     if key != "metric_weights"
                 },
             ),
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class BenchmarkConfig:
+    name: str
+    dataset_dir: str
+    output_dir: str
+    targets: list[BenchmarkTargetConfig]
+    generation: GenerationConfig = field(default_factory=GenerationConfig)
+    evaluation: EvaluationConfig = field(default_factory=EvaluationConfig)
+    openrouter: OpenRouterConfig = field(default_factory=OpenRouterConfig)
+
+    @classmethod
+    def load(cls, path: str | Path) -> "BenchmarkConfig":
+        raw = json.loads(Path(path).read_text())
+        return cls(
+            name=raw["name"],
+            dataset_dir=raw["dataset_dir"],
+            output_dir=raw["output_dir"],
+            targets=[BenchmarkTargetConfig(**target) for target in raw["targets"]],
+            generation=GenerationConfig(**raw.get("generation", {})),
+            evaluation=EvaluationConfig(
+                metric_weights=MetricWeights(
+                    **raw.get("evaluation", {}).get("metric_weights", {})
+                ),
+                **{
+                    key: value
+                    for key, value in raw.get("evaluation", {}).items()
+                    if key != "metric_weights"
+                },
+            ),
+            openrouter=OpenRouterConfig(**raw.get("openrouter", {})),
         )
 
     def to_dict(self) -> dict[str, Any]:

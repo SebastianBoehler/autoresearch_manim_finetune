@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from mac_pipeline.benchmark import run_benchmark
 from mac_pipeline.compare import compare_runs
 from mac_pipeline.dataset import build_dataset
 from mac_pipeline.docs_seed import import_doc_examples, merge_case_files
@@ -10,7 +11,7 @@ from mac_pipeline.eval import evaluate_adapter
 from mac_pipeline.mlx import train_adapter
 from mac_pipeline.plotting import plot_eval_comparison
 from mac_pipeline.repo_ingest import filter_repo_candidates, import_repo_examples
-from mac_pipeline.types import ExperimentConfig
+from mac_pipeline.types import BenchmarkConfig, ExperimentConfig
 from mac_pipeline.utils import append_tsv, resolve_path, write_json
 
 RESULT_FIELDS = [
@@ -171,6 +172,22 @@ def cmd_plot_comparison(args: argparse.Namespace) -> None:
     print(f"Comparison plot written to {Path(args.output).resolve()}")
 
 
+def cmd_benchmark(args: argparse.Namespace) -> None:
+    config_path = Path(args.config).resolve()
+    benchmark = BenchmarkConfig.load(config_path)
+    repo_root = config_path.parent.parent
+    payload = run_benchmark(benchmark, repo_root)
+    print(f"Benchmark written to {resolve_path(repo_root, benchmark.output_dir) / 'leaderboard.json'}")
+    for index, entry in enumerate(payload["leaderboard"], start=1):
+        summary = entry["summary"]
+        print(
+            f"{index}. {entry['name']} "
+            f"(score={summary.get('mean_case_score'):.3f}, "
+            f"render={summary.get('render_success_rate')}, "
+            f"syntax={summary.get('syntax_success_rate'):.3f})"
+        )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="MLX Manim fine-tuning pipeline")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -185,9 +202,10 @@ def build_parser() -> argparse.ArgumentParser:
         "eval": cmd_eval,
         "run": cmd_run,
         "plot-comparison": cmd_plot_comparison,
+        "benchmark": cmd_benchmark,
     }.items():
         subparser = subparsers.add_parser(name)
-        if name in {"build-dataset", "train", "eval", "run"}:
+        if name in {"build-dataset", "train", "eval", "run", "benchmark"}:
             subparser.add_argument("--config", required=True)
         if name == "import-doc-seeds":
             subparser.add_argument("--manifest", required=True)
