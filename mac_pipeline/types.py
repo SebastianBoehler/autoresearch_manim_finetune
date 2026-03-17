@@ -45,7 +45,7 @@ class TrainConfig:
 
 @dataclass
 class GenerationConfig:
-    max_tokens: int = 1024
+    max_tokens: int = 2560
     temperature: float = 0.2
     top_p: float = 0.95
     top_k: int = 0

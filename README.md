@@ -150,6 +150,12 @@ data/manim_feature_fusion_cases.json
                               Derived gold cases that fuse multiple Manim features into one scene
 data/manim_longform_cases.json
                               Curated 30s and 50s long-form scenes with richer animation structure
+data/manim_composite_longform_cases.json
+                              Composite long-form scenes that stitch multiple Manim APIs into one coherent walkthrough
+data/manim_targeted_composite_cases.json
+                              Targeted composite scenes for weak spots like camera motion, 3D walkthroughs, stream lines, and graph-table hybrids
+data/manim_targeted_composite_variations.json
+                              Variations on the targeted composite patterns so the model sees the same API families in multiple scene choreographies
 data/manim_repo_sources.json  GitHub repo source manifest
 data/manim_repo_raw_candidates.jsonl
                               Imported repo-derived scene candidates
@@ -181,6 +187,9 @@ Current dataset structure:
 - The canonical dataset is a single file with metadata tags such as `tier:gold`, `tier:silver`, `source:*`, and duration buckets like `duration:5s`.
 - The dataset now also includes explicit `duration:30s` and `duration:50s` cases for longer multi-beat scenes, not just short clips.
 - Recent long-form additions intentionally cover moving-camera calculus, vector-field flow, 3D surface orbit, and dynamic-programming table-fill patterns so the model sees richer multi-step scene logic.
+- Composite long-form cases deliberately combine multiple APIs like trackers, tables, traced paths, residual-style flow diagrams, and staged captions inside one scene class so the model sees longer coherent walkthroughs without training on raw multi-scene files.
+- A separate targeted composite layer now pushes specifically on camera motion, 3D surface walkthroughs, stream-line explanations, and graph-table hybrids where the model has recently struggled.
+- Additional targeted variations reuse those same weak API families with different pacing and layouts so the model does not only memorize one canonical template for each hard pattern.
 - Experiment configs can filter by tags without forking the dataset file.
 - Repo-derived plain-Manim examples stay inside the same dataset and are tagged `tier:silver` instead of being stored as a separate training corpus.
 - Source manifests and import outputs remain in `data/` for provenance and rebuilds, but `data/manim_dataset.jsonl` is the only dataset file the experiment configs should point at.
