@@ -20,6 +20,8 @@ SOURCE_SPECS = [
     ("data/manim_composite_longform_cases.json", ["tier:gold", "source:local"]),
     ("data/manim_targeted_composite_cases.json", ["tier:gold", "source:local"]),
     ("data/manim_targeted_composite_variations.json", ["tier:gold", "source:local"]),
+    ("data/manim_underrepresented_longform_cases.json", ["tier:gold", "source:local"]),
+    ("data/manim_3b1b_style_cases.json", ["tier:gold", "source:local"]),
     ("data/manim_repo_plain_verified.jsonl", ["tier:silver", "source:repo"]),
 ]
 
