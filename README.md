@@ -160,6 +160,8 @@ data/manim_underrepresented_longform_cases.json
                               Longer animation-heavy cases that specifically patch still-underrepresented areas like complex-plane reasoning and boolean geometry
 data/manim_underrepresented_group_cases_round2.json
                               Additional underrepresented long-form cases for rare APIs like LinearTransformationScene, ImplicitFunction, and Code-based walkthroughs
+data/manim_physics_expansion_cases_round2.json
+                              Additional physics long-form scenes covering optics, damped oscillation phase portraits, and magnetic flux walkthroughs
 data/manim_3b1b_style_cases.json
                               Style-inspired explanatory math scenes that mimic 3Blue1Brown pacing and reveal structure while staying native to Manim Community Edition
 data/manim_repo_sources.json  GitHub repo source manifest
@@ -198,6 +200,7 @@ Current dataset structure:
 - Additional targeted variations reuse those same weak API families with different pacing and layouts so the model does not only memorize one canonical template for each hard pattern.
 - Underrepresented long-form cases are added as their own source layer so rare but important APIs such as `ComplexPlane` and boolean geometry operations can be expanded without bloating the more general curated files.
 - A second underrepresented shard now adds rare workflow-oriented APIs such as `LinearTransformationScene`, `ImplicitFunction`, and `Code` so those patterns are present in longer explanatory scenes too.
+- A dedicated follow-up physics shard adds broader subject coverage beyond fluid flow, including optics, damped mechanical motion, and electromagnetism.
 - A dedicated 3b1b-style source layer captures progressive reveal, basis-vector reasoning, secant-to-tangent narration, and discrete-to-continuous visual storytelling patterns without copying the original video code.
 - Experiment configs can filter by tags without forking the dataset file.
 - Repo-derived plain-Manim examples stay inside the same dataset and are tagged `tier:silver` instead of being stored as a separate training corpus.
