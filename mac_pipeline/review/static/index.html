@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Manim Blind Review</title>
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero">
+        <p class="eyebrow">Blind evaluation surface</p>
+        <div class="hero-row">
+          <div>
+            <h1>Rate rendered Manim pairs without seeing the source model.</h1>
+            <p class="lede">
+              Compare A vs B, mark both-good or both-bad when needed, and keep the
+              ratings as clean training signal instead of gut-feel notes.
+            </p>
+          </div>
+          <div class="status-block">
+            <div class="status-label">Progress</div>
+            <div class="status-value" id="progressValue">0 / 0</div>
+            <div class="status-caption" id="progressCaption">Loading session...</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <aside class="context-panel">
+          <p class="panel-label">Prompt</p>
+          <h2 id="caseId">Preparing review queue</h2>
+          <p id="promptText" class="prompt-text"></p>
+          <div class="meta-strip">
+            <span id="sessionName"></span>
+            <span id="remainingCount"></span>
+          </div>
+        </aside>
+
+        <section class="comparison-panel">
+          <div class="video-grid" id="videoGrid"></div>
+          <form id="ratingForm" class="rating-bar">
+            <div class="button-row">
+              <button type="button" data-verdict="A">A wins</button>
+              <button type="button" data-verdict="B">B wins</button>
+              <button type="button" data-verdict="both_good">Both good</button>
+              <button type="button" data-verdict="both_bad">Both bad</button>
+              <button type="button" data-verdict="skip">Skip</button>
+            </div>
+            <div class="detail-row">
+              <label>
+                Confidence
+                <select id="confidence">
+                  <option value="low">Low</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </label>
+              <label class="notes-field">
+                Notes
+                <textarea id="notes" rows="2" placeholder="Optional note about composition, readability, pacing, errors, or trainability."></textarea>
+              </label>
+            </div>
+          </form>
+        </section>
+      </section>
+    </main>
+    <script src="/app.js" defer></script>
+  </body>
+</html>

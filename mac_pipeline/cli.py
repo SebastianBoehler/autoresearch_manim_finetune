@@ -10,6 +10,11 @@ from mac_pipeline.docs_seed import import_doc_examples, merge_case_files
 from mac_pipeline.eval import evaluate_adapter
 from mac_pipeline.mlx import train_adapter
 from mac_pipeline.plotting import plot_eval_comparison
+from mac_pipeline.review.cli import (
+    cmd_build_review_session,
+    cmd_render_review_candidates,
+    cmd_serve_review_app,
+)
 from mac_pipeline.repo_ingest import filter_repo_candidates, import_repo_examples
 from mac_pipeline.types import BenchmarkConfig, ExperimentConfig
 from mac_pipeline.utils import append_tsv, resolve_path, write_json
@@ -203,6 +208,9 @@ def build_parser() -> argparse.ArgumentParser:
         "run": cmd_run,
         "plot-comparison": cmd_plot_comparison,
         "benchmark": cmd_benchmark,
+        "build-review-session": cmd_build_review_session,
+        "serve-review-app": cmd_serve_review_app,
+        "render-review-candidates": cmd_render_review_candidates,
     }.items():
         subparser = subparsers.add_parser(name)
         if name in {"build-dataset", "train", "eval", "run", "benchmark"}:
@@ -231,6 +239,26 @@ def build_parser() -> argparse.ArgumentParser:
             subparser.add_argument("--baseline", required=True)
             subparser.add_argument("--finetuned", required=True)
             subparser.add_argument("--output", required=True)
+        if name == "build-review-session":
+            subparser.add_argument("--left", required=True)
+            subparser.add_argument("--right", required=True)
+            subparser.add_argument("--output-dir", required=True)
+            subparser.add_argument("--left-label")
+            subparser.add_argument("--right-label")
+            subparser.add_argument("--seed", type=int, default=42)
+            subparser.add_argument("--limit", type=int, default=0)
+            subparser.add_argument("--quality", default="low")
+            subparser.add_argument("--timeout-seconds", type=int, default=120)
+            subparser.add_argument("--include-failed-renders", action="store_true")
+        if name == "serve-review-app":
+            subparser.add_argument("--session-dir", required=True)
+            subparser.add_argument("--host", default="127.0.0.1")
+            subparser.add_argument("--port", type=int, default=8765)
+        if name == "render-review-candidates":
+            subparser.add_argument("--input", required=True)
+            subparser.add_argument("--output-dir", required=True)
+            subparser.add_argument("--quality", default="low")
+            subparser.add_argument("--timeout-seconds", type=int, default=120)
         subparser.set_defaults(func=handler)
 
     compare = subparsers.add_parser("compare")

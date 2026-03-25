@@ -160,6 +160,7 @@ def evaluate_adapter(
         )
         case_result["raw_response"] = raw_response
         case_result["code"] = code
+        case_result["prompt"] = user_prompt
         per_case.append(case_result)
 
     syntax_rate = sum(item["syntax_ok"] for item in per_case) / len(per_case)

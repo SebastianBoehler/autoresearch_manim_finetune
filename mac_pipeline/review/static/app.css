@@ -1,0 +1,251 @@
+:root {
+  --bg: #f2ecdf;
+  --bg-accent: #d5c1a3;
+  --panel: rgba(255, 252, 245, 0.78);
+  --panel-strong: rgba(255, 250, 242, 0.92);
+  --text: #1d1a16;
+  --muted: #665f55;
+  --accent: #9d3c12;
+  --accent-soft: rgba(157, 60, 18, 0.14);
+  --line: rgba(29, 26, 22, 0.12);
+  --shadow: 0 22px 80px rgba(70, 49, 25, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.75), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(157, 60, 18, 0.16), transparent 24%),
+    linear-gradient(135deg, var(--bg), #f7f2e7 48%, #efe4d2);
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+}
+
+.app-shell {
+  padding: 32px;
+  display: grid;
+  gap: 24px;
+}
+
+.hero,
+.workspace {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--shadow);
+}
+
+.hero {
+  padding: 28px 32px;
+}
+
+.eyebrow,
+.panel-label,
+.status-label {
+  margin: 0 0 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.hero-row,
+.workspace {
+  display: grid;
+  gap: 24px;
+}
+
+.hero-row {
+  grid-template-columns: minmax(0, 1fr) 220px;
+  align-items: end;
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-family: "Iowan Old Style", "Palatino Linotype", serif;
+  font-weight: 600;
+}
+
+h1 {
+  max-width: 14ch;
+  font-size: clamp(2rem, 4vw, 3.8rem);
+  line-height: 0.94;
+}
+
+.lede,
+.prompt-text,
+.status-caption {
+  color: var(--muted);
+}
+
+.lede {
+  max-width: 52ch;
+  margin: 16px 0 0;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.status-block {
+  padding: 18px;
+  background: var(--panel-strong);
+  border: 1px solid var(--line);
+}
+
+.status-value {
+  font-size: 2.25rem;
+  font-family: "Iowan Old Style", "Palatino Linotype", serif;
+}
+
+.workspace {
+  grid-template-columns: 320px minmax(0, 1fr);
+  padding: 18px;
+}
+
+.context-panel {
+  padding: 18px;
+  border-right: 1px solid var(--line);
+}
+
+.prompt-text {
+  margin: 18px 0;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.meta-strip {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.comparison-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.option-card {
+  padding: 14px;
+  border: 1px solid var(--line);
+  background: var(--panel-strong);
+  transform: translateY(6px);
+  opacity: 0;
+  animation: rise 220ms ease forwards;
+}
+
+.option-card h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+
+.option-card video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #120f0b;
+  border: 1px solid var(--line);
+}
+
+.error-block {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  background: var(--accent-soft);
+  color: #6a220b;
+  font-size: 0.88rem;
+  white-space: pre-wrap;
+}
+
+.rating-bar {
+  padding: 16px;
+  border: 1px solid var(--line);
+  background: var(--panel-strong);
+}
+
+.button-row,
+.detail-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.detail-row {
+  margin-top: 14px;
+  align-items: start;
+}
+
+button,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: 1px solid rgba(157, 60, 18, 0.28);
+  background: white;
+  color: var(--text);
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+}
+
+button:hover,
+button:focus-visible {
+  transform: translateY(-1px);
+  background: #fff8f2;
+  border-color: var(--accent);
+}
+
+label {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  min-width: 180px;
+}
+
+select,
+textarea {
+  border: 1px solid var(--line);
+  background: white;
+  padding: 10px 12px;
+}
+
+.notes-field {
+  flex: 1;
+  min-width: 260px;
+}
+
+@keyframes rise {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 980px) {
+  .hero-row,
+  .workspace,
+  .video-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .context-panel {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .app-shell {
+    padding: 18px;
+  }
+}

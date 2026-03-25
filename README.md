@@ -116,6 +116,33 @@ uv run python -m mac_pipeline.cli compare \
   --output artifacts/evals/ab_result.json
 ```
 
+Build a blind A/B review session from two eval outputs, render both sides into browser-playable videos, and launch the local review app:
+
+```bash
+uv run python -m mac_pipeline.cli build-review-session \
+  --left artifacts/evals/m4-max-qwen25coder-3b-base-v2.json \
+  --right artifacts/evals/m4-max-qwen25coder-3b.json \
+  --output-dir artifacts/reviews/base-vs-finetuned
+
+uv run python -m mac_pipeline.cli serve-review-app \
+  --session-dir artifacts/reviews/base-vs-finetuned
+```
+
+- The review app keeps the model mapping hidden and shows only `Option A` / `Option B`.
+- Ratings are appended to `artifacts/reviews/<session>/ratings.jsonl`.
+- Verdicts support `A`, `B`, `both_good`, `both_bad`, and `skip`, which lets you preserve both positive and negative training signal.
+
+Render a staged candidate shard for manual review without merging it into the canonical training dataset:
+
+```bash
+uv run python -m mac_pipeline.cli render-review-candidates \
+  --input data/manim_review_candidates_round1.json \
+  --output-dir artifacts/review_candidate_renders/round1
+```
+
+- `data/manim_review_candidates_round1.json` is a staging shard of new synthetic samples kept outside `data/manim_dataset.jsonl` until you explicitly promote the winners.
+- The render command writes per-case videos plus `summary.json` so you can quickly see which candidates survived a real Manim pass.
+
 Create a figure comparing the base model and the fine-tuned adapter:
 
 ```bash
