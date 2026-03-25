@@ -19,25 +19,6 @@
     "target_duration_tolerance_seconds": 3
   },
   {
-    "case_id": "ml_transformer_encoder_stack",
-    "prompt": "Create a 20-second Manim scene that explains a transformer encoder stack. Show token embeddings flowing upward through repeated encoder blocks with self-attention and feed-forward labels, plus residual arrows on the side.",
-    "completion": "from manim import *\n\nclass TransformerEncoderStack(Scene):\n    def construct(self):\n        title = Text(\"Transformer Encoder Stack\", font_size=34).to_edge(UP)\n        token_row = VGroup(*[\n            RoundedRectangle(corner_radius=0.08, width=1.0, height=0.5, color=BLUE_D, fill_color=BLUE_C, fill_opacity=0.18)\n            for _ in range(4)\n        ]).arrange(RIGHT, buff=0.18).shift(DOWN * 2.8)\n        token_labels = VGroup(*[Text(label, font_size=22).move_to(box) for label, box in zip([\"The\", \"model\", \"reads\", \"tokens\"], token_row)])\n        blocks = VGroup()\n        block_labels = VGroup()\n        for i in range(3):\n            block = RoundedRectangle(corner_radius=0.14, width=4.8, height=1.25, color=TEAL_D, fill_color=TEAL_E, fill_opacity=0.18).shift(UP * (i * 1.65 - 0.2))\n            labels = VGroup(\n                Text(\"Self-Attention\", font_size=22, color=TEAL_D).move_to(block.get_center() + UP * 0.22),\n                Text(\"Feed-Forward\", font_size=22, color=GREEN_D).move_to(block.get_center() + DOWN * 0.22),\n            )\n            blocks.add(block)\n            block_labels.add(labels)\n        input_arrow = Arrow(token_row.get_top(), blocks[0].get_bottom(), buff=0.12, color=GRAY_B)\n        between = VGroup(*[\n            Arrow(blocks[i].get_top(), blocks[i + 1].get_bottom(), buff=0.12, color=GRAY_B)\n            for i in range(2)\n        ])\n        residuals = VGroup(*[\n            CurvedArrow(block.get_left() + LEFT * 0.15 + DOWN * 0.3, block.get_left() + LEFT * 0.15 + UP * 0.3, angle=PI / 2, color=YELLOW_D)\n            for block in blocks\n        ])\n        output_label = Text(\"Context-rich token states\", font_size=24, color=GRAY_C).next_to(blocks[-1], UP, buff=0.3)\n        caption = Text(\"Repeated blocks refine the token representation step by step.\", font_size=24, color=GRAY_C).to_edge(DOWN)\n        self.play(FadeIn(title), FadeIn(token_row), FadeIn(token_labels), run_time=3)\n        self.play(GrowArrow(input_arrow), FadeIn(blocks[0]), FadeIn(block_labels[0]), run_time=3)\n        self.play(LaggedStart(*[GrowArrow(arrow) for arrow in between], lag_ratio=0.35), LaggedStart(*[FadeIn(block) for block in blocks[1:]], lag_ratio=0.35), LaggedStart(*[FadeIn(labels) for labels in block_labels[1:]], lag_ratio=0.35), run_time=5)\n        self.play(LaggedStart(*[Create(arrow) for arrow in residuals], lag_ratio=0.25), run_time=4)\n        self.play(FadeIn(output_label), FadeIn(caption), run_time=3)\n        self.wait(2)\n",
-    "entry_scene": "TransformerEncoderStack",
-    "tags": ["converted", "ml", "transformer", "20s"],
-    "must_contain": ["RoundedRectangle(", "Arrow(", "CurvedArrow(", "Text("],
-    "must_not_contain": ["manim_ml", "manim_chemistry"],
-    "source_name": "ManimML-inspired",
-    "source_url": "https://github.com/helblazer811/ManimML",
-    "license": "MIT",
-    "source_domain": "ml",
-    "source_repo_path": "examples/transformer/encoder.py",
-    "uses_custom_library": false,
-    "is_plain_manim_candidate": true,
-    "requires_manual_conversion": false,
-    "target_duration_seconds": 20,
-    "target_duration_tolerance_seconds": 5
-  },
-  {
     "case_id": "ml_training_loss_curve",
     "prompt": "Create a 10-second Manim scene that shows a training loss curve dropping over epochs and flattening near convergence. Include axes, several highlighted checkpoints, and a short caption about diminishing returns.",
     "completion": "from manim import *\n\nclass TrainingLossCurve(Scene):\n    def construct(self):\n        title = Text(\"Training Loss\", font_size=36).to_edge(UP)\n        axes = Axes(x_range=[0, 8, 1], y_range=[0, 4.5, 1], x_length=7, y_length=4, tips=False).shift(DOWN * 0.2)\n        axis_labels = axes.get_axis_labels(Text(\"epoch\", font_size=22), Text(\"loss\", font_size=22))\n        points = [(0, 4.0), (1, 2.8), (2, 1.9), (3, 1.3), (4, 0.95), (5, 0.72), (6, 0.58), (7, 0.50)]\n        graph = VMobject(color=BLUE_D, stroke_width=4)\n        graph.set_points_smoothly([axes.c2p(x, y) for x, y in points])\n        dots = VGroup(*[Dot(axes.c2p(x, y), color=YELLOW_D, radius=0.06) for x, y in points[1::2]])\n        plateau = SurroundingRectangle(VGroup(dots[-2], dots[-1]), color=GREEN_D, buff=0.16)\n        caption = Text(\"Early updates help most. Later steps still matter, but less.\", font_size=24, color=GRAY_C).to_edge(DOWN)\n        self.play(FadeIn(title), Create(axes), FadeIn(axis_labels), run_time=2)\n        self.play(Create(graph), run_time=3)\n        self.play(LaggedStart(*[FadeIn(dot) for dot in dots], lag_ratio=0.25), run_time=2)\n        self.play(Create(plateau), FadeIn(caption), run_time=2)\n        self.wait(1)\n",
