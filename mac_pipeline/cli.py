@@ -12,6 +12,7 @@ from mac_pipeline.mlx import train_adapter
 from mac_pipeline.plotting import plot_eval_comparison
 from mac_pipeline.review.cli import (
     cmd_build_review_session,
+    cmd_promote_review_candidates,
     cmd_render_review_candidates,
     cmd_serve_review_app,
 )
@@ -211,6 +212,7 @@ def build_parser() -> argparse.ArgumentParser:
         "build-review-session": cmd_build_review_session,
         "serve-review-app": cmd_serve_review_app,
         "render-review-candidates": cmd_render_review_candidates,
+        "promote-review-candidates": cmd_promote_review_candidates,
     }.items():
         subparser = subparsers.add_parser(name)
         if name in {"build-dataset", "train", "eval", "run", "benchmark"}:
@@ -259,6 +261,12 @@ def build_parser() -> argparse.ArgumentParser:
             subparser.add_argument("--output-dir", required=True)
             subparser.add_argument("--quality", default="low")
             subparser.add_argument("--timeout-seconds", type=int, default=120)
+        if name == "promote-review-candidates":
+            subparser.add_argument("--input", required=True)
+            subparser.add_argument("--review", required=True)
+            subparser.add_argument("--promoted-output", default="data/manim_review_promoted.jsonl")
+            subparser.add_argument("--promoted-tier", default="tier:silver")
+            subparser.add_argument("--keep-promoted-in-input", action="store_true")
         subparser.set_defaults(func=handler)
 
     compare = subparsers.add_parser("compare")

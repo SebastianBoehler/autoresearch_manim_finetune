@@ -143,6 +143,18 @@ uv run python -m mac_pipeline.cli render-review-candidates \
 - `data/manim_review_candidates_round1.json` is a staging shard of new synthetic samples kept outside `data/manim_dataset.jsonl` until you explicitly promote the winners.
 - The render command writes per-case videos plus `summary.json` so you can quickly see which candidates survived a real Manim pass.
 
+Promote approved candidates into the canonical dataset after review:
+
+```bash
+uv run python -m mac_pipeline.cli promote-review-candidates \
+  --input data/manim_review_candidates_round1.json \
+  --review artifacts/reviews/candidate_decisions.jsonl
+```
+
+- The review file can be JSONL or a JSON array and must include `case_id` plus a decision-like field such as `decision`, `label`, `verdict`, or `rating`.
+- Decisions `promote`, `approved`, `approve`, `keep`, `good`, and `winner` are treated as approval.
+- Approved cases are appended to `data/manim_review_promoted.jsonl`, removed from the candidate shard by default, and `data/manim_dataset.jsonl` is rebuilt automatically.
+
 Create a figure comparing the base model and the fine-tuned adapter:
 
 ```bash

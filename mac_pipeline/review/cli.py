@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mac_pipeline.review import build_review_session, render_candidate_cases, serve_review_app
+from mac_pipeline.review import (
+    build_review_session,
+    promote_candidate_cases,
+    render_candidate_cases,
+    serve_review_app,
+)
 
 
 def cmd_build_review_session(args) -> None:
@@ -40,3 +45,15 @@ def cmd_render_review_candidates(args) -> None:
     )
     print(f"Candidate render summary written to {Path(args.output_dir).resolve() / 'summary.json'}")
     print(f"Rendered {payload['num_rendered']} / {payload['num_cases']} cases successfully")
+
+
+def cmd_promote_review_candidates(args) -> None:
+    payload = promote_candidate_cases(
+        input_path=Path(args.input).resolve(),
+        review_path=Path(args.review).resolve(),
+        promoted_path=Path(args.promoted_output).resolve(),
+        remove_promoted=not args.keep_promoted_in_input,
+        promoted_tier=args.promoted_tier,
+    )
+    print(f"Promoted {payload['num_promoted']} candidates into {Path(args.promoted_output).resolve()}")
+    print(f"Canonical dataset rebuilt at {payload['canonical_dataset_path']}")

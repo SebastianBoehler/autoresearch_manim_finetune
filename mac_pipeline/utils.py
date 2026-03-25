@@ -46,6 +46,13 @@ def write_jsonl(path: Path, records: list[dict[str, Any]]) -> None:
             handle.write(json.dumps(record) + "\n")
 
 
+def write_records(path: Path, records: list[dict[str, Any]]) -> None:
+    if path.suffix == ".jsonl":
+        write_jsonl(path, records)
+        return
+    ensure_parent(path).write_text(json.dumps(records, indent=2) + "\n")
+
+
 def append_tsv(path: Path, row: dict[str, Any], fieldnames: list[str]) -> None:
     ensure_parent(path)
     needs_header = not path.exists()
@@ -59,4 +66,3 @@ def append_tsv(path: Path, row: dict[str, Any], fieldnames: list[str]) -> None:
 def slugify(value: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
     return slug or "run"
-
