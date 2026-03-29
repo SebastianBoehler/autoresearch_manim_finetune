@@ -52,7 +52,7 @@ def serve_review_app(*, session_dir: Path, host: str = "127.0.0.1", port: int = 
                 self.send_error(HTTPStatus.NOT_FOUND, "review item not found")
                 return
             try:
-                record = _rating_record(item, payload)
+                record = _rating_record(item, payload, session.get("session_type", "blind_pair"))
             except ValueError as exc:
                 self.send_error(HTTPStatus.BAD_REQUEST, str(exc))
                 return
@@ -104,6 +104,7 @@ def _load_ratings(path: Path) -> list[dict[str, Any]]:
 
 
 def _public_session(session: dict[str, Any], ratings: list[dict[str, Any]]) -> dict[str, Any]:
+    session_type = session.get("session_type", "blind_pair")
     rated_ids = {rating["review_id"] for rating in ratings}
     items = []
     for item in session["items"]:
@@ -118,17 +119,19 @@ def _public_session(session: dict[str, Any], ratings: list[dict[str, Any]]) -> d
                     "render_log_tail": option["render_log_tail"],
                 }
             )
-        items.append(
-            {
-                "review_id": item["review_id"],
-                "case_id": item["case_id"],
-                "prompt": item["prompt"],
-                "rated": item["review_id"] in rated_ids,
-                "options": options,
-            }
-        )
+        public_item = {
+            "review_id": item["review_id"],
+            "case_id": item["case_id"],
+            "prompt": item["prompt"],
+            "rated": item["review_id"] in rated_ids,
+            "options": options,
+        }
+        if session_type == "sample_review":
+            public_item["tags"] = item.get("tags", [])
+        items.append(public_item)
     return {
         "session_name": session["session_name"],
+        "session_type": session_type,
         "created_at": session["created_at"],
         "total": len(items),
         "rated": len(rated_ids),
@@ -137,7 +140,9 @@ def _public_session(session: dict[str, Any], ratings: list[dict[str, Any]]) -> d
     }
 
 
-def _rating_record(item: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
+def _rating_record(item: dict[str, Any], payload: dict[str, Any], session_type: str) -> dict[str, Any]:
+    if session_type == "sample_review":
+        return _sample_rating_record(item, payload)
     verdict = payload.get("verdict")
     if verdict not in {"A", "B", "both_good", "both_bad", "skip"}:
         raise ValueError("invalid verdict")
@@ -156,4 +161,22 @@ def _rating_record(item: dict[str, Any], payload: dict[str, Any]) -> dict[str, A
         "slot_b_render_ok": slot_map["B"]["render_ok"],
         "preferred_label": preferred["label"] if preferred else None,
         "preferred_slot": preferred["slot"] if preferred else None,
+    }
+
+
+def _sample_rating_record(item: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
+    decision = payload.get("decision")
+    if decision not in {"promote", "reject", "skip"}:
+        raise ValueError("invalid decision")
+    option = item["options"][0]
+    return {
+        "review_id": item["review_id"],
+        "case_id": item["case_id"],
+        "prompt": item["prompt"],
+        "decision": decision,
+        "confidence": payload.get("confidence"),
+        "notes": payload.get("notes", "").strip(),
+        "render_ok": option["render_ok"],
+        "scene_name": option["scene_name"],
+        "tags": item.get("tags", []),
     }

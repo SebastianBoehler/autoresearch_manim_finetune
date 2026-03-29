@@ -84,6 +84,12 @@ h1 {
   color: var(--muted);
 }
 
+.tag-text {
+  margin: -4px 0 18px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .lede {
   max-width: 52ch;
   margin: 16px 0 0;

@@ -11,7 +11,9 @@ from mac_pipeline.eval import evaluate_adapter
 from mac_pipeline.mlx import train_adapter
 from mac_pipeline.plotting import plot_eval_comparison
 from mac_pipeline.review.cli import (
+    cmd_apply_dataset_review_decisions,
     cmd_build_review_session,
+    cmd_build_sample_review_session,
     cmd_promote_review_candidates,
     cmd_render_review_candidates,
     cmd_serve_review_app,
@@ -210,9 +212,11 @@ def build_parser() -> argparse.ArgumentParser:
         "plot-comparison": cmd_plot_comparison,
         "benchmark": cmd_benchmark,
         "build-review-session": cmd_build_review_session,
+        "build-sample-review-session": cmd_build_sample_review_session,
         "serve-review-app": cmd_serve_review_app,
         "render-review-candidates": cmd_render_review_candidates,
         "promote-review-candidates": cmd_promote_review_candidates,
+        "apply-dataset-review-decisions": cmd_apply_dataset_review_decisions,
     }.items():
         subparser = subparsers.add_parser(name)
         if name in {"build-dataset", "train", "eval", "run", "benchmark"}:
@@ -252,6 +256,14 @@ def build_parser() -> argparse.ArgumentParser:
             subparser.add_argument("--quality", default="low")
             subparser.add_argument("--timeout-seconds", type=int, default=120)
             subparser.add_argument("--include-failed-renders", action="store_true")
+        if name == "build-sample-review-session":
+            subparser.add_argument("--input", required=True)
+            subparser.add_argument("--output-dir", required=True)
+            subparser.add_argument("--start-index", type=int, default=0)
+            subparser.add_argument("--limit", type=int, default=0)
+            subparser.add_argument("--exclude-review", action="append")
+            subparser.add_argument("--quality", default="low")
+            subparser.add_argument("--timeout-seconds", type=int, default=120)
         if name == "serve-review-app":
             subparser.add_argument("--session-dir", required=True)
             subparser.add_argument("--host", default="127.0.0.1")
@@ -267,6 +279,11 @@ def build_parser() -> argparse.ArgumentParser:
             subparser.add_argument("--promoted-output", default="data/manim_review_promoted.jsonl")
             subparser.add_argument("--promoted-tier", default="tier:silver")
             subparser.add_argument("--keep-promoted-in-input", action="store_true")
+        if name == "apply-dataset-review-decisions":
+            subparser.add_argument("--input", default="data/manim_dataset.jsonl")
+            subparser.add_argument("--review", required=True)
+            subparser.add_argument("--decision-log", default="data/manim_review_decisions.jsonl")
+            subparser.add_argument("--rejected-output", default="data/manim_review_rejected.jsonl")
         subparser.set_defaults(func=handler)
 
     compare = subparsers.add_parser("compare")

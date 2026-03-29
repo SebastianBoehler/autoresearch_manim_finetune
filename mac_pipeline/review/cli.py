@@ -3,7 +3,9 @@ from __future__ import annotations
 from pathlib import Path
 
 from mac_pipeline.review import (
+    apply_dataset_review_decisions,
     build_review_session,
+    build_sample_review_session,
     promote_candidate_cases,
     render_candidate_cases,
     serve_review_app,
@@ -47,6 +49,21 @@ def cmd_render_review_candidates(args) -> None:
     print(f"Rendered {payload['num_rendered']} / {payload['num_cases']} cases successfully")
 
 
+def cmd_build_sample_review_session(args) -> None:
+    payload = build_sample_review_session(
+        input_path=Path(args.input).resolve(),
+        output_dir=Path(args.output_dir).resolve(),
+        start_index=args.start_index,
+        limit=args.limit,
+        exclude_review_paths=[Path(path).resolve() for path in args.exclude_review] if args.exclude_review else [],
+        quality=args.quality,
+        timeout_seconds=args.timeout_seconds,
+    )
+    print(f"Sample review session written to {Path(args.output_dir).resolve() / 'session.json'}")
+    print(f"Ready items: {len(payload['items'])}")
+    print(f"Excluded reviewed cases: {payload['excluded_total']}")
+
+
 def cmd_promote_review_candidates(args) -> None:
     payload = promote_candidate_cases(
         input_path=Path(args.input).resolve(),
@@ -57,3 +74,14 @@ def cmd_promote_review_candidates(args) -> None:
     )
     print(f"Promoted {payload['num_promoted']} candidates into {Path(args.promoted_output).resolve()}")
     print(f"Canonical dataset rebuilt at {payload['canonical_dataset_path']}")
+
+
+def cmd_apply_dataset_review_decisions(args) -> None:
+    payload = apply_dataset_review_decisions(
+        input_path=Path(args.input).resolve(),
+        review_path=Path(args.review).resolve(),
+        decision_log_path=Path(args.decision_log).resolve(),
+        rejected_output_path=Path(args.rejected_output).resolve(),
+    )
+    print(f"Applied {payload['num_decisions_applied']} dataset review decisions")
+    print(f"Remaining canonical dataset size: {payload['num_remaining_dataset_cases']}")
