@@ -24,6 +24,8 @@ SOURCE_SPECS = [
     ("data/manim_domain_expansion_cases.json", ["tier:gold", "source:local"]),
     ("data/manim_physics_expansion_cases_round2.json", ["tier:gold", "source:local"]),
     ("data/manim_3b1b_style_cases.json", ["tier:gold", "source:local"]),
+    ("data/manim_review_guided_expansion_cases.json", ["tier:gold", "source:local"]),
+    ("data/manim_review_guided_expansion_cases_round2.json", ["tier:gold", "source:local"]),
     ("data/manim_review_promoted.jsonl", ["tier:silver", "source:local"]),
     ("data/manim_repo_plain_verified.jsonl", ["tier:silver", "source:repo"]),
 ]
@@ -34,10 +36,13 @@ def rebuild_canonical_dataset(repo_root: Path, output_path: Path | None = None) 
     resolved_output = output_path or (resolved_repo_root / "data" / "manim_dataset.jsonl")
     cases: list[dict] = []
     seen_case_ids: set[str] = set()
+    rejected_ids = _load_rejected_ids(resolved_repo_root / "data" / "manim_review_rejected.jsonl")
     for relative_path, extra_tags in SOURCE_SPECS:
         path = resolved_repo_root / relative_path
         for case in _load_records(path):
             case_id = case["case_id"]
+            if case_id in rejected_ids:
+                continue
             if case_id in seen_case_ids:
                 raise ValueError(f"Duplicate case_id while rebuilding canonical dataset: {case_id}")
             seen_case_ids.add(case_id)
@@ -54,6 +59,16 @@ def _load_records(path: Path) -> list[dict]:
     if not isinstance(payload, list):
         raise ValueError(f"{path} must contain a JSON array.")
     return payload
+
+
+def _load_rejected_ids(path: Path) -> set[str]:
+    if not path.exists():
+        return set()
+    return {
+        record["case_id"]
+        for record in _load_records(path)
+        if isinstance(record.get("case_id"), str)
+    }
 
 
 def _duration_tags(case: dict) -> list[str]:

@@ -143,6 +143,33 @@ uv run python -m mac_pipeline.cli render-review-candidates \
 - `data/manim_review_candidates_round1.json` is a staging shard of new synthetic samples kept outside `data/manim_dataset.jsonl` until you explicitly promote the winners.
 - The render command writes per-case videos plus `summary.json` so you can quickly see which candidates survived a real Manim pass.
 
+Build a single-sample curation session when you want to rate dataset examples directly instead of comparing two model outputs:
+
+```bash
+uv run python -m mac_pipeline.cli build-sample-review-session \
+  --input data/manim_review_candidates_round1.json \
+  --output-dir artifacts/reviews/candidate-round1-curation
+
+uv run python -m mac_pipeline.cli serve-review-app \
+  --session-dir artifacts/reviews/candidate-round1-curation
+```
+
+- This mode shows one rendered sample at a time and records `promote`, `reject`, or `skip`.
+- Use this for dataset curation, not model-vs-model evaluation.
+- The resulting `ratings.jsonl` can be passed straight into `promote-review-candidates`.
+- Add `--exclude-review path/to/ratings.jsonl` one or more times to build the next batch from only unreviewed samples.
+
+Apply review decisions from a canonical-dataset audit batch:
+
+```bash
+uv run python -m mac_pipeline.cli apply-dataset-review-decisions \
+  --review artifacts/reviews/dataset-curation-batch-001/ratings.jsonl
+```
+
+- `promote` keeps a case in the canonical dataset and logs the decision.
+- `reject` removes the case from `data/manim_dataset.jsonl`, archives it into `data/manim_review_rejected.jsonl`, and logs the decision in `data/manim_review_decisions.jsonl`.
+- `skip` is intentionally left unapplied so you can revisit those samples later.
+
 Promote approved candidates into the canonical dataset after review:
 
 ```bash
@@ -203,6 +230,10 @@ data/manim_physics_expansion_cases_round2.json
                               Additional physics long-form scenes covering optics, damped oscillation phase portraits, and magnetic flux walkthroughs
 data/manim_3b1b_style_cases.json
                               Style-inspired explanatory math scenes that mimic 3Blue1Brown pacing and reveal structure while staying native to Manim Community Edition
+data/manim_review_guided_expansion_cases.json
+                              Review-informed gold cases derived from manual ranking notes, emphasizing readable overlays, centered end states, and less cluttered multi-beat compositions
+data/manim_review_guided_expansion_cases_round2.json
+                              A second review-informed shard focused on corrected weak concepts such as aliasing, compound growth, probability-to-density transitions, and cleaner field or orbital explanations
 data/manim_repo_sources.json  GitHub repo source manifest
 data/manim_repo_raw_candidates.jsonl
                               Imported repo-derived scene candidates
@@ -241,6 +272,8 @@ Current dataset structure:
 - A second underrepresented shard now adds rare workflow-oriented APIs such as `LinearTransformationScene`, `ImplicitFunction`, and `Code` so those patterns are present in longer explanatory scenes too.
 - A dedicated follow-up physics shard adds broader subject coverage beyond fluid flow, including optics, damped mechanical motion, and electromagnetism.
 - A dedicated 3b1b-style source layer captures progressive reveal, basis-vector reasoning, secant-to-tangent narration, and discrete-to-continuous visual storytelling patterns without copying the original video code.
+- A review-guided source layer turns manual ranking notes into new gold cases by reinforcing readable overlays, fixed-frame 3D labels, centered summaries, and cleaner one-concept pacing.
+- Canonical dataset rebuilds now skip any case ids archived in `data/manim_review_rejected.jsonl`, so adding new source shards does not resurrect samples you already rejected in review.
 - Experiment configs can filter by tags without forking the dataset file.
 - Repo-derived plain-Manim examples stay inside the same dataset and are tagged `tier:silver` instead of being stored as a separate training corpus.
 - Source manifests and import outputs remain in `data/` for provenance and rebuilds, but `data/manim_dataset.jsonl` is the only dataset file the experiment configs should point at.
