@@ -1,120 +1,36 @@
 from __future__ import annotations
 
-import random
 from pathlib import Path
 from typing import Any
 
-from mac_pipeline.types import DatasetFilterConfig, SplitConfig
-from mac_pipeline.utils import ensure_dir, load_records, write_json
-from mac_pipeline.utils import write_jsonl
-
-DEFAULT_SYSTEM_PROMPT = (
-    "You write runnable Manim Community Edition Python files. "
-    "Return only Python code, use `from manim import *`, and define exactly one scene class."
-)
-PASSTHROUGH_FIELDS = [
-    "source_name",
-    "source_url",
-    "source_anchor",
-    "license",
-    "source_domain",
-    "source_repo_path",
-    "source_ref",
-    "imports",
-    "local_imports",
-    "custom_imports",
-    "uses_custom_library",
-    "is_plain_manim_candidate",
-    "requires_manual_conversion",
-    "target_duration_seconds",
-    "target_duration_tolerance_seconds",
-]
+from mac_pipeline.case_records import case_to_chat_record, prepare_cases, split_cases
+from mac_pipeline.dataset_sources import load_source_records
+from mac_pipeline.types import DatasetFilterConfig, DatasetSourceConfig, SplitConfig
+from mac_pipeline.utils import ensure_dir, write_json, write_jsonl
 
 
-def _validate_case(case: dict[str, Any]) -> dict[str, Any]:
-    required = {"case_id", "prompt", "completion"}
-    missing = sorted(required - case.keys())
-    if missing:
-        raise ValueError(f"Case {case!r} is missing required keys: {missing}")
-    if not case["completion"].strip():
-        raise ValueError(f"Case {case['case_id']} has an empty completion.")
-    cleaned = dict(case)
-    cleaned["system"] = case.get("system", DEFAULT_SYSTEM_PROMPT)
-    cleaned["must_contain"] = list(case.get("must_contain", []))
-    cleaned["must_not_contain"] = list(case.get("must_not_contain", []))
-    cleaned["tags"] = list(case.get("tags", []))
-    return cleaned
-
-
-def _split_cases(cases: list[dict[str, Any]], split_config: SplitConfig) -> dict[str, list[dict[str, Any]]]:
-    if len(cases) < 3:
-        raise ValueError("Need at least three Manim examples to create train/valid/test splits.")
-    shuffled = list(cases)
-    random.Random(split_config.seed).shuffle(shuffled)
-    train_count = max(1, int(len(shuffled) * split_config.train_fraction))
-    valid_count = max(1, int(len(shuffled) * split_config.valid_fraction))
-    train_count = min(train_count, len(shuffled) - 2)
-    valid_count = min(valid_count, len(shuffled) - train_count - 1)
-    return {
-        "train": shuffled[:train_count],
-        "valid": shuffled[train_count : train_count + valid_count],
-        "test": shuffled[train_count + valid_count :],
-    }
-
-
-def _matches_filter(case: dict[str, Any], dataset_filter: DatasetFilterConfig) -> bool:
-    tags = set(case.get("tags", []))
-    if dataset_filter.include_tags and not set(dataset_filter.include_tags).issubset(tags):
-        return False
-    if dataset_filter.exclude_tags and set(dataset_filter.exclude_tags) & tags:
-        return False
-    return True
-
-
-def _to_record(case: dict[str, Any]) -> dict[str, Any]:
-    record = {
-        "case_id": case["case_id"],
-        "tags": case["tags"],
-        "entry_scene": case.get("entry_scene"),
-        "must_contain": case["must_contain"],
-        "must_not_contain": case["must_not_contain"],
-        "messages": [
-            {"role": "system", "content": case["system"]},
-            {"role": "user", "content": case["prompt"]},
-            {"role": "assistant", "content": case["completion"]},
-        ],
-    }
-    for field in PASSTHROUGH_FIELDS:
-        if field in case:
-            record[field] = case[field]
-    return record
-
-
-def build_dataset(
-    source_path: Path,
+def build_dataset_from_records(
+    source_records: list[dict[str, Any]],
+    source_label: str,
+    source_spec: dict[str, Any],
     output_dir: Path,
     split_config: SplitConfig,
     dataset_filter: DatasetFilterConfig | None = None,
 ) -> dict[str, Any]:
-    source_cases = [_validate_case(case) for case in load_records(source_path)]
     effective_filter = dataset_filter or DatasetFilterConfig()
-    filtered_cases = [
-        case for case in source_cases if _matches_filter(case, effective_filter)
-    ]
-    if not filtered_cases:
-        raise ValueError(f"No dataset cases matched filter for {source_path}.")
-    case_ids = [case["case_id"] for case in filtered_cases]
-    if len(case_ids) != len(set(case_ids)):
-        raise ValueError(f"Duplicate case_id values found in {source_path}.")
-    split_map = _split_cases(filtered_cases, split_config)
+    filtered_cases = prepare_cases(source_records, effective_filter, source_label)
+    split_map = split_cases(filtered_cases, split_config)
     ensure_dir(output_dir)
+
     counts: dict[str, int] = {}
     for split_name, cases in split_map.items():
-        records = [_to_record(case) for case in cases]
+        records = [case_to_chat_record(case) for case in cases]
         write_jsonl(output_dir / f"{split_name}.jsonl", records)
         counts[split_name] = len(records)
+
     manifest = {
-        "source_dataset": str(source_path),
+        "source_dataset": source_label,
+        "source_dataset_spec": source_spec,
         "output_dir": str(output_dir),
         "split_seed": split_config.seed,
         "dataset_filter": {
@@ -125,3 +41,25 @@ def build_dataset(
     }
     write_json(output_dir / "manifest.json", manifest)
     return manifest
+
+
+def build_dataset(
+    source: DatasetSourceConfig | Path,
+    output_dir: Path,
+    split_config: SplitConfig,
+    dataset_filter: DatasetFilterConfig | None = None,
+) -> dict[str, Any]:
+    source_config = (
+        DatasetSourceConfig(kind="local", path=str(source))
+        if isinstance(source, Path)
+        else source
+    )
+    source_records, source_label = load_source_records(source_config)
+    return build_dataset_from_records(
+        source_records=source_records,
+        source_label=source_label,
+        source_spec=source_config.__dict__,
+        output_dir=output_dir,
+        split_config=split_config,
+        dataset_filter=dataset_filter,
+    )

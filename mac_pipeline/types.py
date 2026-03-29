@@ -20,6 +20,52 @@ class DatasetFilterConfig:
 
 
 @dataclass
+class DatasetSourceConfig:
+    kind: str = "local"
+    path: str | None = None
+    repo_id: str | None = None
+    config_name: str | None = None
+    split: str = "train"
+    revision: str | None = None
+
+    @classmethod
+    def load(cls, raw: str | dict[str, Any]) -> "DatasetSourceConfig":
+        if isinstance(raw, str):
+            return cls(kind="local", path=raw)
+        if not isinstance(raw, dict):
+            raise TypeError(
+                "source_dataset must be either a string path or an object config."
+            )
+        return cls(
+            kind=raw.get("kind", "local"),
+            path=raw.get("path"),
+            repo_id=raw.get("repo_id"),
+            config_name=raw.get("config_name"),
+            split=raw.get("split", "train"),
+            revision=raw.get("revision"),
+        )
+
+    def validate(self) -> None:
+        if self.kind == "local":
+            if not self.path:
+                raise ValueError("Local source_dataset requires a non-empty path.")
+            return
+        if self.kind == "hf":
+            if not self.repo_id:
+                raise ValueError("HF source_dataset requires a non-empty repo_id.")
+            return
+        raise ValueError(f"Unsupported source_dataset kind: {self.kind}")
+
+    def describe(self) -> str:
+        self.validate()
+        if self.kind == "local":
+            return self.path or ""
+        revision = f"@{self.revision}" if self.revision else ""
+        config_name = self.config_name or "default"
+        return f"hf://{self.repo_id}{revision}/{config_name}:{self.split}"
+
+
+@dataclass
 class TrainConfig:
     fine_tune_type: str = "lora"
     optimizer: str = "adamw"
@@ -98,7 +144,7 @@ class BenchmarkTargetConfig:
 class ExperimentConfig:
     name: str
     base_model: str
-    source_dataset: str
+    source_dataset: DatasetSourceConfig
     dataset_dir: str
     adapter_path: str
     eval_output_path: str
@@ -116,7 +162,7 @@ class ExperimentConfig:
         return cls(
             name=raw["name"],
             base_model=raw["base_model"],
-            source_dataset=raw["source_dataset"],
+            source_dataset=DatasetSourceConfig.load(raw["source_dataset"]),
             dataset_dir=raw["dataset_dir"],
             adapter_path=raw["adapter_path"],
             eval_output_path=raw["eval_output_path"],

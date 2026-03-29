@@ -6,8 +6,10 @@ from pathlib import Path
 from mac_pipeline.benchmark import run_benchmark
 from mac_pipeline.compare import compare_runs
 from mac_pipeline.dataset import build_dataset
+from mac_pipeline.dataset_sources import resolve_dataset_source
 from mac_pipeline.docs_seed import import_doc_examples, merge_case_files
 from mac_pipeline.eval import evaluate_adapter
+from mac_pipeline.hf_dataset import export_hf_dataset
 from mac_pipeline.mlx import train_adapter
 from mac_pipeline.plotting import plot_eval_comparison
 from mac_pipeline.review.cli import (
@@ -45,11 +47,27 @@ def _require_path(path: Path, description: str) -> None:
         raise FileNotFoundError(f"{description} does not exist: {path}")
 
 
+def _resolve_source_from_args(
+    repo_root: Path,
+    source_config,
+    args: argparse.Namespace,
+):
+    return resolve_dataset_source(
+        base_dir=repo_root,
+        source=source_config,
+        override=getattr(args, "source", None),
+        override_kind=getattr(args, "source_kind", None),
+        override_config_name=getattr(args, "source_config_name", None),
+        override_split=getattr(args, "source_split", None),
+        override_revision=getattr(args, "source_revision", None),
+    )
+
+
 def cmd_build_dataset(args: argparse.Namespace) -> None:
     config, repo_root = _load_config(Path(args.config))
-    source_path = resolve_path(repo_root, args.source or config.source_dataset)
+    source = _resolve_source_from_args(repo_root, config.source_dataset, args)
     dataset_dir = resolve_path(repo_root, config.dataset_dir)
-    manifest = build_dataset(source_path, dataset_dir, config.splits, config.dataset_filter)
+    manifest = build_dataset(source, dataset_dir, config.splits, config.dataset_filter)
     print(f"Built dataset at {dataset_dir}")
     print(manifest)
 
@@ -138,12 +156,11 @@ def cmd_eval(args: argparse.Namespace) -> None:
 
 def cmd_run(args: argparse.Namespace) -> None:
     config, repo_root = _load_config(Path(args.config))
-    source_path = resolve_path(repo_root, args.source or config.source_dataset)
-    _require_path(source_path, "Source dataset")
+    source = _resolve_source_from_args(repo_root, config.source_dataset, args)
     dataset_dir = resolve_path(repo_root, config.dataset_dir)
     adapter_path = resolve_path(repo_root, config.adapter_path)
     output_path = resolve_path(repo_root, config.eval_output_path)
-    build_dataset(source_path, dataset_dir, config.splits, config.dataset_filter)
+    build_dataset(source, dataset_dir, config.splits, config.dataset_filter)
     train_adapter(
         config,
         dataset_dir,
@@ -196,6 +213,24 @@ def cmd_benchmark(args: argparse.Namespace) -> None:
         )
 
 
+def cmd_export_hf_dataset(args: argparse.Namespace) -> None:
+    config, repo_root = _load_config(Path(args.config))
+    source = _resolve_source_from_args(repo_root, config.source_dataset, args)
+    output_dir = Path(args.output_dir).resolve()
+    payload = export_hf_dataset(
+        source=source,
+        output_dir=output_dir,
+        split_config=config.splits,
+        dataset_filter=config.dataset_filter,
+        repo_id=args.repo_id,
+        pretty_name=args.pretty_name,
+        license_name=args.license,
+        tags=args.tag or [],
+    )
+    print(f"Exported HF dataset staging folder to {output_dir}")
+    print(payload)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="MLX Manim fine-tuning pipeline")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -211,6 +246,7 @@ def build_parser() -> argparse.ArgumentParser:
         "run": cmd_run,
         "plot-comparison": cmd_plot_comparison,
         "benchmark": cmd_benchmark,
+        "export-hf-dataset": cmd_export_hf_dataset,
         "build-review-session": cmd_build_review_session,
         "build-sample-review-session": cmd_build_sample_review_session,
         "serve-review-app": cmd_serve_review_app,
@@ -219,7 +255,7 @@ def build_parser() -> argparse.ArgumentParser:
         "apply-dataset-review-decisions": cmd_apply_dataset_review_decisions,
     }.items():
         subparser = subparsers.add_parser(name)
-        if name in {"build-dataset", "train", "eval", "run", "benchmark"}:
+        if name in {"build-dataset", "train", "eval", "run", "benchmark", "export-hf-dataset"}:
             subparser.add_argument("--config", required=True)
         if name == "import-doc-seeds":
             subparser.add_argument("--manifest", required=True)
@@ -239,8 +275,18 @@ def build_parser() -> argparse.ArgumentParser:
         if name == "eval":
             subparser.add_argument("--base-only", action="store_true")
             subparser.add_argument("--output")
-        if name in {"build-dataset", "run"}:
+        if name in {"build-dataset", "run", "export-hf-dataset"}:
             subparser.add_argument("--source")
+            subparser.add_argument("--source-kind", choices=["local", "hf"])
+            subparser.add_argument("--source-config-name")
+            subparser.add_argument("--source-split")
+            subparser.add_argument("--source-revision")
+        if name == "export-hf-dataset":
+            subparser.add_argument("--output-dir", required=True)
+            subparser.add_argument("--repo-id")
+            subparser.add_argument("--pretty-name")
+            subparser.add_argument("--license")
+            subparser.add_argument("--tag", action="append")
         if name == "plot-comparison":
             subparser.add_argument("--baseline", required=True)
             subparser.add_argument("--finetuned", required=True)
