@@ -93,6 +93,27 @@ uv run python -m mac_pipeline.cli run \
   --config configs/m4_max_qwen25coder_3b.json
 ```
 
+Export the current canonical dataset into a Hugging Face dataset staging folder with both canonical `cases` rows and train-ready `chat` splits:
+
+```bash
+uv run python -m mac_pipeline.cli export-hf-dataset \
+  --config configs/m4_max_qwen25coder_3b.json \
+  --output-dir artifacts/hf_datasets/autoresearch-manim \
+  --repo-id sebastianboehler/autoresearch-manim \
+  --pretty-name "Autoresearch Manim" \
+  --tag manim \
+  --tag code-generation \
+  --tag synthetic
+```
+
+Upload that folder to a Hugging Face dataset repo:
+
+```bash
+hf auth login
+hf repos create sebastianboehler/autoresearch-manim --type dataset
+hf upload sebastianboehler/autoresearch-manim artifacts/hf_datasets/autoresearch-manim --type dataset
+```
+
 Install the lightweight git hook that refreshes the comparison figure from the local eval JSONs before each commit:
 
 ```bash
@@ -258,6 +279,38 @@ Good next expansions:
 4. Add hard evaluation-only prompts that never enter training.
 5. Keep prompts concrete: scene objective, visual constraints, and required constructs.
 6. Prefer short, correct, idiomatic scenes over flashy long ones.
+
+## Hugging Face Dataset Support
+
+Experiment configs can now keep the old local-path form:
+
+```json
+"source_dataset": "data/manim_dataset.jsonl"
+```
+
+Or use an explicit Hugging Face source:
+
+```json
+"source_dataset": {
+  "kind": "hf",
+  "repo_id": "sebastianboehler/autoresearch-manim",
+  "config_name": "cases",
+  "split": "train",
+  "revision": "main"
+}
+```
+
+The recommended Hub layout exported by `export-hf-dataset` is:
+
+- `cases.jsonl` for the canonical unsplit source-of-truth rows
+- `chat/train.jsonl`
+- `chat/validation.jsonl`
+- `chat/test.jsonl`
+- `README.md` with the dataset card and split config YAML
+
+The training pipeline still builds local `train.jsonl`, `valid.jsonl`, and `test.jsonl` artifacts before fine-tuning, so HF support only changes the dataset source boundary rather than the trainer itself.
+
+Only set a global dataset-card license after auditing the per-row source licenses in the canonical corpus. The exporter preserves row-level `license` fields, but the Hub-level metadata should stay unset if the corpus is mixed or only partially labeled.
 
 Current dataset structure:
 
