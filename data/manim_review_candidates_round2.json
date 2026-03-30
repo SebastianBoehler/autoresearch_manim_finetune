@@ -1,0 +1,260 @@
+[
+  {
+    "case_id": "candidate_unit_circle_sine_projection",
+    "prompt": "Create a 12-second Manim scene that explains sine as the vertical projection of a point moving around the unit circle. Show axes, the circle, a radius line, a moving point, and a highlighted projection onto the y-axis with a numeric sine readout.",
+    "completion": "from manim import *\n\nclass UnitCircleSineProjection(Scene):\n    def construct(self):\n        title = Text('Sine as a Vertical Projection', font_size=34).to_edge(UP)\n        axes = Axes(x_range=[-1.4, 1.4, 1], y_range=[-1.4, 1.4, 1], x_length=4.6, y_length=4.6, tips=False).shift(LEFT * 2.0 + DOWN * 0.2)\n        axis_labels = axes.get_axis_labels(Text('x', font_size=22), Text('y', font_size=22))\n        radius = axes.x_axis.get_unit_size()\n        circle = Circle(radius=radius, color=BLUE_D).move_to(axes.c2p(0, 0))\n        tracker = ValueTracker(0.25)\n        radius_line = always_redraw(lambda: Line(axes.c2p(0, 0), axes.c2p(np.cos(tracker.get_value()), np.sin(tracker.get_value())), color=YELLOW_D, stroke_width=4))\n        moving_dot = always_redraw(lambda: Dot(axes.c2p(np.cos(tracker.get_value()), np.sin(tracker.get_value())), color=YELLOW_D, radius=0.08))\n        projection_line = always_redraw(lambda: DashedLine(moving_dot.get_center(), axes.c2p(0, np.sin(tracker.get_value())), color=GREEN_D, stroke_width=3))\n        projection_dot = always_redraw(lambda: Dot(axes.c2p(0, np.sin(tracker.get_value())), color=GREEN_D, radius=0.07))\n        readout = always_redraw(lambda: VGroup(Text('sin(theta)', font_size=22, color=WHITE), DecimalNumber(np.sin(tracker.get_value()), num_decimal_places=2, font_size=28, color=GREEN_D)).arrange(DOWN, aligned_edge=LEFT, buff=0.08).to_corner(UR).shift(DOWN * 0.7))\n        caption = Text('The y-value of the rotating point is exactly the sine.', font_size=24, color=WHITE).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(axes), FadeIn(axis_labels), Create(circle), run_time=2)\n        self.play(FadeIn(moving_dot), Create(radius_line), Create(projection_line), FadeIn(projection_dot), FadeIn(readout), run_time=2)\n        self.play(tracker.animate.set_value(1.3), run_time=3)\n        self.play(FadeIn(caption), run_time=1)\n        self.play(tracker.animate.set_value(2.3), run_time=3)\n        self.wait(1)\n",
+    "entry_scene": "UnitCircleSineProjection",
+    "tags": [
+      "review-candidate",
+      "math",
+      "trigonometry",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Axes(",
+      "Circle(",
+      "ValueTracker(",
+      "always_redraw("
+    ],
+    "must_not_contain": [
+      "manim_ml",
+      "manim_chemistry"
+    ],
+    "source_name": "Codex review candidate batch 2",
+    "source_domain": "math",
+    "source_repo_path": "data/manim_review_candidates_round2.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_sliding_window_sum_story",
+    "prompt": "Create a 12-second Manim scene that explains a sliding-window sum on an array. Show a row of boxes, a highlighted window of width three, a running sum readout, and two window shifts so the viewer sees that only one value leaves and one enters each step.",
+    "completion": "from manim import *\n\nclass SlidingWindowSumStory(Scene):\n    def construct(self):\n        title = Text('Sliding Window Sum', font_size=34).to_edge(UP)\n        values = [2, 5, 1, 4, 3, 6]\n        cells = VGroup()\n        for value in values:\n            box = RoundedRectangle(corner_radius=0.08, width=0.9, height=0.64, color=BLUE_D, fill_color=BLUE_E, fill_opacity=0.14)\n            label = Integer(value, font_size=24).move_to(box)\n            cells.add(VGroup(box, label))\n        cells.arrange(RIGHT, buff=0.16).shift(DOWN * 0.25)\n        window_one = SurroundingRectangle(VGroup(*cells[0:3]), color=GREEN_D, buff=0.08)\n        window_two = SurroundingRectangle(VGroup(*cells[1:4]), color=GREEN_D, buff=0.08)\n        window_three = SurroundingRectangle(VGroup(*cells[2:5]), color=GREEN_D, buff=0.08)\n        readout_one = Text('sum = 8', font_size=28, color=YELLOW_D).next_to(cells, UP, buff=0.45)\n        readout_two = Text('sum = 10', font_size=28, color=YELLOW_D).move_to(readout_one)\n        readout_three = Text('sum = 8', font_size=28, color=YELLOW_D).move_to(readout_one)\n        leave_one = Text('-2', font_size=24, color=RED_D).next_to(cells[0], DOWN, buff=0.18)\n        enter_one = Text('+4', font_size=24, color=TEAL_D).next_to(cells[3], DOWN, buff=0.18)\n        leave_two = Text('-5', font_size=24, color=RED_D).next_to(cells[1], DOWN, buff=0.18)\n        enter_two = Text('+3', font_size=24, color=TEAL_D).next_to(cells[4], DOWN, buff=0.18)\n        caption = Text('Each step drops one value and adds one new value.', font_size=24, color=WHITE).to_edge(DOWN)\n\n        self.play(FadeIn(title), FadeIn(cells), FadeIn(readout_one), run_time=2)\n        self.play(Create(window_one), run_time=1)\n        self.play(ReplacementTransform(window_one, window_two), FadeIn(leave_one), FadeIn(enter_one), Transform(readout_one, readout_two), run_time=2.5)\n        self.play(FadeOut(leave_one), FadeOut(enter_one), run_time=0.6)\n        self.play(ReplacementTransform(window_two, window_three), FadeIn(leave_two), FadeIn(enter_two), Transform(readout_one, readout_three), run_time=2.5)\n        self.play(FadeOut(leave_two), FadeOut(enter_two), FadeIn(caption), run_time=1)\n        self.wait(1)\n",
+    "entry_scene": "SlidingWindowSumStory",
+    "tags": [
+      "review-candidate",
+      "cs",
+      "algorithm",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "RoundedRectangle(",
+      "Integer(",
+      "SurroundingRectangle(",
+      "Transform("
+    ],
+    "must_not_contain": [
+      "manim_ml",
+      "manim_chemistry"
+    ],
+    "source_name": "Codex review candidate batch 2",
+    "source_domain": "computer-science",
+    "source_repo_path": "data/manim_review_candidates_round2.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_standing_wave_mode_story",
+    "prompt": "Create a 12-second Manim scene that compares the first and second standing-wave modes on a string. Show one smooth wave with fixed endpoints, transform it into the second mode, and mark the nodes so the extra stationary point is obvious.",
+    "completion": "from manim import *\n\nclass StandingWaveModeStory(Scene):\n    def construct(self):\n        title = Text('Standing Wave Modes', font_size=34).to_edge(UP)\n        axes = Axes(x_range=[0, PI, PI / 2], y_range=[-1.3, 1.3, 1], x_length=8, y_length=3.8, tips=False).shift(DOWN * 0.2)\n        string_line = Line(axes.c2p(0, 0), axes.c2p(PI, 0), color=GRAY_B)\n        mode_one = axes.plot(lambda x: np.sin(x), x_range=[0, PI], color=BLUE_D)\n        mode_two = axes.plot(lambda x: np.sin(2 * x), x_range=[0, PI], color=TEAL_D)\n        nodes_one = VGroup(Dot(axes.c2p(0, 0), color=YELLOW_D, radius=0.07), Dot(axes.c2p(PI, 0), color=YELLOW_D, radius=0.07))\n        nodes_two = VGroup(Dot(axes.c2p(0, 0), color=YELLOW_D, radius=0.07), Dot(axes.c2p(PI / 2, 0), color=YELLOW_D, radius=0.07), Dot(axes.c2p(PI, 0), color=YELLOW_D, radius=0.07))\n        label_one = Text('mode 1', font_size=24, color=BLUE_D).next_to(axes, UP, buff=0.25)\n        label_two = Text('mode 2', font_size=24, color=TEAL_D).move_to(label_one)\n        caption = Text('Higher modes introduce more nodes while the endpoints stay fixed.', font_size=24, color=WHITE).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(axes), Create(string_line), run_time=2)\n        self.play(Create(mode_one), FadeIn(nodes_one), FadeIn(label_one), run_time=2)\n        self.play(ReplacementTransform(mode_one, mode_two), ReplacementTransform(nodes_one, nodes_two), Transform(label_one, label_two), run_time=3)\n        self.play(FadeIn(caption), Indicate(nodes_two, color=YELLOW_A), run_time=2)\n        self.wait(1)\n",
+    "entry_scene": "StandingWaveModeStory",
+    "tags": [
+      "review-candidate",
+      "physics",
+      "waves",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Axes(",
+      ".plot(",
+      "Dot(",
+      "ReplacementTransform("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 2",
+    "source_domain": "physics",
+    "source_repo_path": "data/manim_review_candidates_round2.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_membrane_diffusion_balance_story",
+    "prompt": "Create a 14-second Manim scene that explains diffusion across a membrane. Show a membrane with a few channels, many particles on the left, fewer on the right, and animate several particles crossing so the net flow from high to low concentration is visually clear.",
+    "completion": "from manim import *\n\nclass MembraneDiffusionBalanceStory(Scene):\n    def construct(self):\n        title = Text('Diffusion Across a Membrane', font_size=34).to_edge(UP)\n        left_box = Rectangle(width=4.1, height=4.6, color=BLUE_D, fill_color=BLUE_E, fill_opacity=0.08).shift(LEFT * 2.2 + DOWN * 0.15)\n        right_box = Rectangle(width=4.1, height=4.6, color=TEAL_D, fill_color=TEAL_E, fill_opacity=0.08).shift(RIGHT * 2.2 + DOWN * 0.15)\n        membrane_left = Line(UP * 2.2, UP * 0.8, color=GRAY_B, stroke_width=6)\n        membrane_mid = Line(UP * 0.2, DOWN * 0.2, color=GRAY_B, stroke_width=6)\n        membrane_low = Line(DOWN * 0.8, DOWN * 2.2, color=GRAY_B, stroke_width=6)\n        membrane = VGroup(membrane_left, membrane_mid, membrane_low).shift(DOWN * 0.15)\n        channels = VGroup(Rectangle(width=0.18, height=0.44, color=YELLOW_D, fill_opacity=0.2), Rectangle(width=0.18, height=0.44, color=YELLOW_D, fill_opacity=0.2), Rectangle(width=0.18, height=0.44, color=YELLOW_D, fill_opacity=0.2)).arrange(DOWN, buff=0.56).move_to(DOWN * 0.15)\n        left_particles = VGroup(Dot(LEFT * 3.2 + UP * 1.2, color=BLUE_D, radius=0.08), Dot(LEFT * 2.6 + UP * 0.5, color=BLUE_D, radius=0.08), Dot(LEFT * 3.0 + DOWN * 0.1, color=BLUE_D, radius=0.08), Dot(LEFT * 2.3 + DOWN * 0.8, color=BLUE_D, radius=0.08), Dot(LEFT * 3.3 + DOWN * 1.4, color=BLUE_D, radius=0.08))\n        right_particles = VGroup(Dot(RIGHT * 2.7 + UP * 0.7, color=TEAL_D, radius=0.08), Dot(RIGHT * 3.1 + DOWN * 0.9, color=TEAL_D, radius=0.08))\n        high_label = Text('higher concentration', font_size=22, color=BLUE_D).next_to(left_box, UP, buff=0.2)\n        low_label = Text('lower concentration', font_size=22, color=TEAL_D).next_to(right_box, UP, buff=0.2)\n        path_one = CubicBezier(left_particles[1].get_center(), LEFT * 0.8 + UP * 0.6, RIGHT * 0.4 + UP * 0.45, RIGHT * 2.6 + UP * 0.55)\n        path_two = CubicBezier(left_particles[2].get_center(), LEFT * 0.6 + DOWN * 0.1, RIGHT * 0.3 + DOWN * 0.05, RIGHT * 2.9 + DOWN * 0.05)\n        path_three = CubicBezier(left_particles[3].get_center(), LEFT * 0.7 + DOWN * 0.8, RIGHT * 0.25 + DOWN * 0.7, RIGHT * 2.7 + DOWN * 0.8)\n        caption = Text('Random motion produces a net drift from crowded regions to less crowded ones.', font_size=22, color=WHITE).to_edge(DOWN)\n\n        self.play(FadeIn(title), FadeIn(left_box), FadeIn(right_box), FadeIn(membrane), FadeIn(channels), run_time=2)\n        self.play(FadeIn(left_particles), FadeIn(right_particles), FadeIn(high_label), FadeIn(low_label), run_time=2)\n        self.play(MoveAlongPath(left_particles[1], path_one), MoveAlongPath(left_particles[2], path_two), MoveAlongPath(left_particles[3], path_three), run_time=4)\n        self.play(FadeIn(caption), Indicate(channels, color=YELLOW_A), run_time=2)\n        self.wait(1)\n",
+    "entry_scene": "MembraneDiffusionBalanceStory",
+    "tags": [
+      "review-candidate",
+      "biology",
+      "cell-biology",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Rectangle(",
+      "Dot(",
+      "MoveAlongPath(",
+      "CubicBezier("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 2",
+    "source_domain": "biology",
+    "source_repo_path": "data/manim_review_candidates_round2.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 14,
+    "target_duration_tolerance_seconds": 4,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_supply_demand_shift_story",
+    "prompt": "Create a 14-second Manim scene that explains an outward demand shift on a supply-demand diagram. Show axes, the original supply and demand lines, the initial equilibrium point, then shift demand to the right and mark the new equilibrium with readable labels.",
+    "completion": "from manim import *\n\nclass SupplyDemandShiftStory(Scene):\n    def construct(self):\n        title = Text('Demand Shift and New Equilibrium', font_size=34).to_edge(UP)\n        axes = Axes(x_range=[0, 6, 1], y_range=[0, 6, 1], x_length=6.6, y_length=5.0, tips=False).shift(DOWN * 0.15)\n        axis_labels = axes.get_axis_labels(Text('quantity', font_size=22), Text('price', font_size=22))\n        supply = axes.plot(lambda x: 0.65 * x + 0.9, x_range=[0.3, 5.8], color=BLUE_D)\n        demand_one = axes.plot(lambda x: 5.5 - 0.65 * x, x_range=[0.3, 5.8], color=GREEN_D)\n        demand_two = axes.plot(lambda x: 6.3 - 0.65 * x, x_range=[0.3, 5.8], color=ORANGE)\n        eq_one = Dot(axes.c2p(3.54, 3.2), color=YELLOW_D, radius=0.08)\n        eq_two = Dot(axes.c2p(4.15, 3.6), color=YELLOW_D, radius=0.08)\n        label_supply = Text('supply', font_size=22, color=BLUE_D).next_to(supply, RIGHT, buff=0.1)\n        label_demand_one = Text('demand', font_size=22, color=GREEN_D).next_to(demand_one, LEFT, buff=0.1)\n        label_demand_two = Text('higher demand', font_size=22, color=ORANGE).next_to(demand_two, LEFT, buff=0.1)\n        price_guide = DashedLine(eq_two.get_center(), axes.c2p(0, 3.6), color=GRAY_B)\n        quantity_guide = DashedLine(eq_two.get_center(), axes.c2p(4.15, 0), color=GRAY_B)\n        caption = Text('A rightward demand shift raises both equilibrium price and equilibrium quantity.', font_size=22, color=WHITE).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(axes), FadeIn(axis_labels), run_time=2)\n        self.play(Create(supply), Create(demand_one), FadeIn(label_supply), FadeIn(label_demand_one), FadeIn(eq_one), run_time=2)\n        self.play(ReplacementTransform(demand_one, demand_two), Transform(label_demand_one, label_demand_two), ReplacementTransform(eq_one, eq_two), run_time=3)\n        self.play(Create(price_guide), Create(quantity_guide), FadeIn(caption), run_time=2)\n        self.wait(1)\n",
+    "entry_scene": "SupplyDemandShiftStory",
+    "tags": [
+      "review-candidate",
+      "economics",
+      "market",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Axes(",
+      ".plot(",
+      "Dot(",
+      "DashedLine("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 2",
+    "source_domain": "economics",
+    "source_repo_path": "data/manim_review_candidates_round2.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 14,
+    "target_duration_tolerance_seconds": 4,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_normal_interval_story",
+    "prompt": "Create a 12-second Manim scene that explains the central one-sigma interval of a normal distribution. Show a bell curve, shade the region from minus one to plus one, and add a concise note that this interval contains about sixty-eight percent of the probability mass.",
+    "completion": "from manim import *\n\nclass NormalIntervalStory(Scene):\n    def construct(self):\n        title = Text('The Central One-Sigma Interval', font_size=34).to_edge(UP)\n        axes = Axes(x_range=[-3.5, 3.5, 1], y_range=[0, 0.45, 0.1], x_length=8.0, y_length=4.4, tips=False).shift(DOWN * 0.15)\n        axis_labels = axes.get_axis_labels(Text('z', font_size=22), Text('density', font_size=22))\n        curve = axes.plot(lambda x: 0.3989 * np.exp(-(x ** 2) / 2), x_range=[-3.3, 3.3], color=BLUE_D)\n        shaded = axes.get_area(curve, x_range=[-1, 1], color=GREEN_D, opacity=0.35)\n        left_mark = DashedLine(axes.c2p(-1, 0), axes.c2p(-1, 0.242), color=GRAY_B)\n        right_mark = DashedLine(axes.c2p(1, 0), axes.c2p(1, 0.242), color=GRAY_B)\n        note = Text('about 68 percent', font_size=28, color=GREEN_D).next_to(axes, UP, buff=0.25)\n        caption = Text('Most of the mass sits near the center, not in the tails.', font_size=22, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.86, buff=0.14), caption)\n\n        self.play(FadeIn(title), Create(axes), FadeIn(axis_labels), run_time=2)\n        self.play(Create(curve), run_time=2)\n        self.play(FadeIn(shaded), Create(left_mark), Create(right_mark), FadeIn(note), run_time=2)\n        self.play(FadeIn(caption_group), Indicate(shaded, color=GREEN_A), run_time=2)\n        self.wait(1)\n",
+    "entry_scene": "NormalIntervalStory",
+    "tags": [
+      "review-candidate",
+      "statistics",
+      "probability",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Axes(",
+      ".plot(",
+      "get_area(",
+      "DashedLine("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 2",
+    "source_domain": "statistics",
+    "source_repo_path": "data/manim_review_candidates_round2.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_catalyst_barrier_story",
+    "prompt": "Create a 14-second Manim scene that explains how a catalyst lowers activation energy. Show a reaction-coordinate axis, a taller uncatalyzed barrier, a shorter catalyzed barrier, and arrows that compare the two peak heights without changing reactant or product energy levels.",
+    "completion": "from manim import *\n\nclass CatalystBarrierStory(Scene):\n    def construct(self):\n        title = Text('Catalysts Lower the Barrier, Not the Endpoints', font_size=32).to_edge(UP)\n        axes = Axes(x_range=[0, 6, 1], y_range=[0, 4.5, 1], x_length=7.4, y_length=4.6, tips=False).shift(DOWN * 0.15)\n        axis_labels = axes.get_axis_labels(Text('reaction coordinate', font_size=22), Text('energy', font_size=22))\n        uncatalyzed = axes.plot(lambda x: 0.55 + 2.5 * np.exp(-((x - 2.8) ** 2) / 0.75) + 0.18 * x, x_range=[0.2, 5.8], color=RED_D)\n        catalyzed = axes.plot(lambda x: 0.55 + 1.35 * np.exp(-((x - 2.8) ** 2) / 0.75) + 0.18 * x, x_range=[0.2, 5.8], color=GREEN_D)\n        reactants = Dot(axes.c2p(0.4, 0.65), color=YELLOW_D, radius=0.07)\n        products = Dot(axes.c2p(5.5, 1.55), color=YELLOW_D, radius=0.07)\n        label_uncat = Text('uncatalyzed', font_size=22, color=RED_D).next_to(uncatalyzed, UP, buff=0.15)\n        label_cat = Text('catalyzed', font_size=22, color=GREEN_D).next_to(catalyzed, DOWN, buff=0.2)\n        arrow_uncat = DoubleArrow(axes.c2p(2.8, 0.65), axes.c2p(2.8, 3.55), color=RED_D, buff=0.0)\n        arrow_cat = DoubleArrow(axes.c2p(3.35, 0.65), axes.c2p(3.35, 2.35), color=GREEN_D, buff=0.0)\n        caption = Text('The catalyst changes the path by lowering the peak that must be crossed.', font_size=22, color=WHITE).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(axes), FadeIn(axis_labels), FadeIn(reactants), FadeIn(products), run_time=2)\n        self.play(Create(uncatalyzed), FadeIn(label_uncat), run_time=2)\n        self.play(Create(catalyzed), FadeIn(label_cat), run_time=2)\n        self.play(GrowArrow(arrow_uncat), GrowArrow(arrow_cat), FadeIn(caption), run_time=2)\n        self.wait(1)\n",
+    "entry_scene": "CatalystBarrierStory",
+    "tags": [
+      "review-candidate",
+      "chemistry",
+      "reaction-coordinate",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Axes(",
+      ".plot(",
+      "DoubleArrow(",
+      "Dot("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 2",
+    "source_domain": "chemistry",
+    "source_repo_path": "data/manim_review_candidates_round2.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 14,
+    "target_duration_tolerance_seconds": 4,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_eclipse_shadow_story",
+    "prompt": "Create a 12-second Manim scene that explains a solar eclipse with simple geometry. Show the Sun on the left, the Moon moving into alignment, the Earth on the right, and a dark shadow cone that lands on a small patch of Earth when the bodies line up.",
+    "completion": "from manim import *\n\nclass EclipseShadowStory(Scene):\n    def construct(self):\n        title = Text('Solar Eclipse Alignment', font_size=34).to_edge(UP)\n        sun = Circle(radius=0.9, color=ORANGE, fill_color=ORANGE, fill_opacity=0.35).shift(LEFT * 4.5 + DOWN * 0.1)\n        sun_label = Text('Sun', font_size=24, color=ORANGE).next_to(sun, DOWN, buff=0.18)\n        earth = Circle(radius=0.55, color=BLUE_D, fill_color=BLUE_E, fill_opacity=0.35).shift(RIGHT * 4.2 + DOWN * 0.1)\n        earth_label = Text('Earth', font_size=24, color=BLUE_D).next_to(earth, DOWN, buff=0.18)\n        moon = Circle(radius=0.24, color=GRAY_B, fill_color=WHITE, fill_opacity=0.9).shift(LEFT * 1.1 + UP * 0.9)\n        moon_target = RIGHT * 0.3 + DOWN * 0.1\n        moon_label = Text('Moon', font_size=22, color=WHITE).next_to(moon, UP, buff=0.12)\n        shadow = Polygon(LEFT * 0.02 + UP * 0.18, LEFT * 0.02 + DOWN * 0.18, RIGHT * 3.55 + DOWN * 0.12, RIGHT * 3.55 + UP * 0.12, color=GRAY_E, fill_color=GRAY_E, fill_opacity=0.45, stroke_width=0).shift(moon_target)\n        shadow_note = Text('small shadow patch', font_size=22, color=GRAY_E).next_to(earth, UP, buff=0.22)\n        alignment_line = DashedLine(sun.get_center(), earth.get_center(), color=YELLOW_D)\n        caption = Text('An eclipse happens only when the Moon crosses the Sun-Earth line closely enough to cast a shadow.', font_size=22, color=WHITE).to_edge(DOWN)\n\n        self.play(FadeIn(title), FadeIn(sun), FadeIn(sun_label), FadeIn(earth), FadeIn(earth_label), Create(alignment_line), run_time=2)\n        self.play(FadeIn(moon), FadeIn(moon_label), run_time=1.5)\n        self.play(moon.animate.move_to(moon_target), moon_label.animate.next_to(moon_target, UP, buff=0.12), run_time=2.5)\n        self.play(FadeIn(shadow), FadeIn(shadow_note), FadeIn(caption), run_time=2)\n        self.wait(1)\n",
+    "entry_scene": "EclipseShadowStory",
+    "tags": [
+      "review-candidate",
+      "astronomy",
+      "geometry",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Circle(",
+      "Polygon(",
+      "DashedLine(",
+      ".animate.move_to("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 2",
+    "source_domain": "astronomy",
+    "source_repo_path": "data/manim_review_candidates_round2.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  }
+]

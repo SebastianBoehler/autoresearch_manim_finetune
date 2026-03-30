@@ -1,0 +1,258 @@
+[
+  {
+    "case_id": "candidate_eigenvector_stretch_story",
+    "prompt": "Create a 12-second Manim scene that explains an eigenvector as a direction that keeps its direction under a linear transformation. Show an eigen-line, a vector on that line stretching without turning, and a comparison vector that changes direction.",
+    "completion": "from manim import *\n\nclass EigenvectorStretchStory(Scene):\n    def construct(self):\n        title = Text('Eigenvectors Keep Their Direction', font_size=34).to_edge(UP)\n        plane = NumberPlane(x_range=[-3, 3, 1], y_range=[-3, 3, 1], x_length=6.4, y_length=6.4, background_line_style={'stroke_opacity': 0.18}).shift(LEFT * 1.1 + DOWN * 0.2)\n        eigen_line = DashedLine(plane.c2p(-2.3, -1.4), plane.c2p(2.3, 1.4), color=GRAY_B)\n        v = Arrow(plane.c2p(0, 0), plane.c2p(1.0, 0.6), buff=0, color=BLUE_D)\n        stretched_v = Arrow(plane.c2p(0, 0), plane.c2p(2.0, 1.2), buff=0, color=BLUE_D)\n        w = Arrow(plane.c2p(0, 0), plane.c2p(0.6, 1.4), buff=0, color=RED_D)\n        moved_w = Arrow(plane.c2p(0, 0), plane.c2p(1.4, 1.0), buff=0, color=RED_D)\n        label_v = Text('same direction', font_size=22, color=BLUE_D).next_to(stretched_v.get_end(), RIGHT, buff=0.12)\n        label_w = Text('direction changes', font_size=22, color=RED_D).next_to(moved_w.get_end(), RIGHT, buff=0.12)\n        matrix = MathTex(r'A v = \\lambda v', font_size=34).to_corner(UR).shift(DOWN * 0.6)\n        caption = Text('An eigenvector may stretch or shrink, but it does not rotate away from its line.', font_size=22, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), Create(plane), Create(eigen_line), FadeIn(matrix), run_time=2)\n        self.play(GrowArrow(v), GrowArrow(w), run_time=2)\n        self.play(ReplacementTransform(v, stretched_v), ReplacementTransform(w, moved_w), FadeIn(label_v), FadeIn(label_w), run_time=3)\n        self.play(FadeIn(caption_group), Indicate(stretched_v, color=YELLOW_A), run_time=2)\n        self.wait(1)\n",
+    "entry_scene": "EigenvectorStretchStory",
+    "tags": [
+      "review-candidate",
+      "math",
+      "linear-algebra",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "NumberPlane(",
+      "Arrow(",
+      "MathTex(",
+      "ReplacementTransform("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 4",
+    "source_domain": "math",
+    "source_repo_path": "data/manim_review_candidates_round4.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_bfs_frontier_grid_story",
+    "prompt": "Create a 12-second Manim scene that explains breadth-first search as a frontier expanding one layer at a time on a grid. Show a start cell, then color three successive frontier layers so the wave pattern is obvious.",
+    "completion": "from manim import *\n\nclass BFSFrontierGridStory(Scene):\n    def construct(self):\n        title = Text('BFS Expands in Layers', font_size=34).to_edge(UP)\n        grid = VGroup()\n        for row in range(4):\n            for col in range(4):\n                cell = Square(side_length=0.72, color=GRAY_B, fill_color=WHITE, fill_opacity=0.0)\n                cell.move_to(np.array([col * 0.8, -row * 0.8, 0]))\n                grid.add(cell)\n        grid.move_to(ORIGIN + DOWN * 0.1)\n        start = grid[5]\n        layer_one = VGroup(grid[1], grid[4], grid[6], grid[9])\n        layer_two = VGroup(grid[0], grid[2], grid[7], grid[8], grid[10], grid[13])\n        layer_three = VGroup(grid[3], grid[11], grid[12], grid[14])\n        start_label = Text('start', font_size=22, color=BLUE_D).next_to(start, LEFT, buff=0.22)\n        caption = Text('Each BFS step visits every node at one distance before moving outward.', font_size=22, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), LaggedStart(*[Create(cell) for cell in grid], lag_ratio=0.05), run_time=2.2)\n        self.play(start.animate.set_fill(BLUE_D, opacity=0.32), FadeIn(start_label), run_time=1.2)\n        self.play(*[cell.animate.set_fill(GREEN_D, opacity=0.28) for cell in layer_one], run_time=1.3)\n        self.play(*[cell.animate.set_fill(YELLOW_D, opacity=0.3) for cell in layer_two], run_time=1.5)\n        self.play(*[cell.animate.set_fill(RED_D, opacity=0.28) for cell in layer_three], FadeIn(caption_group), run_time=1.6)\n        self.wait(1)\n",
+    "entry_scene": "BFSFrontierGridStory",
+    "tags": [
+      "review-candidate",
+      "computer-science",
+      "algorithm",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Square(",
+      "VGroup(",
+      ".animate.set_fill(",
+      "LaggedStart("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 4",
+    "source_domain": "computer-science",
+    "source_repo_path": "data/manim_review_candidates_round4.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_inverse_square_force_story",
+    "prompt": "Create a 12-second Manim scene that explains the inverse-square pattern for force intensity. Show a source on the left, three objects at increasing distances, and force arrows whose lengths shrink quickly as distance doubles and triples.",
+    "completion": "from manim import *\n\nclass InverseSquareForceStory(Scene):\n    def construct(self):\n        title = Text('Inverse-Square Forces Drop Fast', font_size=34).to_edge(UP)\n        baseline = NumberLine(x_range=[0, 6, 1], length=8.4, include_numbers=False).shift(DOWN * 0.4)\n        source = Dot(baseline.n2p(0.6), color=ORANGE, radius=0.12)\n        source_glow = Circle(radius=0.28, color=ORANGE, fill_color=ORANGE, fill_opacity=0.28).move_to(source)\n        bodies = VGroup(Dot(baseline.n2p(2.0), color=BLUE_D, radius=0.09), Dot(baseline.n2p(3.5), color=BLUE_D, radius=0.09), Dot(baseline.n2p(5.0), color=BLUE_D, radius=0.09))\n        labels = VGroup(Text('r', font_size=22, color=WHITE).next_to(bodies[0], DOWN, buff=0.18), Text('2r', font_size=22, color=WHITE).next_to(bodies[1], DOWN, buff=0.18), Text('3r', font_size=22, color=WHITE).next_to(bodies[2], DOWN, buff=0.18))\n        forces = VGroup(Arrow(bodies[0].get_center() + UP * 0.1, bodies[0].get_center() + UP * 1.3, buff=0, color=GREEN_D, stroke_width=6), Arrow(bodies[1].get_center() + UP * 0.1, bodies[1].get_center() + UP * 0.75, buff=0, color=GREEN_D, stroke_width=6), Arrow(bodies[2].get_center() + UP * 0.1, bodies[2].get_center() + UP * 0.42, buff=0, color=GREEN_D, stroke_width=6))\n        note = Text('distance up, force down fast', font_size=24, color=GREEN_D).next_to(forces, UP, buff=0.35)\n        caption = Text('Doubling distance spreads the same influence over a much larger area.', font_size=22, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), Create(baseline), FadeIn(source_glow), FadeIn(source), run_time=2)\n        self.play(FadeIn(bodies), FadeIn(labels), run_time=1.5)\n        self.play(LaggedStart(*[GrowArrow(force) for force in forces], lag_ratio=0.2), FadeIn(note), run_time=2.5)\n        self.play(FadeIn(caption_group), run_time=1.5)\n        self.wait(1)\n",
+    "entry_scene": "InverseSquareForceStory",
+    "tags": [
+      "review-candidate",
+      "physics",
+      "forces",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "NumberLine(",
+      "Dot(",
+      "Arrow(",
+      "LaggedStart("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 4",
+    "source_domain": "physics",
+    "source_repo_path": "data/manim_review_candidates_round4.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_logistic_growth_capacity_story",
+    "prompt": "Create a 12-second Manim scene that explains logistic growth with a carrying capacity. Show an S-shaped curve, a dashed capacity line, and a moving point that grows quickly at first and then slows near the top.",
+    "completion": "from manim import *\n\nclass LogisticGrowthCapacityStory(Scene):\n    def construct(self):\n        title = Text('Growth Slows Near Carrying Capacity', font_size=32).to_edge(UP)\n        axes = Axes(x_range=[0, 10, 2], y_range=[0, 1.1, 0.2], x_length=7.6, y_length=4.8, tips=False).shift(DOWN * 0.2)\n        curve = axes.plot(lambda x: 1 / (1 + np.exp(-(x - 4.5))), x_range=[0, 10], color=BLUE_D)\n        capacity = DashedLine(axes.c2p(0, 1.0), axes.c2p(10, 1.0), color=GREEN_D)\n        capacity_label = Text('carrying capacity', font_size=22, color=GREEN_D).next_to(capacity, UP, buff=0.16)\n        tracker = ValueTracker(1.4)\n        moving_dot = always_redraw(lambda: Dot(axes.c2p(tracker.get_value(), 1 / (1 + np.exp(-(tracker.get_value() - 4.5)))), color=YELLOW_D, radius=0.08))\n        caption = Text('Early growth is steep, but crowding and limits flatten the curve.', font_size=22, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), Create(axes), Create(capacity), FadeIn(capacity_label), run_time=2)\n        self.play(Create(curve), FadeIn(moving_dot), run_time=2)\n        self.play(tracker.animate.set_value(8.6), run_time=4)\n        self.play(FadeIn(caption_group), run_time=1.5)\n        self.wait(1)\n",
+    "entry_scene": "LogisticGrowthCapacityStory",
+    "tags": [
+      "review-candidate",
+      "biology",
+      "population-dynamics",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Axes(",
+      ".plot(",
+      "ValueTracker(",
+      "always_redraw("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 4",
+    "source_domain": "biology",
+    "source_repo_path": "data/manim_review_candidates_round4.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_weighted_mean_balance_story",
+    "prompt": "Create a 12-second Manim scene that explains a weighted mean as a balance point pulled toward heavier observations. Show two values on a number line with unequal weights and place the weighted average closer to the heavier side.",
+    "completion": "from manim import *\n\nclass WeightedMeanBalanceStory(Scene):\n    def construct(self):\n        title = Text('A Weighted Mean Leans Toward Heavier Values', font_size=30).to_edge(UP)\n        line = NumberLine(x_range=[0, 10, 1], length=8.6, include_numbers=True).shift(DOWN * 0.25)\n        point_a = Dot(line.n2p(2), color=BLUE_D, radius=0.08)\n        point_b = Dot(line.n2p(8), color=RED_D, radius=0.08)\n        weight_a = VGroup(*[Circle(radius=0.12, color=BLUE_D, fill_color=BLUE_D, fill_opacity=0.28).shift(line.n2p(2) + UP * (0.5 + i * 0.28)) for i in range(1)])\n        weight_b = VGroup(*[Circle(radius=0.12, color=RED_D, fill_color=RED_D, fill_opacity=0.28).shift(line.n2p(8) + UP * (0.5 + i * 0.28)) for i in range(3)])\n        mean_dot = Dot(line.n2p(6.5), color=GREEN_D, radius=0.1)\n        mean_label = Text('weighted mean', font_size=22, color=GREEN_D).next_to(mean_dot, UP, buff=0.18)\n        label_a = Text('value 2, weight 1', font_size=20, color=BLUE_D).next_to(point_a, DOWN, buff=0.22)\n        label_b = Text('value 8, weight 3', font_size=20, color=RED_D).next_to(point_b, DOWN, buff=0.22)\n        caption = Text('The heavier observation pulls the average toward its side.', font_size=22, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), Create(line), FadeIn(point_a), FadeIn(point_b), FadeIn(label_a), FadeIn(label_b), run_time=2.2)\n        self.play(FadeIn(weight_a), FadeIn(weight_b), run_time=1.6)\n        self.play(FadeIn(mean_dot), FadeIn(mean_label), run_time=1.5)\n        self.play(FadeIn(caption_group), Indicate(mean_dot, color=YELLOW_A), run_time=2)\n        self.wait(1)\n",
+    "entry_scene": "WeightedMeanBalanceStory",
+    "tags": [
+      "review-candidate",
+      "statistics",
+      "averages",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "NumberLine(",
+      "Dot(",
+      "Circle(",
+      "Indicate("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 4",
+    "source_domain": "statistics",
+    "source_repo_path": "data/manim_review_candidates_round4.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_budget_line_pivot_story",
+    "prompt": "Create a 12-second Manim scene that explains how a budget line pivots when the price of one good changes while income and the other price stay fixed. Keep the y-intercept fixed and rotate the line inward so the smaller x-intercept is obvious.",
+    "completion": "from manim import *\n\nclass BudgetLinePivotStory(Scene):\n    def construct(self):\n        title = Text('A Price Change Pivots the Budget Line', font_size=31).to_edge(UP)\n        axes = Axes(x_range=[0, 10, 2], y_range=[0, 10, 2], x_length=6.8, y_length=6.0, tips=False).shift(DOWN * 0.25)\n        initial_line = Line(axes.c2p(0, 8), axes.c2p(8, 0), color=BLUE_D, stroke_width=6)\n        new_line = Line(axes.c2p(0, 8), axes.c2p(5.2, 0), color=RED_D, stroke_width=6)\n        fixed_point = Dot(axes.c2p(0, 8), color=YELLOW_D, radius=0.08)\n        label_initial = Text('before', font_size=22, color=BLUE_D).next_to(initial_line, UP, buff=0.2)\n        label_new = Text('after x gets pricier', font_size=22, color=RED_D).next_to(new_line, RIGHT, buff=0.16)\n        x_mark = Text('same income, same y-price', font_size=22, color=YELLOW_D).next_to(fixed_point, LEFT, buff=0.25)\n        caption = Text('Only one intercept moves, so the feasible tradeoff line pivots.', font_size=22, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), Create(axes), FadeIn(fixed_point), FadeIn(x_mark), run_time=2)\n        self.play(Create(initial_line), FadeIn(label_initial), run_time=1.8)\n        self.play(ReplacementTransform(initial_line, new_line), Transform(label_initial, label_new), run_time=2.5)\n        self.play(FadeIn(caption_group), run_time=1.5)\n        self.wait(1)\n",
+    "entry_scene": "BudgetLinePivotStory",
+    "tags": [
+      "review-candidate",
+      "economics",
+      "microeconomics",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Axes(",
+      "Line(",
+      "Dot(",
+      "ReplacementTransform("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 4",
+    "source_domain": "economics",
+    "source_repo_path": "data/manim_review_candidates_round4.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_vsepr_tetrahedral_story",
+    "prompt": "Create a 12-second Manim scene that explains the tetrahedral arrangement in VSEPR. Show one central atom with four bonds spreading apart, using a simple 2D projection with one dashed back bond and a note about the roughly 109.5 degree separation.",
+    "completion": "from manim import *\n\nclass VSEPRTetrahedralStory(Scene):\n    def construct(self):\n        title = Text('Four Electron Groups Spread Tetrahedrally', font_size=30).to_edge(UP)\n        center = Circle(radius=0.32, color=BLUE_D, fill_color=BLUE_D, fill_opacity=0.3)\n        center_label = Text('C', font_size=26, color=BLUE_D).move_to(center)\n        bond_top = Line(center.get_center(), UP * 1.9, color=GREEN_D, stroke_width=5)\n        bond_left = Line(center.get_center(), LEFT * 1.55 + DOWN * 1.0, color=GREEN_D, stroke_width=5)\n        bond_right = Line(center.get_center(), RIGHT * 1.55 + DOWN * 1.0, color=GREEN_D, stroke_width=5)\n        bond_back = DashedLine(center.get_center(), RIGHT * 0.95 + UP * 1.05, color=GRAY_B, dash_length=0.14)\n        atoms = VGroup(Circle(radius=0.22, color=WHITE, fill_color=WHITE, fill_opacity=0.95).move_to(UP * 1.9), Circle(radius=0.22, color=WHITE, fill_color=WHITE, fill_opacity=0.95).move_to(LEFT * 1.55 + DOWN * 1.0), Circle(radius=0.22, color=WHITE, fill_color=WHITE, fill_opacity=0.95).move_to(RIGHT * 1.55 + DOWN * 1.0), Circle(radius=0.2, color=WHITE, fill_color=WHITE, fill_opacity=0.8).move_to(RIGHT * 0.95 + UP * 1.05))\n        angle_note = Text('about 109.5 degrees', font_size=24, color=YELLOW_D).next_to(center, DOWN, buff=1.2)\n        caption = Text('The groups spread out to stay as far apart as possible.', font_size=22, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), FadeIn(center), FadeIn(center_label), run_time=1.8)\n        self.play(Create(bond_top), Create(bond_left), Create(bond_right), Create(bond_back), FadeIn(atoms), run_time=2.5)\n        self.play(FadeIn(angle_note), run_time=1.2)\n        self.play(FadeIn(caption_group), Indicate(VGroup(bond_top, bond_left, bond_right), color=YELLOW_A), run_time=2)\n        self.wait(1)\n",
+    "entry_scene": "VSEPRTetrahedralStory",
+    "tags": [
+      "review-candidate",
+      "chemistry",
+      "molecular-geometry",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Circle(",
+      "Line(",
+      "DashedLine(",
+      "Indicate("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 4",
+    "source_domain": "chemistry",
+    "source_repo_path": "data/manim_review_candidates_round4.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_parallax_baseline_story",
+    "prompt": "Create a 12-second Manim scene that explains stellar parallax. Show two Earth positions on a baseline, one nearby star, and two sight lines that hit slightly different apparent positions against a distant background so the shift is clear.",
+    "completion": "from manim import *\n\nclass ParallaxBaselineStory(Scene):\n    def construct(self):\n        title = Text('Parallax Uses a Baseline to Measure Distance', font_size=29).to_edge(UP)\n        baseline = Line(LEFT * 3.2 + DOWN * 1.8, RIGHT * 1.0 + DOWN * 1.8, color=BLUE_D, stroke_width=4)\n        earth_a = Dot(LEFT * 3.2 + DOWN * 1.8, color=BLUE_D, radius=0.11)\n        earth_b = Dot(RIGHT * 1.0 + DOWN * 1.8, color=BLUE_D, radius=0.11)\n        labels = VGroup(Text('Earth A', font_size=20, color=BLUE_D).next_to(earth_a, DOWN, buff=0.16), Text('Earth B', font_size=20, color=BLUE_D).next_to(earth_b, DOWN, buff=0.16))\n        star = Dot(RIGHT * 0.2 + UP * 1.1, color=YELLOW_D, radius=0.13)\n        star_label = Text('nearby star', font_size=22, color=YELLOW_D).next_to(star, UP, buff=0.16)\n        background = DashedLine(RIGHT * 4.2 + DOWN * 2.3, RIGHT * 4.2 + UP * 2.3, color=GRAY_B)\n        bg_label = Text('distant background', font_size=20, color=WHITE).next_to(background, UP, buff=0.16)\n        sight_a = Line(earth_a.get_center(), star.get_center(), color=GREEN_D)\n        sight_b = Line(earth_b.get_center(), star.get_center(), color=RED_D)\n        mark_a = Dot(RIGHT * 4.2 + UP * 0.95, color=GREEN_D, radius=0.08)\n        mark_b = Dot(RIGHT * 4.2 + UP * 0.35, color=RED_D, radius=0.08)\n        shift_arrow = DoubleArrow(mark_b.get_center(), mark_a.get_center(), color=YELLOW_D, buff=0.08)\n        caption = Text('A larger apparent shift means the star is closer to us.', font_size=22, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), Create(baseline), FadeIn(earth_a), FadeIn(earth_b), FadeIn(labels), run_time=2)\n        self.play(FadeIn(star), FadeIn(star_label), Create(background), FadeIn(bg_label), run_time=1.8)\n        self.play(Create(sight_a), FadeIn(mark_a), run_time=1.4)\n        self.play(Create(sight_b), FadeIn(mark_b), GrowArrow(shift_arrow), run_time=1.8)\n        self.play(FadeIn(caption_group), run_time=1.4)\n        self.wait(1)\n",
+    "entry_scene": "ParallaxBaselineStory",
+    "tags": [
+      "review-candidate",
+      "astronomy",
+      "distance-measurement",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Line(",
+      "Dot(",
+      "DashedLine(",
+      "DoubleArrow("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 4",
+    "source_domain": "astronomy",
+    "source_repo_path": "data/manim_review_candidates_round4.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  }
+]
