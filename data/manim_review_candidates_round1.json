@@ -2,11 +2,26 @@
   {
     "case_id": "candidate_tangent_slope_probe",
     "prompt": "Create a 10-second Manim scene that explains how a tangent slope changes along a curve. Show axes, a smooth cubic graph, a moving probe dot, and a tangent line that updates as the probe slides from left to right.",
-    "completion": "from manim import *\n\nclass TangentSlopeProbe(Scene):\n    def construct(self):\n        title = Text(\"Changing Tangent Slope\", font_size=34).to_edge(UP)\n        axes = Axes(\n            x_range=[-2.5, 2.5, 1],\n            y_range=[-3, 3, 1],\n            x_length=7,\n            y_length=4.5,\n            tips=False,\n        ).shift(DOWN * 0.2)\n        axis_labels = axes.get_axis_labels(Text(\"x\", font_size=22), Text(\"f(x)\", font_size=22))\n\n        def curve(x):\n            return 0.45 * x**3 - 1.2 * x\n\n        def slope(x):\n            return 1.35 * x**2 - 1.2\n\n        graph = axes.plot(curve, x_range=[-2.2, 2.2], color=BLUE_D)\n        tracker = ValueTracker(-1.7)\n        probe_dot = always_redraw(\n            lambda: Dot(axes.c2p(tracker.get_value(), curve(tracker.get_value())), color=YELLOW_D, radius=0.07)\n        )\n        tangent_line = always_redraw(\n            lambda: axes.plot(\n                lambda u: slope(tracker.get_value()) * (u - tracker.get_value()) + curve(tracker.get_value()),\n                x_range=[tracker.get_value() - 0.75, tracker.get_value() + 0.75],\n                color=GREEN_D,\n            )\n        )\n        slope_readout = always_redraw(\n            lambda: VGroup(\n                Text(\"slope\", font_size=22, color=GRAY_C),\n                DecimalNumber(slope(tracker.get_value()), num_decimal_places=2, font_size=24, color=GREEN_D),\n            ).arrange(RIGHT, buff=0.12).to_corner(UR).shift(DOWN * 0.4)\n        )\n        caption = Text(\"The tangent gets steeper or flatter depending on where we probe.\", font_size=24, color=GRAY_C).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(axes), FadeIn(axis_labels), run_time=2)\n        self.play(Create(graph), run_time=2)\n        self.play(FadeIn(probe_dot), Create(tangent_line), FadeIn(slope_readout), run_time=1.5)\n        self.play(tracker.animate.set_value(1.8), run_time=4)\n        self.play(FadeIn(caption), run_time=1)\n        self.wait(1)\n",
+    "completion": "from manim import *\n\nclass TangentSlopeProbe(Scene):\n    def construct(self):\n        title = Text(\"Changing Tangent Slope\", font_size=34).to_edge(UP)\n        axes = Axes(\n            x_range=[-2.5, 2.5, 1],\n            y_range=[-3, 3, 1],\n            x_length=7,\n            y_length=4.5,\n            tips=False,\n        ).shift(DOWN * 0.2)\n        axis_labels = axes.get_axis_labels(Text(\"x\", font_size=22), Text(\"f(x)\", font_size=22))\n\n        def curve(x):\n            return 0.45 * x**3 - 1.2 * x\n\n        def slope(x):\n            return 1.35 * x**2 - 1.2\n\n        graph = axes.plot(curve, x_range=[-2.2, 2.2], color=BLUE_D)\n        tracker = ValueTracker(-1.7)\n        probe_dot = always_redraw(\n            lambda: Dot(axes.c2p(tracker.get_value(), curve(tracker.get_value())), color=YELLOW_D, radius=0.07)\n        )\n        tangent_line = always_redraw(\n            lambda: axes.plot(\n                lambda u: slope(tracker.get_value()) * (u - tracker.get_value()) + curve(tracker.get_value()),\n                x_range=[tracker.get_value() - 0.75, tracker.get_value() + 0.75],\n                color=GREEN_D,\n            )\n        )\n        slope_readout = always_redraw(\n            lambda: VGroup(\n                Text(\"slope\", font_size=22, color=WHITE),\n                DecimalNumber(slope(tracker.get_value()), num_decimal_places=2, font_size=24, color=GREEN_D),\n            ).arrange(RIGHT, buff=0.12).to_corner(UR).shift(DOWN * 0.4)\n        )\n        caption = Text(\"The tangent gets steeper or flatter depending on where we probe.\", font_size=24, color=WHITE).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(axes), FadeIn(axis_labels), run_time=2)\n        self.play(Create(graph), run_time=2)\n        self.play(FadeIn(probe_dot), Create(tangent_line), FadeIn(slope_readout), run_time=1.5)\n        self.play(tracker.animate.set_value(1.8), run_time=4)\n        self.play(FadeIn(caption), run_time=1)\n        self.wait(1)\n",
     "entry_scene": "TangentSlopeProbe",
-    "tags": ["review-candidate", "math", "calculus", "10s", "tier:candidate", "status:unreviewed"],
-    "must_contain": ["Axes(", "ValueTracker(", "always_redraw", "DecimalNumber("],
-    "must_not_contain": ["manim_ml", "manim_chemistry"],
+    "tags": [
+      "review-candidate",
+      "math",
+      "calculus",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Axes(",
+      "ValueTracker(",
+      "always_redraw",
+      "DecimalNumber("
+    ],
+    "must_not_contain": [
+      "manim_ml",
+      "manim_chemistry"
+    ],
     "source_name": "Codex review candidate batch 1",
     "source_domain": "math",
     "source_repo_path": "data/manim_review_candidates_round1.json",
@@ -14,16 +29,32 @@
     "is_plain_manim_candidate": true,
     "requires_manual_conversion": false,
     "target_duration_seconds": 10,
-    "target_duration_tolerance_seconds": 3
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
   },
   {
     "case_id": "candidate_complex_roots_polygon_story",
     "prompt": "Create a 12-second Manim scene that shows the fourth roots of unity on the complex plane. Draw the unit circle, place four labeled roots, connect them into a square, and emphasize that each root is evenly spaced by ninety degrees.",
-    "completion": "from manim import *\n\nclass ComplexRootsPolygonStory(Scene):\n    def construct(self):\n        title = Text(\"Fourth Roots of Unity\", font_size=34).to_edge(UP)\n        plane = ComplexPlane(\n            x_range=[-2.5, 2.5, 1],\n            y_range=[-2.5, 2.5, 1],\n            x_length=6,\n            y_length=6,\n            background_line_style={\"stroke_opacity\": 0.25},\n        ).shift(DOWN * 0.2)\n        plane_labels = plane.get_axis_labels(Text(\"Re\", font_size=22), Text(\"Im\", font_size=22))\n        center = plane.n2p(0)\n        unit_circle = Circle(radius=plane.get_x_unit_size(), color=BLUE_D).move_to(center)\n        root_values = [1, 1j, -1, -1j]\n        directions = [RIGHT, UP, LEFT, DOWN]\n        point_group = VGroup()\n        label_group = VGroup()\n        for index, (value, direction) in enumerate(zip(root_values, directions), start=1):\n            point = Dot(plane.n2p(value), color=YELLOW_D, radius=0.08)\n            label = Text(f\"z{index}\", font_size=22, color=GRAY_C).next_to(point, direction, buff=0.18)\n            point_group.add(point)\n            label_group.add(label)\n        polygon = Polygon(*[point.get_center() for point in point_group], color=GREEN_D)\n        radii = VGroup(*[Line(center, point.get_center(), color=GRAY_B) for point in point_group])\n        angle_note = Text(\"Every root is separated by 90 degrees.\", font_size=24, color=GRAY_C).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(plane), FadeIn(plane_labels), run_time=2)\n        self.play(Create(unit_circle), run_time=1)\n        self.play(LaggedStart(*[Create(radius) for radius in radii], lag_ratio=0.2), LaggedStart(*[FadeIn(point) for point in point_group], lag_ratio=0.2), LaggedStart(*[FadeIn(label) for label in label_group], lag_ratio=0.2), run_time=3)\n        self.play(Create(polygon), run_time=2)\n        self.play(FadeIn(angle_note), Indicate(point_group, color=YELLOW_A), run_time=2)\n        self.wait(1)\n",
+    "completion": "from manim import *\n\nclass ComplexRootsPolygonStory(Scene):\n    def construct(self):\n        title = Text(\"Fourth Roots of Unity\", font_size=34).to_edge(UP)\n        plane = ComplexPlane(\n            x_range=[-2.5, 2.5, 1],\n            y_range=[-2.5, 2.5, 1],\n            x_length=6,\n            y_length=6,\n            background_line_style={\"stroke_opacity\": 0.25},\n        ).shift(DOWN * 0.2)\n        plane_labels = plane.get_axis_labels(Text(\"Re\", font_size=22), Text(\"Im\", font_size=22))\n        center = plane.n2p(0)\n        unit_circle = Circle(radius=plane.get_x_unit_size(), color=BLUE_D).move_to(center)\n        root_values = [1, 1j, -1, -1j]\n        directions = [RIGHT, UP, LEFT, DOWN]\n        point_group = VGroup()\n        label_group = VGroup()\n        for index, (value, direction) in enumerate(zip(root_values, directions), start=1):\n            point = Dot(plane.n2p(value), color=YELLOW_D, radius=0.08)\n            label = Text(f\"z{index}\", font_size=22, color=WHITE).next_to(point, direction, buff=0.18)\n            point_group.add(point)\n            label_group.add(label)\n        polygon = Polygon(*[point.get_center() for point in point_group], color=GREEN_D)\n        radii = VGroup(*[Line(center, point.get_center(), color=GRAY_B) for point in point_group])\n        angle_note = Text(\"Every root is separated by 90 degrees.\", font_size=24, color=WHITE).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(plane), FadeIn(plane_labels), run_time=2)\n        self.play(Create(unit_circle), run_time=1)\n        self.play(LaggedStart(*[Create(radius) for radius in radii], lag_ratio=0.2), LaggedStart(*[FadeIn(point) for point in point_group], lag_ratio=0.2), LaggedStart(*[FadeIn(label) for label in label_group], lag_ratio=0.2), run_time=3)\n        self.play(Create(polygon), run_time=2)\n        self.play(FadeIn(angle_note), Indicate(point_group, color=YELLOW_A), run_time=2)\n        self.wait(1)\n",
     "entry_scene": "ComplexRootsPolygonStory",
-    "tags": ["review-candidate", "math", "complex-plane", "10s", "tier:candidate", "status:unreviewed"],
-    "must_contain": ["ComplexPlane(", "Circle(", "Polygon(", "Dot("],
-    "must_not_contain": ["manim_ml", "manim_chemistry"],
+    "tags": [
+      "review-candidate",
+      "math",
+      "complex-plane",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "ComplexPlane(",
+      "Circle(",
+      "Polygon(",
+      "Dot("
+    ],
+    "must_not_contain": [
+      "manim_ml",
+      "manim_chemistry"
+    ],
     "source_name": "Codex review candidate batch 1",
     "source_domain": "math",
     "source_repo_path": "data/manim_review_candidates_round1.json",
@@ -31,16 +62,32 @@
     "is_plain_manim_candidate": true,
     "requires_manual_conversion": false,
     "target_duration_seconds": 12,
-    "target_duration_tolerance_seconds": 3
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
   },
   {
     "case_id": "candidate_binary_search_interval_story",
     "prompt": "Create a 15-second Manim scene that explains binary search on a sorted list. Show a row of numbered boxes, a highlighted search interval, a moving middle pointer, and two interval updates before the target is found.",
-    "completion": "from manim import *\n\nclass BinarySearchIntervalStory(Scene):\n    def construct(self):\n        title = Text(\"Binary Search\", font_size=34).to_edge(UP)\n        values = [4, 7, 11, 14, 18, 21, 26, 30]\n        cells = VGroup()\n        for value in values:\n            box = RoundedRectangle(corner_radius=0.08, width=0.9, height=0.62, color=BLUE_D, fill_color=BLUE_E, fill_opacity=0.14)\n            label = Integer(value, font_size=24).move_to(box)\n            cells.add(VGroup(box, label))\n        cells.arrange(RIGHT, buff=0.16).shift(DOWN * 0.4)\n        target_label = Text(\"target = 26\", font_size=26, color=YELLOW_D).next_to(cells, UP, buff=0.45)\n        pointer = Triangle(fill_color=YELLOW_D, fill_opacity=1, stroke_width=0).scale(0.14).rotate(PI).next_to(cells[3], UP, buff=0.12)\n\n        interval_one = SurroundingRectangle(VGroup(*cells[:]), color=GREEN_D, buff=0.08)\n        interval_two = SurroundingRectangle(VGroup(*cells[4:]), color=GREEN_D, buff=0.08)\n        interval_three = SurroundingRectangle(VGroup(*cells[6:7]), color=GREEN_D, buff=0.08)\n        mid_notes = VGroup(\n            Text(\"14 is too small\", font_size=24, color=GRAY_C).to_edge(DOWN),\n            Text(\"21 is too small\", font_size=24, color=GRAY_C).to_edge(DOWN),\n            Text(\"26 found\", font_size=24, color=GRAY_C).to_edge(DOWN),\n        )\n        found_box = SurroundingRectangle(cells[6], color=YELLOW_D, buff=0.1)\n\n        self.play(FadeIn(title), FadeIn(cells), FadeIn(target_label), run_time=2)\n        self.play(Create(interval_one), FadeIn(pointer), run_time=1.5)\n        self.play(FadeIn(mid_notes[0]), run_time=0.8)\n        self.play(pointer.animate.next_to(cells[5], UP, buff=0.12), ReplacementTransform(interval_one, interval_two), run_time=2)\n        self.play(Transform(mid_notes[0], mid_notes[1]), run_time=0.8)\n        self.play(pointer.animate.next_to(cells[6], UP, buff=0.12), ReplacementTransform(interval_two, interval_three), run_time=2)\n        self.play(Transform(mid_notes[0], mid_notes[2]), Create(found_box), Indicate(cells[6], color=YELLOW_A), run_time=2.5)\n        self.wait(1)\n",
+    "completion": "from manim import *\n\nclass BinarySearchIntervalStory(Scene):\n    def construct(self):\n        title = Text(\"Binary Search\", font_size=34).to_edge(UP)\n        values = [4, 7, 11, 14, 18, 21, 26, 30]\n        cells = VGroup()\n        for value in values:\n            box = RoundedRectangle(corner_radius=0.08, width=0.9, height=0.62, color=BLUE_D, fill_color=BLUE_E, fill_opacity=0.14)\n            label = Integer(value, font_size=24).move_to(box)\n            cells.add(VGroup(box, label))\n        cells.arrange(RIGHT, buff=0.16).shift(DOWN * 0.4)\n        target_label = Text(\"target = 26\", font_size=26, color=YELLOW_D).next_to(cells, UP, buff=0.45)\n        pointer = Triangle(fill_color=YELLOW_D, fill_opacity=1, stroke_width=0).scale(0.14).rotate(PI).next_to(cells[3], UP, buff=0.12)\n\n        interval_one = SurroundingRectangle(VGroup(*cells[:]), color=GREEN_D, buff=0.08)\n        interval_two = SurroundingRectangle(VGroup(*cells[4:]), color=GREEN_D, buff=0.08)\n        interval_three = SurroundingRectangle(VGroup(*cells[6:7]), color=GREEN_D, buff=0.08)\n        mid_notes = VGroup(\n            Text(\"14 is too small\", font_size=24, color=WHITE).to_edge(DOWN),\n            Text(\"21 is too small\", font_size=24, color=WHITE).to_edge(DOWN),\n            Text(\"26 found\", font_size=24, color=WHITE).to_edge(DOWN),\n        )\n        found_box = SurroundingRectangle(cells[6], color=YELLOW_D, buff=0.1)\n\n        self.play(FadeIn(title), FadeIn(cells), FadeIn(target_label), run_time=2)\n        self.play(Create(interval_one), FadeIn(pointer), run_time=1.5)\n        self.play(FadeIn(mid_notes[0]), run_time=0.8)\n        self.play(pointer.animate.next_to(cells[5], UP, buff=0.12), ReplacementTransform(interval_one, interval_two), run_time=2)\n        self.play(Transform(mid_notes[0], mid_notes[1]), run_time=0.8)\n        self.play(pointer.animate.next_to(cells[6], UP, buff=0.12), ReplacementTransform(interval_two, interval_three), run_time=2)\n        self.play(Transform(mid_notes[0], mid_notes[2]), Create(found_box), Indicate(cells[6], color=YELLOW_A), run_time=2.5)\n        self.wait(1)\n",
     "entry_scene": "BinarySearchIntervalStory",
-    "tags": ["review-candidate", "cs", "algorithm", "20s", "tier:candidate", "status:unreviewed"],
-    "must_contain": ["RoundedRectangle(", "Integer(", "SurroundingRectangle(", "Triangle("],
-    "must_not_contain": ["manim_ml", "manim_chemistry"],
+    "tags": [
+      "review-candidate",
+      "cs",
+      "algorithm",
+      "20s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "RoundedRectangle(",
+      "Integer(",
+      "SurroundingRectangle(",
+      "Triangle("
+    ],
+    "must_not_contain": [
+      "manim_ml",
+      "manim_chemistry"
+    ],
     "source_name": "Codex review candidate batch 1",
     "source_domain": "computer-science",
     "source_repo_path": "data/manim_review_candidates_round1.json",
@@ -48,16 +95,32 @@
     "is_plain_manim_candidate": true,
     "requires_manual_conversion": false,
     "target_duration_seconds": 15,
-    "target_duration_tolerance_seconds": 4
+    "target_duration_tolerance_seconds": 4,
+    "license": "MIT"
   },
   {
     "case_id": "candidate_convex_lens_ray_story",
     "prompt": "Create a 15-second Manim scene that explains image formation with a convex lens. Show the principal axis, a vertical lens, focal points on both sides, an upright object on the left, two principal rays, and the inverted image on the right.",
-    "completion": "from manim import *\n\nclass ConvexLensRayStory(Scene):\n    def construct(self):\n        title = Text(\"Convex Lens Ray Diagram\", font_size=34).to_edge(UP)\n        axis = DashedLine(LEFT * 6, RIGHT * 6, color=GRAY_C).shift(DOWN * 0.3)\n        lens = Line(UP * 2.1, DOWN * 2.1, color=BLUE_D, stroke_width=6).shift(DOWN * 0.3)\n        lens_label = Text(\"lens\", font_size=22, color=BLUE_D).next_to(lens, UP, buff=0.15)\n        left_focus = Dot(LEFT * 2.4 + DOWN * 0.3, color=YELLOW_D, radius=0.07)\n        right_focus = Dot(RIGHT * 2.4 + DOWN * 0.3, color=YELLOW_D, radius=0.07)\n        focus_labels = VGroup(\n            Text(\"F\", font_size=22, color=YELLOW_D).next_to(left_focus, DOWN, buff=0.12),\n            Text(\"F\", font_size=22, color=YELLOW_D).next_to(right_focus, DOWN, buff=0.12),\n        )\n        object_arrow = Arrow(LEFT * 4.7 + DOWN * 1.3, LEFT * 4.7 + UP * 1.1, buff=0, color=GREEN_D)\n        object_label = Text(\"object\", font_size=22, color=GREEN_D).next_to(object_arrow, LEFT, buff=0.15)\n        image_arrow = Arrow(RIGHT * 4.0 + UP * 0.8, RIGHT * 4.0 + DOWN * 1.7, buff=0, color=TEAL_D)\n        image_label = Text(\"image\", font_size=22, color=TEAL_D).next_to(image_arrow, RIGHT, buff=0.15)\n        ray_one_a = Line(object_arrow.get_end(), lens.get_center() + UP * 1.1, color=ORANGE)\n        ray_one_b = Line(lens.get_center() + UP * 1.1, image_arrow.get_end(), color=ORANGE)\n        ray_two_a = Line(object_arrow.get_end(), left_focus.get_center(), color=RED_D)\n        ray_two_b = Line(lens.get_center(), image_arrow.get_end(), color=RED_D)\n        caption = Text(\"A ray through the lens center stays straight, while a parallel ray bends through the focus.\", font_size=22, color=GRAY_C).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(axis), Create(lens), FadeIn(lens_label), run_time=2)\n        self.play(FadeIn(left_focus), FadeIn(right_focus), FadeIn(focus_labels), FadeIn(object_arrow), FadeIn(object_label), run_time=2)\n        self.play(Create(ray_one_a), Create(ray_one_b), run_time=2)\n        self.play(Create(ray_two_a), Create(ray_two_b), run_time=2)\n        self.play(FadeIn(image_arrow), FadeIn(image_label), FadeIn(caption), run_time=2)\n        self.play(Indicate(image_arrow, color=TEAL_A), run_time=1)\n        self.wait(1)\n",
+    "completion": "from manim import *\n\nclass ConvexLensRayStory(Scene):\n    def construct(self):\n        title = Text(\"Convex Lens Ray Diagram\", font_size=34).to_edge(UP)\n        axis = DashedLine(LEFT * 6, RIGHT * 6, color=WHITE).shift(DOWN * 0.3)\n        lens = Line(UP * 2.1, DOWN * 2.1, color=BLUE_D, stroke_width=6).shift(DOWN * 0.3)\n        lens_label = Text(\"lens\", font_size=22, color=BLUE_D).next_to(lens, UP, buff=0.15)\n        left_focus = Dot(LEFT * 2.4 + DOWN * 0.3, color=YELLOW_D, radius=0.07)\n        right_focus = Dot(RIGHT * 2.4 + DOWN * 0.3, color=YELLOW_D, radius=0.07)\n        focus_labels = VGroup(\n            Text(\"F\", font_size=22, color=YELLOW_D).next_to(left_focus, DOWN, buff=0.12),\n            Text(\"F\", font_size=22, color=YELLOW_D).next_to(right_focus, DOWN, buff=0.12),\n        )\n        object_arrow = Arrow(LEFT * 4.7 + DOWN * 1.3, LEFT * 4.7 + UP * 1.1, buff=0, color=GREEN_D)\n        object_label = Text(\"object\", font_size=22, color=GREEN_D).next_to(object_arrow, LEFT, buff=0.15)\n        image_arrow = Arrow(RIGHT * 4.0 + UP * 0.8, RIGHT * 4.0 + DOWN * 1.7, buff=0, color=TEAL_D)\n        image_label = Text(\"image\", font_size=22, color=TEAL_D).next_to(image_arrow, RIGHT, buff=0.15)\n        ray_one_a = Line(object_arrow.get_end(), lens.get_center() + UP * 1.1, color=ORANGE)\n        ray_one_b = Line(lens.get_center() + UP * 1.1, image_arrow.get_end(), color=ORANGE)\n        ray_two_a = Line(object_arrow.get_end(), left_focus.get_center(), color=RED_D)\n        ray_two_b = Line(lens.get_center(), image_arrow.get_end(), color=RED_D)\n        caption = Text(\"A ray through the lens center stays straight, while a parallel ray bends through the focus.\", font_size=22, color=WHITE).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(axis), Create(lens), FadeIn(lens_label), run_time=2)\n        self.play(FadeIn(left_focus), FadeIn(right_focus), FadeIn(focus_labels), FadeIn(object_arrow), FadeIn(object_label), run_time=2)\n        self.play(Create(ray_one_a), Create(ray_one_b), run_time=2)\n        self.play(Create(ray_two_a), Create(ray_two_b), run_time=2)\n        self.play(FadeIn(image_arrow), FadeIn(image_label), FadeIn(caption), run_time=2)\n        self.play(Indicate(image_arrow, color=TEAL_A), run_time=1)\n        self.wait(1)\n",
     "entry_scene": "ConvexLensRayStory",
-    "tags": ["review-candidate", "physics", "optics", "20s", "tier:candidate", "status:unreviewed"],
-    "must_contain": ["DashedLine(", "Line(", "Arrow(", "Dot("],
-    "must_not_contain": ["manim_ml", "manim_chemistry"],
+    "tags": [
+      "review-candidate",
+      "physics",
+      "optics",
+      "20s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "DashedLine(",
+      "Line(",
+      "Arrow(",
+      "Dot("
+    ],
+    "must_not_contain": [
+      "manim_ml",
+      "manim_chemistry"
+    ],
     "source_name": "Codex review candidate batch 1",
     "source_domain": "physics",
     "source_repo_path": "data/manim_review_candidates_round1.json",
@@ -65,16 +128,32 @@
     "is_plain_manim_candidate": true,
     "requires_manual_conversion": false,
     "target_duration_seconds": 15,
-    "target_duration_tolerance_seconds": 4
+    "target_duration_tolerance_seconds": 4,
+    "license": "MIT"
   },
   {
     "case_id": "candidate_gradient_descent_step_trace",
     "prompt": "Create a 12-second Manim scene that explains gradient descent on a one-dimensional loss curve. Show a parabola-like loss surface, several parameter updates moving downhill toward the minimum, and a caption that each step follows the local slope.",
-    "completion": "from manim import *\n\nclass GradientDescentStepTrace(Scene):\n    def construct(self):\n        title = Text(\"Gradient Descent Steps\", font_size=34).to_edge(UP)\n        axes = Axes(\n            x_range=[-2.5, 4.5, 1],\n            y_range=[0, 5, 1],\n            x_length=7,\n            y_length=4.5,\n            tips=False,\n        ).shift(DOWN * 0.2)\n        axis_labels = axes.get_axis_labels(Text(\"parameter\", font_size=22), Text(\"loss\", font_size=22))\n        loss_curve = axes.plot(lambda x: 0.48 * (x - 1.2) ** 2 + 0.7, x_range=[-2.0, 4.0], color=BLUE_D)\n        x_positions = [-1.6, -0.5, 0.3, 0.8, 1.1]\n        points = [Dot(axes.c2p(x, 0.48 * (x - 1.2) ** 2 + 0.7), color=YELLOW_D, radius=0.07) for x in x_positions]\n        point_group = VGroup(*points)\n        arrows = VGroup(*[\n            Arrow(points[i].get_center(), points[i + 1].get_center(), buff=0.08, color=GREEN_D, stroke_width=4)\n            for i in range(len(points) - 1)\n        ])\n        basin = SurroundingRectangle(point_group[-2:], color=TEAL_D, buff=0.12)\n        caption = Text(\"Each update moves opposite the local slope toward lower loss.\", font_size=24, color=GRAY_C).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(axes), FadeIn(axis_labels), run_time=2)\n        self.play(Create(loss_curve), run_time=2)\n        self.play(FadeIn(point_group[0]), run_time=0.5)\n        self.play(LaggedStart(*[GrowArrow(arrow) for arrow in arrows], lag_ratio=0.2), LaggedStart(*[FadeIn(dot) for dot in point_group[1:]], lag_ratio=0.2), run_time=4)\n        self.play(Create(basin), FadeIn(caption), run_time=2)\n        self.wait(1)\n",
+    "completion": "from manim import *\n\nclass GradientDescentStepTrace(Scene):\n    def construct(self):\n        title = Text(\"Gradient Descent Steps\", font_size=34).to_edge(UP)\n        axes = Axes(\n            x_range=[-2.5, 4.5, 1],\n            y_range=[0, 5, 1],\n            x_length=7,\n            y_length=4.5,\n            tips=False,\n        ).shift(DOWN * 0.2)\n        axis_labels = axes.get_axis_labels(Text(\"parameter\", font_size=22), Text(\"loss\", font_size=22))\n        loss_curve = axes.plot(lambda x: 0.48 * (x - 1.2) ** 2 + 0.7, x_range=[-2.0, 4.0], color=BLUE_D)\n        x_positions = [-1.6, -0.5, 0.3, 0.8, 1.1]\n        points = [Dot(axes.c2p(x, 0.48 * (x - 1.2) ** 2 + 0.7), color=YELLOW_D, radius=0.07) for x in x_positions]\n        point_group = VGroup(*points)\n        arrows = VGroup(*[\n            Arrow(points[i].get_center(), points[i + 1].get_center(), buff=0.08, color=GREEN_D, stroke_width=4)\n            for i in range(len(points) - 1)\n        ])\n        basin = SurroundingRectangle(point_group[-2:], color=TEAL_D, buff=0.12)\n        caption = Text(\"Each update moves opposite the local slope toward lower loss.\", font_size=24, color=WHITE).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(axes), FadeIn(axis_labels), run_time=2)\n        self.play(Create(loss_curve), run_time=2)\n        self.play(FadeIn(point_group[0]), run_time=0.5)\n        self.play(LaggedStart(*[GrowArrow(arrow) for arrow in arrows], lag_ratio=0.2), LaggedStart(*[FadeIn(dot) for dot in point_group[1:]], lag_ratio=0.2), run_time=4)\n        self.play(Create(basin), FadeIn(caption), run_time=2)\n        self.wait(1)\n",
     "entry_scene": "GradientDescentStepTrace",
-    "tags": ["review-candidate", "ml", "optimization", "10s", "tier:candidate", "status:unreviewed"],
-    "must_contain": ["Axes(", ".plot(", "Dot(", "Arrow("],
-    "must_not_contain": ["manim_ml", "manim_chemistry"],
+    "tags": [
+      "review-candidate",
+      "ml",
+      "optimization",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Axes(",
+      ".plot(",
+      "Dot(",
+      "Arrow("
+    ],
+    "must_not_contain": [
+      "manim_ml",
+      "manim_chemistry"
+    ],
     "source_name": "Codex review candidate batch 1",
     "source_domain": "ml",
     "source_repo_path": "data/manim_review_candidates_round1.json",
@@ -82,16 +161,32 @@
     "is_plain_manim_candidate": true,
     "requires_manual_conversion": false,
     "target_duration_seconds": 12,
-    "target_duration_tolerance_seconds": 3
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
   },
   {
     "case_id": "candidate_bayes_bar_update_story",
     "prompt": "Create a 12-second Manim scene that explains a Bayes-style belief update with simple bars. Show a prior probability panel, an evidence arrow in the middle, and a posterior panel where the highlighted bar becomes much taller after the update.",
-    "completion": "from manim import *\n\nclass BayesBarUpdateStory(Scene):\n    def construct(self):\n        title = Text(\"Belief Update\", font_size=34).to_edge(UP)\n\n        def make_panel(header, positive_height, color):\n            frame = Rectangle(width=2.3, height=3.1, color=GRAY_B)\n            positive = Rectangle(width=0.8, height=positive_height, color=color, fill_color=color, fill_opacity=0.4, stroke_width=2).align_to(frame, DOWN).shift(LEFT * 0.45 + UP * 0.1)\n            negative = Rectangle(width=0.8, height=2.6 - positive_height, color=BLUE_E, fill_color=BLUE_E, fill_opacity=0.2, stroke_width=2).next_to(positive, RIGHT, buff=0.2).align_to(positive, DOWN)\n            labels = VGroup(\n                Text(header, font_size=24).next_to(frame, UP, buff=0.18),\n                Text(\"event\", font_size=18, color=color).next_to(positive, DOWN, buff=0.12),\n                Text(\"not event\", font_size=18, color=BLUE_E).next_to(negative, DOWN, buff=0.12),\n            )\n            return VGroup(frame, positive, negative, labels)\n\n        prior = make_panel(\"Prior\", 0.65, ORANGE).shift(LEFT * 3.0 + DOWN * 0.1)\n        posterior = make_panel(\"Posterior\", 1.7, GREEN_D).shift(RIGHT * 3.0 + DOWN * 0.1)\n        evidence_arrow = Arrow(LEFT * 1.0, RIGHT * 1.0, color=YELLOW_D, buff=0)\n        evidence_text = Text(\"new evidence\", font_size=22, color=YELLOW_D).next_to(evidence_arrow, UP, buff=0.15)\n        change_note = Text(\"The favored explanation gains much more probability after seeing informative evidence.\", font_size=22, color=GRAY_C).to_edge(DOWN)\n\n        self.play(FadeIn(title), FadeIn(prior), run_time=2)\n        self.play(GrowArrow(evidence_arrow), FadeIn(evidence_text), run_time=1.5)\n        self.play(TransformFromCopy(prior, posterior), run_time=3)\n        self.play(FadeIn(change_note), Indicate(posterior[1], color=GREEN_A), run_time=2)\n        self.wait(1)\n",
+    "completion": "from manim import *\n\nclass BayesBarUpdateStory(Scene):\n    def construct(self):\n        title = Text(\"Belief Update\", font_size=34).to_edge(UP)\n\n        def make_panel(header, positive_height, color):\n            frame = Rectangle(width=2.3, height=3.1, color=GRAY_B)\n            positive = Rectangle(width=0.8, height=positive_height, color=color, fill_color=color, fill_opacity=0.4, stroke_width=2).align_to(frame, DOWN).shift(LEFT * 0.45 + UP * 0.1)\n            negative = Rectangle(width=0.8, height=2.6 - positive_height, color=BLUE_E, fill_color=BLUE_E, fill_opacity=0.2, stroke_width=2).next_to(positive, RIGHT, buff=0.2).align_to(positive, DOWN)\n            labels = VGroup(\n                Text(header, font_size=24).next_to(frame, UP, buff=0.18),\n                Text(\"event\", font_size=18, color=color).next_to(positive, DOWN, buff=0.12),\n                Text(\"not event\", font_size=18, color=BLUE_E).next_to(negative, DOWN, buff=0.12),\n            )\n            return VGroup(frame, positive, negative, labels)\n\n        prior = make_panel(\"Prior\", 0.65, ORANGE).shift(LEFT * 3.0 + DOWN * 0.1)\n        posterior = make_panel(\"Posterior\", 1.7, GREEN_D).shift(RIGHT * 3.0 + DOWN * 0.1)\n        evidence_arrow = Arrow(LEFT * 1.0, RIGHT * 1.0, color=YELLOW_D, buff=0)\n        evidence_text = Text(\"new evidence\", font_size=22, color=YELLOW_D).next_to(evidence_arrow, UP, buff=0.15)\n        change_note = Text(\"The favored explanation gains much more probability after seeing informative evidence.\", font_size=22, color=WHITE).to_edge(DOWN)\n\n        self.play(FadeIn(title), FadeIn(prior), run_time=2)\n        self.play(GrowArrow(evidence_arrow), FadeIn(evidence_text), run_time=1.5)\n        self.play(TransformFromCopy(prior, posterior), run_time=3)\n        self.play(FadeIn(change_note), Indicate(posterior[1], color=GREEN_A), run_time=2)\n        self.wait(1)\n",
     "entry_scene": "BayesBarUpdateStory",
-    "tags": ["review-candidate", "statistics", "bayes", "10s", "tier:candidate", "status:unreviewed"],
-    "must_contain": ["Rectangle(", "Arrow(", "TransformFromCopy(", "Text("],
-    "must_not_contain": ["manim_ml", "manim_chemistry"],
+    "tags": [
+      "review-candidate",
+      "statistics",
+      "bayes",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Rectangle(",
+      "Arrow(",
+      "TransformFromCopy(",
+      "Text("
+    ],
+    "must_not_contain": [
+      "manim_ml",
+      "manim_chemistry"
+    ],
     "source_name": "Codex review candidate batch 1",
     "source_domain": "statistics",
     "source_repo_path": "data/manim_review_candidates_round1.json",
@@ -99,16 +194,32 @@
     "is_plain_manim_candidate": true,
     "requires_manual_conversion": false,
     "target_duration_seconds": 12,
-    "target_duration_tolerance_seconds": 3
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
   },
   {
     "case_id": "candidate_projection_residual_story",
     "prompt": "Create a 14-second Manim scene that explains vector projection onto a line. Show a plane, a slanted reference line, an original vector, its projected component on the line, and a dashed residual segment connecting the vector tip to the projection.",
-    "completion": "from manim import *\n\nclass ProjectionResidualStory(Scene):\n    def construct(self):\n        title = Text(\"Vector Projection\", font_size=34).to_edge(UP)\n        plane = NumberPlane(\n            x_range=[-4, 4, 1],\n            y_range=[-3, 3, 1],\n            x_length=7,\n            y_length=5,\n            background_line_style={\"stroke_opacity\": 0.18},\n        ).shift(DOWN * 0.2)\n        line = Line(plane.c2p(-3.4, -1.7), plane.c2p(3.4, 1.7), color=BLUE_D)\n        origin = plane.c2p(0, 0)\n        vector_tip = plane.c2p(2.2, 2.0)\n        projection_tip = plane.c2p(2.56, 1.28)\n        vector = Arrow(origin, vector_tip, buff=0, color=YELLOW_D)\n        projection = Arrow(origin, projection_tip, buff=0, color=GREEN_D)\n        residual = DashedLine(projection_tip, vector_tip, color=RED_D)\n        labels = VGroup(\n            Text(\"reference line\", font_size=22, color=BLUE_D).next_to(line, UL, buff=0.15),\n            Text(\"vector\", font_size=22, color=YELLOW_D).next_to(vector_tip, UR, buff=0.12),\n            Text(\"projection\", font_size=22, color=GREEN_D).next_to(projection_tip, DOWN, buff=0.12),\n            Text(\"residual\", font_size=22, color=RED_D).next_to(residual, RIGHT, buff=0.12),\n        )\n        caption = Text(\"Projection keeps the component along the chosen line and leaves the rest as residual.\", font_size=22, color=GRAY_C).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(plane), run_time=2)\n        self.play(Create(line), FadeIn(labels[0]), run_time=1.5)\n        self.play(GrowArrow(vector), FadeIn(labels[1]), run_time=1.5)\n        self.play(GrowArrow(projection), FadeIn(labels[2]), run_time=1.5)\n        self.play(Create(residual), FadeIn(labels[3]), FadeIn(caption), run_time=2)\n        self.play(Indicate(projection, color=GREEN_A), run_time=1)\n        self.wait(1)\n",
+    "completion": "from manim import *\n\nclass ProjectionResidualStory(Scene):\n    def construct(self):\n        title = Text(\"Vector Projection\", font_size=34).to_edge(UP)\n        plane = NumberPlane(\n            x_range=[-4, 4, 1],\n            y_range=[-3, 3, 1],\n            x_length=7,\n            y_length=5,\n            background_line_style={\"stroke_opacity\": 0.18},\n        ).shift(DOWN * 0.2)\n        line = Line(plane.c2p(-3.4, -1.7), plane.c2p(3.4, 1.7), color=BLUE_D)\n        origin = plane.c2p(0, 0)\n        vector_tip = plane.c2p(2.2, 2.0)\n        projection_tip = plane.c2p(2.56, 1.28)\n        vector = Arrow(origin, vector_tip, buff=0, color=YELLOW_D)\n        projection = Arrow(origin, projection_tip, buff=0, color=GREEN_D)\n        residual = DashedLine(projection_tip, vector_tip, color=RED_D)\n        labels = VGroup(\n            Text(\"reference line\", font_size=22, color=BLUE_D).next_to(line, UL, buff=0.15),\n            Text(\"vector\", font_size=22, color=YELLOW_D).next_to(vector_tip, UR, buff=0.12),\n            Text(\"projection\", font_size=22, color=GREEN_D).next_to(projection_tip, DOWN, buff=0.12),\n            Text(\"residual\", font_size=22, color=RED_D).next_to(residual, RIGHT, buff=0.12),\n        )\n        caption = Text(\"Projection keeps the component along the chosen line and leaves the rest as residual.\", font_size=22, color=WHITE).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(plane), run_time=2)\n        self.play(Create(line), FadeIn(labels[0]), run_time=1.5)\n        self.play(GrowArrow(vector), FadeIn(labels[1]), run_time=1.5)\n        self.play(GrowArrow(projection), FadeIn(labels[2]), run_time=1.5)\n        self.play(Create(residual), FadeIn(labels[3]), FadeIn(caption), run_time=2)\n        self.play(Indicate(projection, color=GREEN_A), run_time=1)\n        self.wait(1)\n",
     "entry_scene": "ProjectionResidualStory",
-    "tags": ["review-candidate", "linear-algebra", "projection", "20s", "tier:candidate", "status:unreviewed"],
-    "must_contain": ["NumberPlane(", "Line(", "Arrow(", "DashedLine("],
-    "must_not_contain": ["manim_ml", "manim_chemistry"],
+    "tags": [
+      "review-candidate",
+      "linear-algebra",
+      "projection",
+      "20s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "NumberPlane(",
+      "Line(",
+      "Arrow(",
+      "DashedLine("
+    ],
+    "must_not_contain": [
+      "manim_ml",
+      "manim_chemistry"
+    ],
     "source_name": "Codex review candidate batch 1",
     "source_domain": "math",
     "source_repo_path": "data/manim_review_candidates_round1.json",
@@ -116,16 +227,32 @@
     "is_plain_manim_candidate": true,
     "requires_manual_conversion": false,
     "target_duration_seconds": 14,
-    "target_duration_tolerance_seconds": 4
+    "target_duration_tolerance_seconds": 4,
+    "license": "MIT"
   },
   {
     "case_id": "candidate_sigma_bond_overlap_story",
     "prompt": "Create a 12-second Manim scene that gives intuition for sigma bond formation. Show two circular atomic orbitals approaching each other, highlight their overlap region, and add a short caption that head-on overlap concentrates electron density between the nuclei.",
-    "completion": "from manim import *\n\nclass SigmaBondOverlapStory(Scene):\n    def construct(self):\n        title = Text(\"Sigma Bond Overlap\", font_size=34).to_edge(UP)\n        left_orbital = Circle(radius=1.2, color=BLUE_D, fill_color=BLUE_C, fill_opacity=0.22).shift(LEFT * 2.0 + DOWN * 0.2)\n        right_orbital = Circle(radius=1.2, color=TEAL_D, fill_color=TEAL_C, fill_opacity=0.22).shift(RIGHT * 2.0 + DOWN * 0.2)\n        left_nucleus = Dot(left_orbital.get_center(), color=YELLOW_D, radius=0.08)\n        right_nucleus = Dot(right_orbital.get_center(), color=YELLOW_D, radius=0.08)\n        nucleus_labels = VGroup(\n            Text(\"nucleus\", font_size=20, color=YELLOW_D).next_to(left_nucleus, DOWN, buff=0.14),\n            Text(\"nucleus\", font_size=20, color=YELLOW_D).next_to(right_nucleus, DOWN, buff=0.14),\n        )\n        overlap_label = Text(\"shared electron density\", font_size=22, color=GREEN_D).next_to(ORIGIN + DOWN * 0.2, UP, buff=1.25)\n        caption = Text(\"Head-on overlap concentrates density between the nuclei.\", font_size=22, color=GRAY_C).to_edge(DOWN)\n\n        self.play(FadeIn(title), FadeIn(left_orbital), FadeIn(right_orbital), FadeIn(left_nucleus), FadeIn(right_nucleus), FadeIn(nucleus_labels), run_time=2)\n        self.play(\n            left_orbital.animate.shift(RIGHT * 0.9),\n            right_orbital.animate.shift(LEFT * 0.9),\n            left_nucleus.animate.move_to(left_orbital.get_center() + RIGHT * 0.9),\n            right_nucleus.animate.move_to(right_orbital.get_center() + LEFT * 0.9),\n            nucleus_labels[0].animate.next_to(left_orbital.get_center() + RIGHT * 0.9, DOWN, buff=1.05),\n            nucleus_labels[1].animate.next_to(right_orbital.get_center() + LEFT * 0.9, DOWN, buff=1.05),\n            run_time=3,\n        )\n        overlap = Intersection(\n            left_orbital.copy(),\n            right_orbital.copy(),\n            color=GREEN_D,\n            fill_color=GREEN_D,\n            fill_opacity=0.35,\n            stroke_width=0,\n        )\n        self.play(FadeIn(overlap), FadeIn(overlap_label), run_time=2)\n        self.play(FadeIn(caption), Indicate(overlap, color=GREEN_A), run_time=2)\n        self.wait(1)\n",
+    "completion": "from manim import *\n\nclass SigmaBondOverlapStory(Scene):\n    def construct(self):\n        title = Text(\"Sigma Bond Overlap\", font_size=34).to_edge(UP)\n        left_orbital = Circle(radius=1.2, color=BLUE_D, fill_color=BLUE_C, fill_opacity=0.22).shift(LEFT * 2.0 + DOWN * 0.2)\n        right_orbital = Circle(radius=1.2, color=TEAL_D, fill_color=TEAL_C, fill_opacity=0.22).shift(RIGHT * 2.0 + DOWN * 0.2)\n        left_nucleus = Dot(left_orbital.get_center(), color=YELLOW_D, radius=0.08)\n        right_nucleus = Dot(right_orbital.get_center(), color=YELLOW_D, radius=0.08)\n        nucleus_labels = VGroup(\n            Text(\"nucleus\", font_size=20, color=YELLOW_D).next_to(left_nucleus, DOWN, buff=0.14),\n            Text(\"nucleus\", font_size=20, color=YELLOW_D).next_to(right_nucleus, DOWN, buff=0.14),\n        )\n        overlap_label = Text(\"shared electron density\", font_size=22, color=GREEN_D).next_to(ORIGIN + DOWN * 0.2, UP, buff=1.25)\n        caption = Text(\"Head-on overlap concentrates density between the nuclei.\", font_size=22, color=WHITE).to_edge(DOWN)\n\n        self.play(FadeIn(title), FadeIn(left_orbital), FadeIn(right_orbital), FadeIn(left_nucleus), FadeIn(right_nucleus), FadeIn(nucleus_labels), run_time=2)\n        self.play(\n            left_orbital.animate.shift(RIGHT * 0.9),\n            right_orbital.animate.shift(LEFT * 0.9),\n            left_nucleus.animate.move_to(left_orbital.get_center() + RIGHT * 0.9),\n            right_nucleus.animate.move_to(right_orbital.get_center() + LEFT * 0.9),\n            nucleus_labels[0].animate.next_to(left_orbital.get_center() + RIGHT * 0.9, DOWN, buff=1.05),\n            nucleus_labels[1].animate.next_to(right_orbital.get_center() + LEFT * 0.9, DOWN, buff=1.05),\n            run_time=3,\n        )\n        overlap = Intersection(\n            left_orbital.copy(),\n            right_orbital.copy(),\n            color=GREEN_D,\n            fill_color=GREEN_D,\n            fill_opacity=0.35,\n            stroke_width=0,\n        )\n        self.play(FadeIn(overlap), FadeIn(overlap_label), run_time=2)\n        self.play(FadeIn(caption), Indicate(overlap, color=GREEN_A), run_time=2)\n        self.wait(1)\n",
     "entry_scene": "SigmaBondOverlapStory",
-    "tags": ["review-candidate", "chemistry", "bonding", "10s", "tier:candidate", "status:unreviewed"],
-    "must_contain": ["Circle(", "Intersection(", "Dot(", "always_redraw"],
-    "must_not_contain": ["manim_ml", "manim_chemistry"],
+    "tags": [
+      "review-candidate",
+      "chemistry",
+      "bonding",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Circle(",
+      "Intersection(",
+      "Dot(",
+      "always_redraw"
+    ],
+    "must_not_contain": [
+      "manim_ml",
+      "manim_chemistry"
+    ],
     "source_name": "Codex review candidate batch 1",
     "source_domain": "chemistry",
     "source_repo_path": "data/manim_review_candidates_round1.json",
@@ -133,6 +260,7 @@
     "is_plain_manim_candidate": true,
     "requires_manual_conversion": false,
     "target_duration_seconds": 12,
-    "target_duration_tolerance_seconds": 3
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
   }
 ]
