@@ -1,87 +1,165 @@
 [
   {
     "case_id": "anim_transform_replacement_comparison",
-    "tags": ["animation", "transform", "replacement-transform", "10s"],
+    "tags": [
+      "animation",
+      "transform",
+      "replacement-transform",
+      "10s"
+    ],
     "entry_scene": "TransformReplacementComparison",
     "prompt": "Create a 10-second Manim scene comparing Transform and ReplacementTransform. Show one shape morphing through two targets, keep a short caption explaining the difference, and make the transition visibly animation-focused rather than static.",
-    "must_contain": ["Transform(", "ReplacementTransform(", "Text(", "Circle("],
-    "must_not_contain": ["ThreeDScene"],
+    "must_contain": [
+      "Transform(",
+      "ReplacementTransform(",
+      "Text(",
+      "Circle("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
     "source_name": "Manim Quickstart",
     "source_url": "https://docs.manim.community/en/stable/tutorials/quickstart.html",
     "source_anchor": "transform-vs-replacementtransform",
     "license": "MIT",
     "target_duration_seconds": 10,
     "target_duration_tolerance_seconds": 3,
-    "completion": "from manim import *\n\nclass TransformReplacementComparison(Scene):\n    def construct(self):\n        title = Text(\"Transform vs ReplacementTransform\", font_size=34).to_edge(UP)\n        source = Circle(radius=0.9, color=BLUE_D, fill_opacity=0.18)\n        target_a = Square(side_length=1.8, color=TEAL_D, fill_opacity=0.18)\n        target_b = Triangle(color=YELLOW_D, fill_opacity=0.18).scale(1.1)\n        label = Text(\"Transform keeps reusing the same scene object\", font_size=24, color=GRAY_D).to_edge(DOWN)\n        followup = Text(\"ReplacementTransform swaps the old object for the new one\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(source), FadeIn(label), run_time=3)\n        self.play(Transform(source, target_a), run_time=2)\n        self.play(ReplacementTransform(source, target_b), Transform(label, followup), run_time=3)\n        self.wait(2)\n"
+    "completion": "from manim import *\n\nclass TransformReplacementComparison(Scene):\n    def construct(self):\n        title = Text(\"Transform vs ReplacementTransform\", font_size=34).to_edge(UP)\n        source = Circle(radius=0.9, color=BLUE_D, fill_opacity=0.18)\n        target_a = Square(side_length=1.8, color=TEAL_D, fill_opacity=0.18)\n        target_b = Triangle(color=YELLOW_D, fill_opacity=0.18).scale(1.1)\n        label = Text(\"Transform keeps reusing the same scene object\", font_size=24, color=GRAY_D).to_edge(DOWN)\n        followup = Text(\"ReplacementTransform swaps the old object for the new one\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(source), FadeIn(label), run_time=3)\n        self.play(Transform(source, target_a), run_time=2)\n        self.play(ReplacementTransform(source, target_b), Transform(label, followup), run_time=3)\n        self.wait(2)\n",
+    "source_repo_path": "data/manim_animation_cases.json"
   },
   {
     "case_id": "anim_laggedstart_attention_fanout",
-    "tags": ["animation", "composition", "laggedstart", "animationgroup", "10s"],
+    "tags": [
+      "animation",
+      "composition",
+      "laggedstart",
+      "animationgroup",
+      "10s"
+    ],
     "entry_scene": "LaggedStartAttentionFanout",
     "prompt": "Create a 10-second Manim scene where an input token fans out to three feature boxes. Use LaggedStart to reveal the arrows and AnimationGroup to light up the boxes together at the end.",
-    "must_contain": ["LaggedStart(", "AnimationGroup(", "Arrow(", "RoundedRectangle("],
-    "must_not_contain": ["ThreeDScene"],
+    "must_contain": [
+      "LaggedStart(",
+      "AnimationGroup(",
+      "Arrow(",
+      "RoundedRectangle("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
     "source_name": "Animation composition reference",
     "source_url": "https://docs.manim.community/en/stable/reference/manim.animation.composition.html",
     "license": "MIT",
     "target_duration_seconds": 10,
     "target_duration_tolerance_seconds": 3,
-    "completion": "from manim import *\n\nclass LaggedStartAttentionFanout(Scene):\n    def construct(self):\n        title = Text(\"Animation Composition for Staged Reveal\", font_size=34).to_edge(UP)\n        token = RoundedRectangle(corner_radius=0.1, width=1.6, height=0.75, color=BLUE_D, fill_opacity=0.16).shift(LEFT * 4)\n        token_label = Text(\"token\", font_size=22, color=BLUE_D).move_to(token)\n        boxes = VGroup(*[\n            VGroup(\n                RoundedRectangle(corner_radius=0.1, width=1.8, height=0.75, color=TEAL_D, fill_opacity=0.12),\n                Text(label, font_size=21, color=TEAL_D),\n            )\n            for label in [\"shape\", \"color\", \"motion\"]\n        ]).arrange(DOWN, buff=0.7).shift(RIGHT * 2.6)\n        for group in boxes:\n            group[1].move_to(group[0])\n        arrows = VGroup(*[Arrow(token.get_right(), group[0].get_left(), buff=0.15, color=GRAY_B) for group in boxes])\n        caption = Text(\"LaggedStart staggers the reveal, then AnimationGroup synchronizes emphasis.\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), FadeIn(token), FadeIn(token_label), run_time=2)\n        self.play(LaggedStart(*[GrowArrow(arrow) for arrow in arrows], lag_ratio=0.18), LaggedStart(*[FadeIn(group) for group in boxes], lag_ratio=0.18), run_time=4)\n        self.play(AnimationGroup(*[group[0].animate.set_fill(YELLOW_D, opacity=0.28) for group in boxes], lag_ratio=0.0), FadeIn(caption), run_time=2)\n        self.wait(2)\n"
+    "completion": "from manim import *\n\nclass LaggedStartAttentionFanout(Scene):\n    def construct(self):\n        title = Text(\"Animation Composition for Staged Reveal\", font_size=34).to_edge(UP)\n        token = RoundedRectangle(corner_radius=0.1, width=1.6, height=0.75, color=BLUE_D, fill_opacity=0.16).shift(LEFT * 4)\n        token_label = Text(\"token\", font_size=22, color=BLUE_D).move_to(token)\n        boxes = VGroup(*[\n            VGroup(\n                RoundedRectangle(corner_radius=0.1, width=1.8, height=0.75, color=TEAL_D, fill_opacity=0.12),\n                Text(label, font_size=21, color=TEAL_D),\n            )\n            for label in [\"shape\", \"color\", \"motion\"]\n        ]).arrange(DOWN, buff=0.7).shift(RIGHT * 2.6)\n        for group in boxes:\n            group[1].move_to(group[0])\n        arrows = VGroup(*[Arrow(token.get_right(), group[0].get_left(), buff=0.15, color=GRAY_B) for group in boxes])\n        caption = Text(\"LaggedStart staggers the reveal, then AnimationGroup synchronizes emphasis.\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), FadeIn(token), FadeIn(token_label), run_time=2)\n        self.play(LaggedStart(*[GrowArrow(arrow) for arrow in arrows], lag_ratio=0.18), LaggedStart(*[FadeIn(group) for group in boxes], lag_ratio=0.18), run_time=4)\n        self.play(AnimationGroup(*[group[0].animate.set_fill(YELLOW_D, opacity=0.28) for group in boxes], lag_ratio=0.0), FadeIn(caption), run_time=2)\n        self.wait(2)\n",
+    "source_repo_path": "data/manim_animation_cases.json"
   },
   {
     "case_id": "anim_succession_pipeline_token",
-    "tags": ["animation", "succession", "movealongpath", "10s"],
+    "tags": [
+      "animation",
+      "succession",
+      "movealongpath",
+      "10s"
+    ],
     "entry_scene": "SuccessionPipelineToken",
     "prompt": "Create a 10-second Manim scene showing a token moving through three pipeline stages. Use Succession so the token moves and each stage is indicated in sequence.",
-    "must_contain": ["Succession(", "MoveAlongPath(", "Indicate(", "Arrow("],
-    "must_not_contain": ["ThreeDScene"],
+    "must_contain": [
+      "Succession(",
+      "MoveAlongPath(",
+      "Indicate(",
+      "Arrow("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
     "source_name": "Animation composition reference",
     "source_url": "https://docs.manim.community/en/stable/reference/manim.animation.composition.html",
     "license": "MIT",
     "target_duration_seconds": 10,
     "target_duration_tolerance_seconds": 3,
-    "completion": "from manim import *\n\nclass SuccessionPipelineToken(Scene):\n    def construct(self):\n        title = Text(\"Succession Plays One Animation After Another\", font_size=34).to_edge(UP)\n        stages = VGroup(*[\n            VGroup(\n                RoundedRectangle(corner_radius=0.1, width=1.8, height=0.85, color=TEAL_D, fill_opacity=0.12),\n                Text(label, font_size=22, color=TEAL_D),\n            )\n            for label in [\"parse\", \"plan\", \"animate\"]\n        ]).arrange(RIGHT, buff=1.0).shift(UP * 0.2)\n        for group in stages:\n            group[1].move_to(group[0])\n        token = Dot(color=YELLOW, radius=0.1).move_to(stages[0][0].get_left() + RIGHT * 0.3)\n        paths = [\n            Line(token.get_center(), stages[0][0].get_center()),\n            Line(stages[0][0].get_center(), stages[1][0].get_center()),\n            Line(stages[1][0].get_center(), stages[2][0].get_center()),\n        ]\n        connectors = VGroup(*[Arrow(stages[i][0].get_right(), stages[i + 1][0].get_left(), buff=0.15, color=GRAY_B) for i in range(2)])\n        caption = Text(\"Succession is useful when the order itself is the story.\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), FadeIn(stages), FadeIn(connectors), FadeIn(token), run_time=3)\n        self.play(\n            Succession(\n                MoveAlongPath(token, paths[0], rate_func=linear),\n                Indicate(stages[0][0], color=YELLOW_D),\n                MoveAlongPath(token, paths[1], rate_func=linear),\n                Indicate(stages[1][0], color=YELLOW_D),\n                MoveAlongPath(token, paths[2], rate_func=linear),\n                Indicate(stages[2][0], color=YELLOW_D),\n            ),\n            FadeIn(caption),\n            run_time=5,\n        )\n        self.wait(2)\n"
+    "completion": "from manim import *\n\nclass SuccessionPipelineToken(Scene):\n    def construct(self):\n        title = Text(\"Succession Plays One Animation After Another\", font_size=34).to_edge(UP)\n        stages = VGroup(*[\n            VGroup(\n                RoundedRectangle(corner_radius=0.1, width=1.8, height=0.85, color=TEAL_D, fill_opacity=0.12),\n                Text(label, font_size=22, color=TEAL_D),\n            )\n            for label in [\"parse\", \"plan\", \"animate\"]\n        ]).arrange(RIGHT, buff=1.0).shift(UP * 0.2)\n        for group in stages:\n            group[1].move_to(group[0])\n        token = Dot(color=YELLOW, radius=0.1).move_to(stages[0][0].get_left() + RIGHT * 0.3)\n        paths = [\n            Line(token.get_center(), stages[0][0].get_center()),\n            Line(stages[0][0].get_center(), stages[1][0].get_center()),\n            Line(stages[1][0].get_center(), stages[2][0].get_center()),\n        ]\n        connectors = VGroup(*[Arrow(stages[i][0].get_right(), stages[i + 1][0].get_left(), buff=0.15, color=GRAY_B) for i in range(2)])\n        caption = Text(\"Succession is useful when the order itself is the story.\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), FadeIn(stages), FadeIn(connectors), FadeIn(token), run_time=3)\n        self.play(\n            Succession(\n                MoveAlongPath(token, paths[0], rate_func=linear),\n                Indicate(stages[0][0], color=YELLOW_D),\n                MoveAlongPath(token, paths[1], rate_func=linear),\n                Indicate(stages[1][0], color=YELLOW_D),\n                MoveAlongPath(token, paths[2], rate_func=linear),\n                Indicate(stages[2][0], color=YELLOW_D),\n            ),\n            FadeIn(caption),\n            run_time=5,\n        )\n        self.wait(2)\n",
+    "source_repo_path": "data/manim_animation_cases.json"
   },
   {
     "case_id": "anim_matching_shapes_word_morph",
-    "tags": ["animation", "transform-matching", "text", "5s"],
+    "tags": [
+      "animation",
+      "transform-matching",
+      "text",
+      "5s"
+    ],
     "entry_scene": "MatchingShapesWordMorph",
     "prompt": "Create a short Manim scene that morphs one phrase into another using TransformMatchingShapes, so the animation emphasizes shared letter geometry rather than a simple fade.",
-    "must_contain": ["TransformMatchingShapes(", "Text(", "path_arc=PI / 2"],
-    "must_not_contain": ["ThreeDScene"],
+    "must_contain": [
+      "TransformMatchingShapes(",
+      "Text(",
+      "path_arc=PI / 2"
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
     "source_name": "TransformMatchingShapes reference",
     "source_url": "https://docs.manim.community/en/stable/reference/manim.animation.transform_matching_parts.TransformMatchingShapes.html",
     "license": "MIT",
     "target_duration_seconds": 5,
     "target_duration_tolerance_seconds": 2,
-    "completion": "from manim import *\n\nclass MatchingShapesWordMorph(Scene):\n    def construct(self):\n        source = Text(\"signal flows\", font_size=56)\n        target = Text(\"flows signal\", font_size=56)\n        caption = Text(\"Matching subshapes gives a much cleaner text morph.\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.play(Write(source), run_time=2)\n        self.play(TransformMatchingShapes(source, target, path_arc=PI / 2), FadeIn(caption), run_time=2)\n        self.wait(1)\n"
+    "completion": "from manim import *\n\nclass MatchingShapesWordMorph(Scene):\n    def construct(self):\n        source = Text(\"signal flows\", font_size=56)\n        target = Text(\"flows signal\", font_size=56)\n        caption = Text(\"Matching subshapes gives a much cleaner text morph.\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.play(Write(source), run_time=2)\n        self.play(TransformMatchingShapes(source, target, path_arc=PI / 2), FadeIn(caption), run_time=2)\n        self.wait(1)\n",
+    "source_repo_path": "data/manim_animation_cases.json"
   },
   {
     "case_id": "anim_move_along_path_with_link",
-    "tags": ["animation", "movealongpath", "updater", "10s"],
+    "tags": [
+      "animation",
+      "movealongpath",
+      "updater",
+      "10s"
+    ],
     "entry_scene": "MoveAlongPathWithLink",
     "prompt": "Create a 10-second Manim scene where a dot travels along a curved path while a live-updating line stays attached to it. Make the scene clearly about the motion animation itself.",
-    "must_contain": ["MoveAlongPath(", "add_updater(", "VMobject(", "rate_func=linear"],
-    "must_not_contain": ["ThreeDScene"],
+    "must_contain": [
+      "MoveAlongPath(",
+      "add_updater(",
+      "VMobject(",
+      "rate_func=linear"
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
     "source_name": "MoveAlongPath reference",
     "source_url": "https://docs.manim.community/en/stable/reference/manim.animation.movement.MoveAlongPath.html",
     "license": "MIT",
     "target_duration_seconds": 10,
     "target_duration_tolerance_seconds": 3,
-    "completion": "from manim import *\n\nclass MoveAlongPathWithLink(Scene):\n    def construct(self):\n        title = Text(\"MoveAlongPath with an Updater\", font_size=34).to_edge(UP)\n        dot = Dot(LEFT * 4 + DOWN * 1.3, color=ORANGE, radius=0.1)\n        path = VMobject(color=BLUE_D)\n        path.set_points_smoothly([LEFT * 4 + DOWN * 1.3, LEFT * 1.5 + UP * 1.0, RIGHT * 1.0 + DOWN * 0.4, RIGHT * 4 + UP * 1.2])\n        tether = VMobject(color=YELLOW_D)\n        tether.add_updater(lambda mob: mob.become(Line(LEFT * 5, dot.get_center(), color=YELLOW_D, stroke_width=5)))\n        caption = Text(\"The updater reacts every frame while the path animation runs.\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(path), FadeIn(dot), run_time=3)\n        self.add(tether)\n        self.play(MoveAlongPath(dot, path), FadeIn(caption), rate_func=linear, run_time=5)\n        self.wait(2)\n"
+    "completion": "from manim import *\n\nclass MoveAlongPathWithLink(Scene):\n    def construct(self):\n        title = Text(\"MoveAlongPath with an Updater\", font_size=34).to_edge(UP)\n        dot = Dot(LEFT * 4 + DOWN * 1.3, color=ORANGE, radius=0.1)\n        path = VMobject(color=BLUE_D)\n        path.set_points_smoothly([LEFT * 4 + DOWN * 1.3, LEFT * 1.5 + UP * 1.0, RIGHT * 1.0 + DOWN * 0.4, RIGHT * 4 + UP * 1.2])\n        tether = VMobject(color=YELLOW_D)\n        tether.add_updater(lambda mob: mob.become(Line(LEFT * 5, dot.get_center(), color=YELLOW_D, stroke_width=5)))\n        caption = Text(\"The updater reacts every frame while the path animation runs.\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(path), FadeIn(dot), run_time=3)\n        self.add(tether)\n        self.play(MoveAlongPath(dot, path), FadeIn(caption), rate_func=linear, run_time=5)\n        self.wait(2)\n",
+    "source_repo_path": "data/manim_animation_cases.json"
   },
   {
     "case_id": "anim_speed_modifier_with_spinner",
-    "tags": ["animation", "speed", "updater", "10s"],
+    "tags": [
+      "animation",
+      "speed",
+      "updater",
+      "10s"
+    ],
     "entry_scene": "SpeedModifierWithSpinner",
     "prompt": "Create a 10-second Manim scene that demonstrates changing animation speed over time. Use ChangeSpeed on a moving dot and keep another shape spinning continuously so the timing difference is obvious.",
-    "must_contain": ["ChangeSpeed(", "always_rotate(", "Dot(", "TracedPath("],
-    "must_not_contain": ["ThreeDScene"],
+    "must_contain": [
+      "ChangeSpeed(",
+      "always_rotate(",
+      "Dot(",
+      "TracedPath("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
     "source_name": "ChangeSpeed and updater utilities",
     "source_url": "https://docs.manim.community/en/stable/reference/manim.animation.speedmodifier.ChangeSpeed.html",
     "license": "MIT",
     "target_duration_seconds": 10,
     "target_duration_tolerance_seconds": 3,
-    "completion": "from manim import *\n\nclass SpeedModifierWithSpinner(Scene):\n    def construct(self):\n        title = Text(\"ChangeSpeed Re-times an Animation\", font_size=34).to_edge(UP)\n        dot = Dot(LEFT * 4 + DOWN * 1.1, color=YELLOW, radius=0.1)\n        tracer = TracedPath(dot.get_center, stroke_color=YELLOW_D, stroke_width=4)\n        spinner = Triangle(color=TEAL_D, fill_opacity=0.18).scale(0.6).shift(UP * 1.2)\n        always_rotate(spinner, rate=2 * PI, about_point=spinner.get_center())\n        baseline = Line(LEFT * 4 + DOWN * 1.1, RIGHT * 4 + DOWN * 1.1, color=GRAY_B)\n        caption = Text(\"The dot changes speed, but the triangle keeps rotating steadily.\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.add(tracer)\n        self.play(FadeIn(title), Create(baseline), FadeIn(dot), FadeIn(spinner), run_time=2)\n        self.play(\n            ChangeSpeed(\n                dot.animate.shift(RIGHT * 8),\n                speedinfo={0.0: 0.5, 0.3: 1.8, 0.65: 0.4, 1.0: 1.0},\n                rate_func=linear,\n            ),\n            FadeIn(caption),\n            run_time=5,\n        )\n        self.wait(3)\n"
+    "completion": "from manim import *\n\nclass SpeedModifierWithSpinner(Scene):\n    def construct(self):\n        title = Text(\"ChangeSpeed Re-times an Animation\", font_size=34).to_edge(UP)\n        dot = Dot(LEFT * 4 + DOWN * 1.1, color=YELLOW, radius=0.1)\n        tracer = TracedPath(dot.get_center, stroke_color=YELLOW_D, stroke_width=4)\n        spinner = Triangle(color=TEAL_D, fill_opacity=0.18).scale(0.6).shift(UP * 1.2)\n        always_rotate(spinner, rate=2 * PI, about_point=spinner.get_center())\n        baseline = Line(LEFT * 4 + DOWN * 1.1, RIGHT * 4 + DOWN * 1.1, color=GRAY_B)\n        caption = Text(\"The dot changes speed, but the triangle keeps rotating steadily.\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.add(tracer)\n        self.play(FadeIn(title), Create(baseline), FadeIn(dot), FadeIn(spinner), run_time=2)\n        self.play(\n            ChangeSpeed(\n                dot.animate.shift(RIGHT * 8),\n                speedinfo={0.0: 0.5, 0.3: 1.8, 0.65: 0.4, 1.0: 1.0},\n                rate_func=linear,\n            ),\n            FadeIn(caption),\n            run_time=5,\n        )\n        self.wait(3)\n",
+    "source_repo_path": "data/manim_animation_cases.json"
   }
 ]

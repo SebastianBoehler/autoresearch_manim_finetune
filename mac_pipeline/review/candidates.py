@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from mac_pipeline.canonical_dataset import rebuild_canonical_dataset
+from mac_pipeline.license_metadata import DEFAULT_ROW_LICENSE, apply_default_row_license
 from mac_pipeline.review.render import render_review_candidate
 from mac_pipeline.utils import ensure_dir, load_records, write_json, write_records
 
@@ -127,7 +128,7 @@ def _selected_case_ids(review_records: list[dict[str, Any]]) -> list[str]:
 
 
 def _promoted_record(case: dict[str, Any], promoted_tier: str) -> dict[str, Any]:
-    promoted = dict(case)
+    promoted = apply_default_row_license(case, default_license=DEFAULT_ROW_LICENSE)
     tags = [
         tag
         for tag in case.get("tags", [])

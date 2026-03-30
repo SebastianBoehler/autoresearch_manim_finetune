@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from mac_pipeline.license_metadata import ensure_records_have_licenses
+
 
 SOURCE_SPECS = [
     ("data/manim_seed_cases.json", ["tier:gold", "source:local"]),
@@ -39,7 +41,9 @@ def rebuild_canonical_dataset(repo_root: Path, output_path: Path | None = None) 
     rejected_ids = _load_rejected_ids(resolved_repo_root / "data" / "manim_review_rejected.jsonl")
     for relative_path, extra_tags in SOURCE_SPECS:
         path = resolved_repo_root / relative_path
-        for case in _load_records(path):
+        source_records = _load_records(path)
+        ensure_records_have_licenses(source_records, source_label=relative_path)
+        for case in source_records:
             case_id = case["case_id"]
             if case_id in rejected_ids:
                 continue

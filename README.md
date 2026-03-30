@@ -101,9 +101,22 @@ uv run python -m mac_pipeline.cli export-hf-dataset \
   --output-dir artifacts/hf_datasets/autoresearch-manim \
   --repo-id sebastianboehler/autoresearch-manim \
   --pretty-name "Autoresearch Manim" \
+  --license mit \
+  --language en \
+  --task-category text-generation \
+  --size-category n<1K \
   --tag manim \
+  --tag python \
   --tag code-generation \
-  --tag synthetic
+  --tag text-to-code \
+  --tag synthetic \
+  --tag education \
+  --preview-item "artifacts/hf_preview_gallery/ml-attention.png::Machine learning: attention plus residual mixing" \
+  --preview-item "artifacts/hf_preview_gallery/fluid-boundary-layer.png::Physics: boundary layer flow near a surface" \
+  --preview-item "artifacts/hf_preview_gallery/biology-neuron.png::Biology: neuron structure and signal direction" \
+  --preview-item "artifacts/hf_preview_gallery/finance-compound-growth.png::Finance: compound growth over time" \
+  --preview-item "artifacts/hf_preview_gallery/economics-ppf.png::Economics: production frontier tradeoff" \
+  --preview-item "artifacts/hf_preview_gallery/neuroscience-action-potential.png::Neuroscience: action potential phases"
 ```
 
 Upload that folder to a Hugging Face dataset repo:
@@ -310,7 +323,7 @@ The recommended Hub layout exported by `export-hf-dataset` is:
 
 The training pipeline still builds local `train.jsonl`, `valid.jsonl`, and `test.jsonl` artifacts before fine-tuning, so HF support only changes the dataset source boundary rather than the trainer itself.
 
-Only set a global dataset-card license after auditing the per-row source licenses in the canonical corpus. The exporter preserves row-level `license` fields, but the Hub-level metadata should stay unset if the corpus is mixed or only partially labeled.
+The exporter now assumes a homogeneous MIT corpus and validates that every exported row has explicit row-level `license` metadata. If you ever need a custom or mixed Hub license again, switch the export back to `--license other`, set `--license-name`, and point `--license-link` at a license notice file.
 
 Current dataset structure:
 

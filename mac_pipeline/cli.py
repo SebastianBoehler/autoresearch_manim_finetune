@@ -63,6 +63,23 @@ def _resolve_source_from_args(
     )
 
 
+def _parse_preview_items(raw_items: list[str] | None) -> list[dict[str, str]]:
+    preview_items: list[dict[str, str]] = []
+    for raw in raw_items or []:
+        if "::" not in raw:
+            raise ValueError(
+                "--preview-item entries must use the form /path/to/image.png::Caption"
+            )
+        path, caption = raw.split("::", 1)
+        preview_items.append(
+            {
+                "path": str(Path(path).resolve()),
+                "caption": caption.strip() or Path(path).stem,
+            }
+        )
+    return preview_items
+
+
 def cmd_build_dataset(args: argparse.Namespace) -> None:
     config, repo_root = _load_config(Path(args.config))
     source = _resolve_source_from_args(repo_root, config.source_dataset, args)
@@ -225,7 +242,15 @@ def cmd_export_hf_dataset(args: argparse.Namespace) -> None:
         repo_id=args.repo_id,
         pretty_name=args.pretty_name,
         license_name=args.license,
+        license_label=args.license_name,
+        license_link=args.license_link,
+        languages=args.language or [],
+        task_categories=args.task_category or [],
+        size_categories=args.size_category or [],
         tags=args.tag or [],
+        preview_image=Path(args.preview_image).resolve() if args.preview_image else None,
+        preview_caption=args.preview_caption,
+        preview_items=_parse_preview_items(args.preview_item),
     )
     print(f"Exported HF dataset staging folder to {output_dir}")
     print(payload)
@@ -286,7 +311,15 @@ def build_parser() -> argparse.ArgumentParser:
             subparser.add_argument("--repo-id")
             subparser.add_argument("--pretty-name")
             subparser.add_argument("--license")
+            subparser.add_argument("--license-name")
+            subparser.add_argument("--license-link")
+            subparser.add_argument("--language", action="append")
+            subparser.add_argument("--task-category", action="append")
+            subparser.add_argument("--size-category", action="append")
             subparser.add_argument("--tag", action="append")
+            subparser.add_argument("--preview-image")
+            subparser.add_argument("--preview-caption")
+            subparser.add_argument("--preview-item", action="append")
         if name == "plot-comparison":
             subparser.add_argument("--baseline", required=True)
             subparser.add_argument("--finetuned", required=True)

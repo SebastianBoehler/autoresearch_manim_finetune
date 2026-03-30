@@ -1,57 +1,129 @@
 [
   {
     "case_id": "sine_wave_plot",
-    "tags": ["axes", "plot", "math"],
+    "tags": [
+      "axes",
+      "plot",
+      "math"
+    ],
     "entry_scene": "SineWavePlot",
     "prompt": "Create a Manim scene that introduces a coordinate system and plots y = sin(x) from -PI to PI. Add a title and label the curve.",
-    "must_contain": ["Axes(", ".plot(", "MathTex(", "set_color("],
-    "must_not_contain": ["ThreeDScene"],
-    "completion": "from manim import *\n\nclass SineWavePlot(Scene):\n    def construct(self):\n        title = Text(\"Sine Wave\", font_size=42).to_edge(UP)\n        axes = Axes(\n            x_range=[-PI, PI, PI / 2],\n            y_range=[-1.5, 1.5, 0.5],\n            x_length=8,\n            y_length=4.5,\n            axis_config={\"include_numbers\": True},\n        )\n        graph = axes.plot(lambda x: np.sin(x), color=BLUE)\n        label = MathTex(\"y = \\\\sin(x)\").set_color(BLUE).next_to(axes, RIGHT)\n\n        self.play(FadeIn(title), Create(axes))\n        self.play(Create(graph), FadeIn(label))\n        self.wait(1)\n"
+    "must_contain": [
+      "Axes(",
+      ".plot(",
+      "MathTex(",
+      "set_color("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "completion": "from manim import *\n\nclass SineWavePlot(Scene):\n    def construct(self):\n        title = Text(\"Sine Wave\", font_size=42).to_edge(UP)\n        axes = Axes(\n            x_range=[-PI, PI, PI / 2],\n            y_range=[-1.5, 1.5, 0.5],\n            x_length=8,\n            y_length=4.5,\n            axis_config={\"include_numbers\": True},\n        )\n        graph = axes.plot(lambda x: np.sin(x), color=BLUE)\n        label = MathTex(\"y = \\\\sin(x)\").set_color(BLUE).next_to(axes, RIGHT)\n\n        self.play(FadeIn(title), Create(axes))\n        self.play(Create(graph), FadeIn(label))\n        self.wait(1)\n",
+    "license": "MIT",
+    "source_repo_path": "data/manim_seed_cases.json"
   },
   {
     "case_id": "square_to_circle",
-    "tags": ["transform", "shapes"],
+    "tags": [
+      "transform",
+      "shapes"
+    ],
     "entry_scene": "SquareToCircleDemo",
     "prompt": "Create a simple Manim scene that shows a blue square transforming into a green circle. Include a short caption at the bottom.",
-    "must_contain": ["Square(", "Circle(", "Transform(", "Text("],
-    "must_not_contain": ["Axes("],
-    "completion": "from manim import *\n\nclass SquareToCircleDemo(Scene):\n    def construct(self):\n        square = Square(side_length=2.4, color=BLUE).shift(LEFT * 2)\n        circle = Circle(radius=1.3, color=GREEN).shift(RIGHT * 2)\n        caption = Text(\"Basic shape transform\", font_size=30).to_edge(DOWN)\n\n        self.play(Create(square), FadeIn(caption))\n        self.play(square.animate.move_to(ORIGIN))\n        self.play(Transform(square, circle))\n        self.wait(1)\n"
+    "must_contain": [
+      "Square(",
+      "Circle(",
+      "Transform(",
+      "Text("
+    ],
+    "must_not_contain": [
+      "Axes("
+    ],
+    "completion": "from manim import *\n\nclass SquareToCircleDemo(Scene):\n    def construct(self):\n        square = Square(side_length=2.4, color=BLUE).shift(LEFT * 2)\n        circle = Circle(radius=1.3, color=GREEN).shift(RIGHT * 2)\n        caption = Text(\"Basic shape transform\", font_size=30).to_edge(DOWN)\n\n        self.play(Create(square), FadeIn(caption))\n        self.play(square.animate.move_to(ORIGIN))\n        self.play(Transform(square, circle))\n        self.wait(1)\n",
+    "license": "MIT",
+    "source_repo_path": "data/manim_seed_cases.json"
   },
   {
     "case_id": "vector_addition",
-    "tags": ["vectors", "geometry"],
+    "tags": [
+      "vectors",
+      "geometry"
+    ],
     "entry_scene": "VectorAdditionScene",
     "prompt": "Build a Manim scene that demonstrates vector addition with two arrows u and v and their sum u + v on a NumberPlane. Use different colors and labels.",
-    "must_contain": ["NumberPlane(", "Arrow(", "MathTex(", "VGroup("],
-    "must_not_contain": ["BarChart("],
-    "completion": "from manim import *\n\nclass VectorAdditionScene(Scene):\n    def construct(self):\n        plane = NumberPlane(x_range=[-1, 5, 1], y_range=[-1, 4, 1]).add_coordinates()\n        u = Arrow(ORIGIN, RIGHT * 3 + UP, buff=0, color=BLUE)\n        v = Arrow(u.get_end(), u.get_end() + RIGHT + UP * 2, buff=0, color=YELLOW)\n        total = Arrow(ORIGIN, RIGHT * 4 + UP * 3, buff=0, color=GREEN)\n        labels = VGroup(\n            MathTex(\"\\\\vec{u}\").set_color(BLUE).next_to(u, UP),\n            MathTex(\"\\\\vec{v}\").set_color(YELLOW).next_to(v, RIGHT),\n            MathTex(\"\\\\vec{u}+\\\\vec{v}\").set_color(GREEN).next_to(total, RIGHT),\n        )\n\n        self.play(Create(plane))\n        self.play(GrowArrow(u), FadeIn(labels[0]))\n        self.play(GrowArrow(v), FadeIn(labels[1]))\n        self.play(GrowArrow(total), FadeIn(labels[2]))\n        self.wait(1)\n"
+    "must_contain": [
+      "NumberPlane(",
+      "Arrow(",
+      "MathTex(",
+      "VGroup("
+    ],
+    "must_not_contain": [
+      "BarChart("
+    ],
+    "completion": "from manim import *\n\nclass VectorAdditionScene(Scene):\n    def construct(self):\n        plane = NumberPlane(x_range=[-1, 5, 1], y_range=[-1, 4, 1]).add_coordinates()\n        u = Arrow(ORIGIN, RIGHT * 3 + UP, buff=0, color=BLUE)\n        v = Arrow(u.get_end(), u.get_end() + RIGHT + UP * 2, buff=0, color=YELLOW)\n        total = Arrow(ORIGIN, RIGHT * 4 + UP * 3, buff=0, color=GREEN)\n        labels = VGroup(\n            MathTex(\"\\\\vec{u}\").set_color(BLUE).next_to(u, UP),\n            MathTex(\"\\\\vec{v}\").set_color(YELLOW).next_to(v, RIGHT),\n            MathTex(\"\\\\vec{u}+\\\\vec{v}\").set_color(GREEN).next_to(total, RIGHT),\n        )\n\n        self.play(Create(plane))\n        self.play(GrowArrow(u), FadeIn(labels[0]))\n        self.play(GrowArrow(v), FadeIn(labels[1]))\n        self.play(GrowArrow(total), FadeIn(labels[2]))\n        self.wait(1)\n",
+    "license": "MIT",
+    "source_repo_path": "data/manim_seed_cases.json"
   },
   {
     "case_id": "secant_slope",
-    "tags": ["calculus", "graph"],
+    "tags": [
+      "calculus",
+      "graph"
+    ],
     "entry_scene": "SecantSlopeScene",
     "prompt": "Write a Manim scene that plots y = x^2 on axes and highlights a secant line between x = -1 and x = 1. Add dots on the sampled points.",
-    "must_contain": ["Axes(", "plot(", "get_secant_slope_group(", "Dot("],
-    "must_not_contain": ["ThreeDAxes("],
-    "completion": "from manim import *\n\nclass SecantSlopeScene(Scene):\n    def construct(self):\n        axes = Axes(x_range=[-3, 3, 1], y_range=[0, 5, 1], x_length=7, y_length=4.5)\n        curve = axes.plot(lambda x: x**2, x_range=[-2.2, 2.2], color=PURPLE)\n        left_dot = Dot(axes.c2p(-1, 1), color=RED)\n        right_dot = Dot(axes.c2p(1, 1), color=RED)\n        secant = axes.get_secant_slope_group(\n            x=-1,\n            graph=curve,\n            dx=2,\n            secant_line_length=5,\n            secant_line_color=YELLOW,\n        )\n\n        self.play(Create(axes), Create(curve))\n        self.play(FadeIn(left_dot), FadeIn(right_dot))\n        self.play(Create(secant))\n        self.wait(1)\n"
+    "must_contain": [
+      "Axes(",
+      "plot(",
+      "get_secant_slope_group(",
+      "Dot("
+    ],
+    "must_not_contain": [
+      "ThreeDAxes("
+    ],
+    "completion": "from manim import *\n\nclass SecantSlopeScene(Scene):\n    def construct(self):\n        axes = Axes(x_range=[-3, 3, 1], y_range=[0, 5, 1], x_length=7, y_length=4.5)\n        curve = axes.plot(lambda x: x**2, x_range=[-2.2, 2.2], color=PURPLE)\n        left_dot = Dot(axes.c2p(-1, 1), color=RED)\n        right_dot = Dot(axes.c2p(1, 1), color=RED)\n        secant = axes.get_secant_slope_group(\n            x=-1,\n            graph=curve,\n            dx=2,\n            secant_line_length=5,\n            secant_line_color=YELLOW,\n        )\n\n        self.play(Create(axes), Create(curve))\n        self.play(FadeIn(left_dot), FadeIn(right_dot))\n        self.play(Create(secant))\n        self.wait(1)\n",
+    "license": "MIT",
+    "source_repo_path": "data/manim_seed_cases.json"
   },
   {
     "case_id": "bar_chart_growth",
-    "tags": ["chart", "comparison"],
+    "tags": [
+      "chart",
+      "comparison"
+    ],
     "entry_scene": "BarChartGrowth",
     "prompt": "Create a Manim scene with a bar chart comparing three categories labelled A, B, and C with values 3, 5, and 4. Animate the bars appearing and add a title.",
-    "must_contain": ["BarChart(", "Text(", "Create(", "FadeIn("],
-    "must_not_contain": ["NumberPlane("],
-    "completion": "from manim import *\n\nclass BarChartGrowth(Scene):\n    def construct(self):\n        title = Text(\"Category Comparison\", font_size=38).to_edge(UP)\n        chart = BarChart(\n            values=[3, 5, 4],\n            bar_names=[\"A\", \"B\", \"C\"],\n            y_range=[0, 6, 1],\n            y_length=4.5,\n            x_length=7,\n        )\n        chart.set_color_by_gradient(BLUE, GREEN)\n\n        self.play(FadeIn(title))\n        self.play(Create(chart))\n        self.wait(1)\n"
+    "must_contain": [
+      "BarChart(",
+      "Text(",
+      "Create(",
+      "FadeIn("
+    ],
+    "must_not_contain": [
+      "NumberPlane("
+    ],
+    "completion": "from manim import *\n\nclass BarChartGrowth(Scene):\n    def construct(self):\n        title = Text(\"Category Comparison\", font_size=38).to_edge(UP)\n        chart = BarChart(\n            values=[3, 5, 4],\n            bar_names=[\"A\", \"B\", \"C\"],\n            y_range=[0, 6, 1],\n            y_length=4.5,\n            x_length=7,\n        )\n        chart.set_color_by_gradient(BLUE, GREEN)\n\n        self.play(FadeIn(title))\n        self.play(Create(chart))\n        self.wait(1)\n",
+    "license": "MIT",
+    "source_repo_path": "data/manim_seed_cases.json"
   },
   {
     "case_id": "equation_highlight",
-    "tags": ["text", "algebra"],
+    "tags": [
+      "text",
+      "algebra"
+    ],
     "entry_scene": "EquationHighlight",
     "prompt": "Make a Manim scene that writes the quadratic formula, then highlights the discriminant term b^2 - 4ac with a surrounding rectangle and caption.",
-    "must_contain": ["MathTex(", "SurroundingRectangle(", "Text(", "FadeIn("],
-    "must_not_contain": ["Axes("],
-    "completion": "from manim import *\n\nclass EquationHighlight(Scene):\n    def construct(self):\n        formula = MathTex(\n            r\"x = \\\\frac{-b \\\\pm \\\\sqrt{b^2 - 4ac}}{2a}\",\n            font_size=54,\n        )\n        caption = Text(\"The discriminant controls the roots\", font_size=28).next_to(formula, DOWN, buff=0.8)\n        box = SurroundingRectangle(formula[0][12:20], color=YELLOW, buff=0.1)\n\n        self.play(Write(formula))\n        self.play(Create(box), FadeIn(caption))\n        self.wait(1)\n"
+    "must_contain": [
+      "MathTex(",
+      "SurroundingRectangle(",
+      "Text(",
+      "FadeIn("
+    ],
+    "must_not_contain": [
+      "Axes("
+    ],
+    "completion": "from manim import *\n\nclass EquationHighlight(Scene):\n    def construct(self):\n        formula = MathTex(\n            r\"x = \\\\frac{-b \\\\pm \\\\sqrt{b^2 - 4ac}}{2a}\",\n            font_size=54,\n        )\n        caption = Text(\"The discriminant controls the roots\", font_size=28).next_to(formula, DOWN, buff=0.8)\n        box = SurroundingRectangle(formula[0][12:20], color=YELLOW, buff=0.1)\n\n        self.play(Write(formula))\n        self.play(Create(box), FadeIn(caption))\n        self.wait(1)\n",
+    "license": "MIT",
+    "source_repo_path": "data/manim_seed_cases.json"
   }
 ]
-

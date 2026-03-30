@@ -1,68 +1,158 @@
 [
   {
     "case_id": "math_riemann_sum_refinement_dashboard",
-    "tags": ["fusion", "math", "calculus", "tracker", "20s"],
+    "tags": [
+      "fusion",
+      "math",
+      "calculus",
+      "tracker",
+      "20s"
+    ],
     "entry_scene": "RiemannSumRefinementDashboard",
     "prompt": "Create a 20-second Manim scene that explains how a Riemann sum improves as rectangles get narrower. Use axes, a plotted curve, a tracker-driven rectangle count, and animate the approximation from coarse to fine.",
-    "must_contain": ["ValueTracker(", "always_redraw(", "get_riemann_rectangles(", "Integer("],
-    "must_not_contain": ["ThreeDScene"],
+    "must_contain": [
+      "ValueTracker(",
+      "always_redraw(",
+      "get_riemann_rectangles(",
+      "Integer("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
     "target_duration_seconds": 20,
     "target_duration_tolerance_seconds": 5,
-    "completion": "from manim import *\n\nclass RiemannSumRefinementDashboard(Scene):\n    def construct(self):\n        def curve(x):\n            return 0.18 * x**2 + 0.35 * x + 0.8\n\n        title = Text(\"Refining a Riemann Sum\", font_size=38).to_edge(UP)\n        axes = Axes(\n            x_range=[0, 4, 1],\n            y_range=[0, 5, 1],\n            x_length=8,\n            y_length=4.5,\n            tips=False,\n        ).shift(DOWN * 0.25)\n        graph = axes.plot(curve, x_range=[0, 4], color=BLUE_D)\n        n_tracker = ValueTracker(4)\n        rectangles = always_redraw(\n            lambda: axes.get_riemann_rectangles(\n                graph,\n                x_range=[0, 4],\n                dx=4 / int(n_tracker.get_value()),\n                input_sample_type=\"right\",\n                color=[TEAL_D, BLUE_D],\n                fill_opacity=0.7,\n                stroke_width=0.4,\n            )\n        )\n        count_panel = always_redraw(\n            lambda: VGroup(\n                Text(\"rectangles\", font_size=24, color=GRAY_D),\n                Integer(int(n_tracker.get_value()), font_size=28, color=YELLOW_D),\n            ).arrange(RIGHT, buff=0.2).to_corner(UR).shift(DOWN * 0.6)\n        )\n        caption = Text(\"More slices hug the curve more closely.\", font_size=28, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(axes), Create(graph), run_time=4)\n        self.play(FadeIn(rectangles), FadeIn(count_panel), run_time=3)\n        self.play(n_tracker.animate.set_value(8), run_time=4)\n        self.play(n_tracker.animate.set_value(16), FadeIn(caption), run_time=5)\n        self.wait(2)\n"
+    "completion": "from manim import *\n\nclass RiemannSumRefinementDashboard(Scene):\n    def construct(self):\n        def curve(x):\n            return 0.18 * x**2 + 0.35 * x + 0.8\n\n        title = Text(\"Refining a Riemann Sum\", font_size=38).to_edge(UP)\n        axes = Axes(\n            x_range=[0, 4, 1],\n            y_range=[0, 5, 1],\n            x_length=8,\n            y_length=4.5,\n            tips=False,\n        ).shift(DOWN * 0.25)\n        graph = axes.plot(curve, x_range=[0, 4], color=BLUE_D)\n        n_tracker = ValueTracker(4)\n        rectangles = always_redraw(\n            lambda: axes.get_riemann_rectangles(\n                graph,\n                x_range=[0, 4],\n                dx=4 / int(n_tracker.get_value()),\n                input_sample_type=\"right\",\n                color=[TEAL_D, BLUE_D],\n                fill_opacity=0.7,\n                stroke_width=0.4,\n            )\n        )\n        count_panel = always_redraw(\n            lambda: VGroup(\n                Text(\"rectangles\", font_size=24, color=GRAY_D),\n                Integer(int(n_tracker.get_value()), font_size=28, color=YELLOW_D),\n            ).arrange(RIGHT, buff=0.2).to_corner(UR).shift(DOWN * 0.6)\n        )\n        caption = Text(\"More slices hug the curve more closely.\", font_size=28, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(axes), Create(graph), run_time=4)\n        self.play(FadeIn(rectangles), FadeIn(count_panel), run_time=3)\n        self.play(n_tracker.animate.set_value(8), run_time=4)\n        self.play(n_tracker.animate.set_value(16), FadeIn(caption), run_time=5)\n        self.wait(2)\n",
+    "license": "MIT",
+    "source_repo_path": "data/manim_feature_fusion_cases.json"
   },
   {
     "case_id": "cs_matrix_transform_path_echo",
-    "tags": ["fusion", "cs", "linear-algebra", "transform", "20s"],
+    "tags": [
+      "fusion",
+      "cs",
+      "linear-algebra",
+      "transform",
+      "20s"
+    ],
     "entry_scene": "MatrixTransformPathEcho",
     "prompt": "Create a 20-second Manim scene that applies a matrix transform to a polygon on a number plane. Trace the path of one vertex as the shape shears and stretches, and show the matrix beside the plane.",
-    "must_contain": ["NumberPlane(", "ApplyMatrix(", "TracedPath(", "MathTex("],
-    "must_not_contain": ["ThreeDScene"],
+    "must_contain": [
+      "NumberPlane(",
+      "ApplyMatrix(",
+      "TracedPath(",
+      "MathTex("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
     "target_duration_seconds": 20,
     "target_duration_tolerance_seconds": 5,
-    "completion": "from manim import *\n\nclass MatrixTransformPathEcho(Scene):\n    def construct(self):\n        title = Text(\"A Matrix Moves Every Point Together\", font_size=36).to_edge(UP)\n        plane = NumberPlane(x_range=[-5, 5, 1], y_range=[-4, 4, 1], background_line_style={\"stroke_opacity\": 0.35})\n        shape = Polygon(LEFT + DOWN, LEFT + UP, RIGHT * 0.6 + UP * 0.4, RIGHT + DOWN * 0.8, color=TEAL_D, fill_opacity=0.18).shift(LEFT * 1.2)\n        probe = Dot(shape.get_vertices()[0], color=YELLOW, radius=0.08)\n        path = TracedPath(probe.get_center, stroke_color=YELLOW_D, stroke_width=4)\n        vector_arrow = always_redraw(lambda: Arrow(ORIGIN, probe.get_center(), buff=0.0, color=YELLOW_D, stroke_width=5, max_tip_length_to_length_ratio=0.18))\n        matrix_tex = MathTex(r\"A = \\begin{bmatrix}1.2 & 0.5\\\\-0.2 & 1.1\\end{bmatrix}\", color=BLUE_D).to_corner(UR).shift(DOWN * 0.5)\n        caption_a = Text(\"The matrix changes the whole shape in one step.\", font_size=26, color=GRAY_D).to_edge(DOWN)\n        caption_b = Text(\"Tracing one corner makes the transformation easier to read.\", font_size=26, color=GRAY_D).to_edge(DOWN)\n        group = VGroup(shape, probe)\n\n        self.play(FadeIn(title), Create(plane), FadeIn(shape), FadeIn(matrix_tex), run_time=4)\n        self.add(path, vector_arrow)\n        self.play(FadeIn(caption_a), run_time=2)\n        self.play(ApplyMatrix([[1.2, 0.5], [-0.2, 1.1]], group), run_time=5)\n        self.play(ReplacementTransform(caption_a, caption_b), run_time=2)\n        self.play(ApplyMatrix([[0.9, -0.3], [0.25, 1.05]], group), run_time=5)\n        self.wait(2)\n"
+    "completion": "from manim import *\n\nclass MatrixTransformPathEcho(Scene):\n    def construct(self):\n        title = Text(\"A Matrix Moves Every Point Together\", font_size=36).to_edge(UP)\n        plane = NumberPlane(x_range=[-5, 5, 1], y_range=[-4, 4, 1], background_line_style={\"stroke_opacity\": 0.35})\n        shape = Polygon(LEFT + DOWN, LEFT + UP, RIGHT * 0.6 + UP * 0.4, RIGHT + DOWN * 0.8, color=TEAL_D, fill_opacity=0.18).shift(LEFT * 1.2)\n        probe = Dot(shape.get_vertices()[0], color=YELLOW, radius=0.08)\n        path = TracedPath(probe.get_center, stroke_color=YELLOW_D, stroke_width=4)\n        vector_arrow = always_redraw(lambda: Arrow(ORIGIN, probe.get_center(), buff=0.0, color=YELLOW_D, stroke_width=5, max_tip_length_to_length_ratio=0.18))\n        matrix_tex = MathTex(r\"A = \\begin{bmatrix}1.2 & 0.5\\\\-0.2 & 1.1\\end{bmatrix}\", color=BLUE_D).to_corner(UR).shift(DOWN * 0.5)\n        caption_a = Text(\"The matrix changes the whole shape in one step.\", font_size=26, color=GRAY_D).to_edge(DOWN)\n        caption_b = Text(\"Tracing one corner makes the transformation easier to read.\", font_size=26, color=GRAY_D).to_edge(DOWN)\n        group = VGroup(shape, probe)\n\n        self.play(FadeIn(title), Create(plane), FadeIn(shape), FadeIn(matrix_tex), run_time=4)\n        self.add(path, vector_arrow)\n        self.play(FadeIn(caption_a), run_time=2)\n        self.play(ApplyMatrix([[1.2, 0.5], [-0.2, 1.1]], group), run_time=5)\n        self.play(ReplacementTransform(caption_a, caption_b), run_time=2)\n        self.play(ApplyMatrix([[0.9, -0.3], [0.25, 1.05]], group), run_time=5)\n        self.wait(2)\n",
+    "license": "MIT",
+    "source_repo_path": "data/manim_feature_fusion_cases.json"
   },
   {
     "case_id": "physics_vector_field_particles_compare",
-    "tags": ["fusion", "physics", "vector-field", "particles", "30s"],
+    "tags": [
+      "fusion",
+      "physics",
+      "vector-field",
+      "particles",
+      "30s"
+    ],
     "entry_scene": "VectorFieldParticlesCompare",
     "prompt": "Create a 30-second Manim scene that combines a vector field background with three particles following different guide paths. Trace each particle path and label the idea that local arrows predict instantaneous motion.",
-    "must_contain": ["ArrowVectorField(", "TracedPath(", "MoveAlongPath(", "LaggedStart("],
-    "must_not_contain": ["ThreeDScene"],
+    "must_contain": [
+      "ArrowVectorField(",
+      "TracedPath(",
+      "MoveAlongPath(",
+      "LaggedStart("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
     "target_duration_seconds": 30,
     "target_duration_tolerance_seconds": 6,
-    "completion": "from manim import *\n\nclass VectorFieldParticlesCompare(Scene):\n    def construct(self):\n        def field_fn(point):\n            return np.array([0.5 - 0.2 * point[1], 0.25 * point[0] + 0.15, 0.0])\n\n        title = Text(\"Local Arrows Predict Motion\", font_size=38).to_edge(UP)\n        plane = NumberPlane(x_range=[-5, 5, 1], y_range=[-3, 3, 1], background_line_style={\"stroke_opacity\": 0.32}).shift(DOWN * 0.2)\n        field = ArrowVectorField(field_fn, x_range=[-5, 5, 1], y_range=[-3, 3, 1], colors=[BLUE_E, TEAL_D, YELLOW_D], length_func=lambda norm: 0.16 + 0.14 * min(norm, 2.2))\n\n        starts = [plane.c2p(-3.8, -1.8), plane.c2p(-3.2, 0.0), plane.c2p(-2.7, 1.6)]\n        colors = [YELLOW_D, RED_D, PURPLE_D]\n        probes = VGroup(*[Dot(point, color=color, radius=0.08) for point, color in zip(starts, colors)])\n        traces = VGroup(*[TracedPath(dot.get_center, stroke_color=color, stroke_width=4) for dot, color in zip(probes, colors)])\n        paths = [\n            VMobject(color=colors[0]).set_points_smoothly([plane.c2p(-3.8, -1.8), plane.c2p(-2.2, -0.7), plane.c2p(-0.4, 0.8), plane.c2p(1.9, 1.0)]),\n            VMobject(color=colors[1]).set_points_smoothly([plane.c2p(-3.2, 0.0), plane.c2p(-1.4, 0.4), plane.c2p(0.7, 1.4), plane.c2p(2.6, 0.5)]),\n            VMobject(color=colors[2]).set_points_smoothly([plane.c2p(-2.7, 1.6), plane.c2p(-1.1, 1.7), plane.c2p(1.0, 1.1), plane.c2p(3.0, -0.3)]),\n        ]\n        caption_a = Text(\"The vector field sets the local direction at each point.\", font_size=27, color=GRAY_D).to_edge(DOWN)\n        caption_b = Text(\"Different starting points generate different trajectories.\", font_size=27, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(plane), FadeIn(field), run_time=4)\n        self.add(*traces)\n        self.play(LaggedStart(*[FadeIn(dot) for dot in probes], lag_ratio=0.18), FadeIn(caption_a), run_time=3)\n        self.play(LaggedStart(*[MoveAlongPath(dot, path, rate_func=linear, run_time=8) for dot, path in zip(probes, paths)], lag_ratio=0.1), ReplacementTransform(caption_a, caption_b), run_time=10)\n        self.wait(2)\n"
+    "completion": "from manim import *\n\nclass VectorFieldParticlesCompare(Scene):\n    def construct(self):\n        def field_fn(point):\n            return np.array([0.5 - 0.2 * point[1], 0.25 * point[0] + 0.15, 0.0])\n\n        title = Text(\"Local Arrows Predict Motion\", font_size=38).to_edge(UP)\n        plane = NumberPlane(x_range=[-5, 5, 1], y_range=[-3, 3, 1], background_line_style={\"stroke_opacity\": 0.32}).shift(DOWN * 0.2)\n        field = ArrowVectorField(field_fn, x_range=[-5, 5, 1], y_range=[-3, 3, 1], colors=[BLUE_E, TEAL_D, YELLOW_D], length_func=lambda norm: 0.16 + 0.14 * min(norm, 2.2))\n\n        starts = [plane.c2p(-3.8, -1.8), plane.c2p(-3.2, 0.0), plane.c2p(-2.7, 1.6)]\n        colors = [YELLOW_D, RED_D, PURPLE_D]\n        probes = VGroup(*[Dot(point, color=color, radius=0.08) for point, color in zip(starts, colors)])\n        traces = VGroup(*[TracedPath(dot.get_center, stroke_color=color, stroke_width=4) for dot, color in zip(probes, colors)])\n        paths = [\n            VMobject(color=colors[0]).set_points_smoothly([plane.c2p(-3.8, -1.8), plane.c2p(-2.2, -0.7), plane.c2p(-0.4, 0.8), plane.c2p(1.9, 1.0)]),\n            VMobject(color=colors[1]).set_points_smoothly([plane.c2p(-3.2, 0.0), plane.c2p(-1.4, 0.4), plane.c2p(0.7, 1.4), plane.c2p(2.6, 0.5)]),\n            VMobject(color=colors[2]).set_points_smoothly([plane.c2p(-2.7, 1.6), plane.c2p(-1.1, 1.7), plane.c2p(1.0, 1.1), plane.c2p(3.0, -0.3)]),\n        ]\n        caption_a = Text(\"The vector field sets the local direction at each point.\", font_size=27, color=GRAY_D).to_edge(DOWN)\n        caption_b = Text(\"Different starting points generate different trajectories.\", font_size=27, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(plane), FadeIn(field), run_time=4)\n        self.add(*traces)\n        self.play(LaggedStart(*[FadeIn(dot) for dot in probes], lag_ratio=0.18), FadeIn(caption_a), run_time=3)\n        self.play(LaggedStart(*[MoveAlongPath(dot, path, rate_func=linear, run_time=8) for dot, path in zip(probes, paths)], lag_ratio=0.1), ReplacementTransform(caption_a, caption_b), run_time=10)\n        self.wait(2)\n",
+    "license": "MIT",
+    "source_repo_path": "data/manim_feature_fusion_cases.json"
   },
   {
     "case_id": "math_complex_plane_rotation_story",
-    "tags": ["fusion", "math", "complex", "rotation", "10s"],
+    "tags": [
+      "fusion",
+      "math",
+      "complex",
+      "rotation",
+      "10s"
+    ],
     "entry_scene": "ComplexPlaneRotationStory",
     "prompt": "Create a 10-second Manim scene on a complex plane that rotates one complex number by ninety degrees twice. Trace the point, keep an arrow from the origin to the point, and relabel the states z, iz, and -z.",
-    "must_contain": ["ComplexPlane(", "Rotate(", "TracedPath(", "always_redraw("],
-    "must_not_contain": ["ThreeDScene"],
+    "must_contain": [
+      "ComplexPlane(",
+      "Rotate(",
+      "TracedPath(",
+      "always_redraw("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
     "target_duration_seconds": 10,
     "target_duration_tolerance_seconds": 3,
-    "completion": "from manim import *\n\nclass ComplexPlaneRotationStory(Scene):\n    def construct(self):\n        title = Text(\"Multiplying by i Rotates the Point\", font_size=34).to_edge(UP)\n        plane = ComplexPlane(x_range=[-3, 3, 1], y_range=[-3, 3, 1]).add_coordinates().shift(DOWN * 0.2)\n        origin = plane.n2p(0)\n        dot = Dot(plane.n2p(1 + 1j), color=YELLOW, radius=0.08)\n        arrow = always_redraw(lambda: Arrow(origin, dot.get_center(), buff=0.0, color=YELLOW_D, stroke_width=5, max_tip_length_to_length_ratio=0.18))\n        path = TracedPath(dot.get_center, stroke_color=YELLOW_D, stroke_width=4)\n        label = MathTex(\"z\", color=YELLOW_D).next_to(dot, UR, buff=0.15)\n        next_label = MathTex(\"iz\", color=BLUE_D)\n        final_label = MathTex(\"-z\", color=RED_D)\n        circle = Circle(radius=np.linalg.norm(plane.n2p(1 + 1j) - origin), color=GRAY_C, stroke_opacity=0.4).move_to(origin)\n\n        self.play(FadeIn(title), Create(plane), Create(circle), FadeIn(dot), FadeIn(label), run_time=3)\n        self.add(path, arrow)\n        self.play(Rotate(dot, angle=PI / 2, about_point=origin), run_time=2)\n        next_label.next_to(dot, UR, buff=0.15)\n        self.play(Transform(label, next_label), run_time=1)\n        self.play(Rotate(dot, angle=PI / 2, about_point=origin), run_time=2)\n        final_label.next_to(dot, UL, buff=0.15)\n        self.play(Transform(label, final_label), run_time=1)\n        self.wait(1)\n"
+    "completion": "from manim import *\n\nclass ComplexPlaneRotationStory(Scene):\n    def construct(self):\n        title = Text(\"Multiplying by i Rotates the Point\", font_size=34).to_edge(UP)\n        plane = ComplexPlane(x_range=[-3, 3, 1], y_range=[-3, 3, 1]).add_coordinates().shift(DOWN * 0.2)\n        origin = plane.n2p(0)\n        dot = Dot(plane.n2p(1 + 1j), color=YELLOW, radius=0.08)\n        arrow = always_redraw(lambda: Arrow(origin, dot.get_center(), buff=0.0, color=YELLOW_D, stroke_width=5, max_tip_length_to_length_ratio=0.18))\n        path = TracedPath(dot.get_center, stroke_color=YELLOW_D, stroke_width=4)\n        label = MathTex(\"z\", color=YELLOW_D).next_to(dot, UR, buff=0.15)\n        next_label = MathTex(\"iz\", color=BLUE_D)\n        final_label = MathTex(\"-z\", color=RED_D)\n        circle = Circle(radius=np.linalg.norm(plane.n2p(1 + 1j) - origin), color=GRAY_C, stroke_opacity=0.4).move_to(origin)\n\n        self.play(FadeIn(title), Create(plane), Create(circle), FadeIn(dot), FadeIn(label), run_time=3)\n        self.add(path, arrow)\n        self.play(Rotate(dot, angle=PI / 2, about_point=origin), run_time=2)\n        next_label.next_to(dot, UR, buff=0.15)\n        self.play(Transform(label, next_label), run_time=1)\n        self.play(Rotate(dot, angle=PI / 2, about_point=origin), run_time=2)\n        final_label.next_to(dot, UL, buff=0.15)\n        self.play(Transform(label, final_label), run_time=1)\n        self.wait(1)\n",
+    "license": "MIT",
+    "source_repo_path": "data/manim_feature_fusion_cases.json"
   },
   {
     "case_id": "chem_titration_tracker_dashboard",
-    "tags": ["fusion", "chemistry", "titration", "tracker", "30s"],
+    "tags": [
+      "fusion",
+      "chemistry",
+      "titration",
+      "tracker",
+      "30s"
+    ],
     "entry_scene": "TitrationTrackerDashboard",
     "prompt": "Create a 30-second Manim scene that explains a titration curve. Plot pH versus added base, move a tracker-driven dot from acidic to equivalence to basic regions, and show a live pH readout with guide lines.",
-    "must_contain": ["Axes(", ".plot(", "ValueTracker(", "always_redraw("],
-    "must_not_contain": ["ThreeDScene"],
+    "must_contain": [
+      "Axes(",
+      ".plot(",
+      "ValueTracker(",
+      "always_redraw("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
     "target_duration_seconds": 30,
     "target_duration_tolerance_seconds": 6,
-    "completion": "from manim import *\n\nclass TitrationTrackerDashboard(Scene):\n    def construct(self):\n        def ph_curve(x):\n            return 2.2 + 9.0 / (1 + np.exp(-(x - 5.2) * 1.8))\n\n        title = Text(\"Reading a Titration Curve\", font_size=38).to_edge(UP)\n        axes = Axes(\n            x_range=[0, 10, 1],\n            y_range=[0, 14, 2],\n            x_length=8.4,\n            y_length=4.8,\n            tips=False,\n            axis_config={\"include_numbers\": True},\n        ).shift(DOWN * 0.25)\n        graph = axes.plot(ph_curve, x_range=[0.2, 9.8], color=GREEN_D)\n        x_tracker = ValueTracker(1.2)\n        dot = always_redraw(lambda: Dot(axes.c2p(x_tracker.get_value(), ph_curve(x_tracker.get_value())), color=YELLOW, radius=0.08))\n        guides = always_redraw(\n            lambda: VGroup(\n                DashedLine(axes.c2p(x_tracker.get_value(), 0), dot.get_center(), color=GRAY_B),\n                DashedLine(axes.c2p(0, ph_curve(x_tracker.get_value())), dot.get_center(), color=GRAY_B),\n            )\n        )\n        readout = always_redraw(\n            lambda: VGroup(\n                Text(\"pH\", font_size=24, color=GRAY_D),\n                DecimalNumber(ph_curve(x_tracker.get_value()), num_decimal_places=2, font_size=28, color=YELLOW_D),\n            ).arrange(RIGHT, buff=0.18).to_corner(UR).shift(DOWN * 0.6)\n        )\n        acidic = Text(\"acidic region\", font_size=24, color=BLUE_D).next_to(axes.c2p(1.5, 3.0), LEFT)\n        eq_box = SurroundingRectangle(Text(\"equivalence\", font_size=22).move_to(axes.c2p(5.3, 8.2)), color=GREEN_E, buff=0.12)\n        eq_text = Text(\"equivalence\", font_size=22, color=GREEN_E).move_to(eq_box)\n        basic = Text(\"basic region\", font_size=24, color=PURPLE_D).next_to(axes.c2p(8.5, 11.6), RIGHT)\n        caption = Text(\"The steep middle section marks the rapid pH jump.\", font_size=27, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(axes), Create(graph), run_time=4)\n        self.play(FadeIn(dot), FadeIn(guides), FadeIn(readout), FadeIn(acidic), run_time=3)\n        self.play(x_tracker.animate.set_value(5.2), run_time=6)\n        self.play(FadeIn(eq_box), FadeIn(eq_text), run_time=3)\n        self.play(x_tracker.animate.set_value(8.8), FadeIn(basic), FadeIn(caption), run_time=6)\n        self.wait(2)\n"
+    "completion": "from manim import *\n\nclass TitrationTrackerDashboard(Scene):\n    def construct(self):\n        def ph_curve(x):\n            return 2.2 + 9.0 / (1 + np.exp(-(x - 5.2) * 1.8))\n\n        title = Text(\"Reading a Titration Curve\", font_size=38).to_edge(UP)\n        axes = Axes(\n            x_range=[0, 10, 1],\n            y_range=[0, 14, 2],\n            x_length=8.4,\n            y_length=4.8,\n            tips=False,\n            axis_config={\"include_numbers\": True},\n        ).shift(DOWN * 0.25)\n        graph = axes.plot(ph_curve, x_range=[0.2, 9.8], color=GREEN_D)\n        x_tracker = ValueTracker(1.2)\n        dot = always_redraw(lambda: Dot(axes.c2p(x_tracker.get_value(), ph_curve(x_tracker.get_value())), color=YELLOW, radius=0.08))\n        guides = always_redraw(\n            lambda: VGroup(\n                DashedLine(axes.c2p(x_tracker.get_value(), 0), dot.get_center(), color=GRAY_B),\n                DashedLine(axes.c2p(0, ph_curve(x_tracker.get_value())), dot.get_center(), color=GRAY_B),\n            )\n        )\n        readout = always_redraw(\n            lambda: VGroup(\n                Text(\"pH\", font_size=24, color=GRAY_D),\n                DecimalNumber(ph_curve(x_tracker.get_value()), num_decimal_places=2, font_size=28, color=YELLOW_D),\n            ).arrange(RIGHT, buff=0.18).to_corner(UR).shift(DOWN * 0.6)\n        )\n        acidic = Text(\"acidic region\", font_size=24, color=BLUE_D).next_to(axes.c2p(1.5, 3.0), LEFT)\n        eq_box = SurroundingRectangle(Text(\"equivalence\", font_size=22).move_to(axes.c2p(5.3, 8.2)), color=GREEN_E, buff=0.12)\n        eq_text = Text(\"equivalence\", font_size=22, color=GREEN_E).move_to(eq_box)\n        basic = Text(\"basic region\", font_size=24, color=PURPLE_D).next_to(axes.c2p(8.5, 11.6), RIGHT)\n        caption = Text(\"The steep middle section marks the rapid pH jump.\", font_size=27, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(axes), Create(graph), run_time=4)\n        self.play(FadeIn(dot), FadeIn(guides), FadeIn(readout), FadeIn(acidic), run_time=3)\n        self.play(x_tracker.animate.set_value(5.2), run_time=6)\n        self.play(FadeIn(eq_box), FadeIn(eq_text), run_time=3)\n        self.play(x_tracker.animate.set_value(8.8), FadeIn(basic), FadeIn(caption), run_time=6)\n        self.wait(2)\n",
+    "license": "MIT",
+    "source_repo_path": "data/manim_feature_fusion_cases.json"
   },
   {
     "case_id": "ml_residual_block_signal_merge",
-    "tags": ["fusion", "ml", "residual", "architecture", "10s"],
+    "tags": [
+      "fusion",
+      "ml",
+      "residual",
+      "architecture",
+      "10s"
+    ],
     "entry_scene": "ResidualBlockSignalMerge",
     "prompt": "Create a 10-second Manim scene explaining a residual block. Show an input flowing through a transformation branch and a skip branch, then merge both paths into an output with a short caption about information preservation.",
-    "must_contain": ["RoundedRectangle(", "Arrow(", "Brace(", "SurroundingRectangle("],
-    "must_not_contain": ["ThreeDScene"],
+    "must_contain": [
+      "RoundedRectangle(",
+      "Arrow(",
+      "Brace(",
+      "SurroundingRectangle("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
     "target_duration_seconds": 10,
     "target_duration_tolerance_seconds": 3,
-    "completion": "from manim import *\n\nclass ResidualBlockSignalMerge(Scene):\n    def construct(self):\n        title = Text(\"Residual Connections Preserve Signal\", font_size=34).to_edge(UP)\n        input_box = RoundedRectangle(corner_radius=0.1, width=1.5, height=0.8, color=BLUE_D, fill_opacity=0.15).shift(LEFT * 5)\n        input_label = Text(\"input\", font_size=24, color=BLUE_D).move_to(input_box)\n        block_box = RoundedRectangle(corner_radius=0.12, width=2.4, height=1.0, color=TEAL_D, fill_opacity=0.15)\n        block_label = Text(\"transform\", font_size=24, color=TEAL_D).move_to(block_box)\n        merge_box = Circle(radius=0.28, color=YELLOW_D, fill_opacity=0.12).shift(RIGHT * 2.6)\n        merge_label = Text(\"+\", font_size=30, color=YELLOW_D).move_to(merge_box)\n        output_box = RoundedRectangle(corner_radius=0.1, width=1.6, height=0.8, color=GREEN_D, fill_opacity=0.15).shift(RIGHT * 5)\n        output_label = Text(\"output\", font_size=24, color=GREEN_D).move_to(output_box)\n\n        main_arrow_1 = Arrow(input_box.get_right(), block_box.get_left(), buff=0.15, color=GRAY_B)\n        main_arrow_2 = Arrow(block_box.get_right(), merge_box.get_left(), buff=0.15, color=GRAY_B)\n        skip_up = Arrow(input_box.get_top(), input_box.get_top() + UP * 1.1, buff=0.0, color=BLUE_B)\n        skip_across = Arrow(skip_up.get_end(), merge_box.get_top() + UP * 0.05, buff=0.1, color=BLUE_B)\n        merge_arrow = Arrow(merge_box.get_right(), output_box.get_left(), buff=0.15, color=GREEN_D)\n        branch_brace = Brace(VGroup(skip_up, skip_across), UP, color=BLUE_B)\n        branch_text = Text(\"skip path\", font_size=22, color=BLUE_B).next_to(branch_brace, UP, buff=0.1)\n        highlight = SurroundingRectangle(block_box, color=YELLOW, buff=0.12)\n        caption = Text(\"The shortcut helps useful information survive the block.\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), FadeIn(input_box), FadeIn(input_label), FadeIn(block_box), FadeIn(block_label), FadeIn(merge_box), FadeIn(merge_label), FadeIn(output_box), FadeIn(output_label), run_time=3)\n        self.play(GrowArrow(main_arrow_1), GrowArrow(main_arrow_2), GrowArrow(merge_arrow), run_time=2)\n        self.play(GrowArrow(skip_up), GrowArrow(skip_across), FadeIn(branch_brace), FadeIn(branch_text), run_time=2)\n        self.play(Create(highlight), FadeIn(caption), run_time=2)\n        self.wait(1)\n"
+    "completion": "from manim import *\n\nclass ResidualBlockSignalMerge(Scene):\n    def construct(self):\n        title = Text(\"Residual Connections Preserve Signal\", font_size=34).to_edge(UP)\n        input_box = RoundedRectangle(corner_radius=0.1, width=1.5, height=0.8, color=BLUE_D, fill_opacity=0.15).shift(LEFT * 5)\n        input_label = Text(\"input\", font_size=24, color=BLUE_D).move_to(input_box)\n        block_box = RoundedRectangle(corner_radius=0.12, width=2.4, height=1.0, color=TEAL_D, fill_opacity=0.15)\n        block_label = Text(\"transform\", font_size=24, color=TEAL_D).move_to(block_box)\n        merge_box = Circle(radius=0.28, color=YELLOW_D, fill_opacity=0.12).shift(RIGHT * 2.6)\n        merge_label = Text(\"+\", font_size=30, color=YELLOW_D).move_to(merge_box)\n        output_box = RoundedRectangle(corner_radius=0.1, width=1.6, height=0.8, color=GREEN_D, fill_opacity=0.15).shift(RIGHT * 5)\n        output_label = Text(\"output\", font_size=24, color=GREEN_D).move_to(output_box)\n\n        main_arrow_1 = Arrow(input_box.get_right(), block_box.get_left(), buff=0.15, color=GRAY_B)\n        main_arrow_2 = Arrow(block_box.get_right(), merge_box.get_left(), buff=0.15, color=GRAY_B)\n        skip_up = Arrow(input_box.get_top(), input_box.get_top() + UP * 1.1, buff=0.0, color=BLUE_B)\n        skip_across = Arrow(skip_up.get_end(), merge_box.get_top() + UP * 0.05, buff=0.1, color=BLUE_B)\n        merge_arrow = Arrow(merge_box.get_right(), output_box.get_left(), buff=0.15, color=GREEN_D)\n        branch_brace = Brace(VGroup(skip_up, skip_across), UP, color=BLUE_B)\n        branch_text = Text(\"skip path\", font_size=22, color=BLUE_B).next_to(branch_brace, UP, buff=0.1)\n        highlight = SurroundingRectangle(block_box, color=YELLOW, buff=0.12)\n        caption = Text(\"The shortcut helps useful information survive the block.\", font_size=24, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), FadeIn(input_box), FadeIn(input_label), FadeIn(block_box), FadeIn(block_label), FadeIn(merge_box), FadeIn(merge_label), FadeIn(output_box), FadeIn(output_label), run_time=3)\n        self.play(GrowArrow(main_arrow_1), GrowArrow(main_arrow_2), GrowArrow(merge_arrow), run_time=2)\n        self.play(GrowArrow(skip_up), GrowArrow(skip_across), FadeIn(branch_brace), FadeIn(branch_text), run_time=2)\n        self.play(Create(highlight), FadeIn(caption), run_time=2)\n        self.wait(1)\n",
+    "license": "MIT",
+    "source_repo_path": "data/manim_feature_fusion_cases.json"
   }
 ]
