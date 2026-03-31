@@ -1,0 +1,258 @@
+[
+  {
+    "case_id": "candidate_markov_transition_flow_story",
+    "prompt": "Create a 12-second Manim scene that explains one Markov-chain update as probability mass flowing between three states. Show three state circles with current probabilities, a few labeled transition arrows, and then a next-step panel where the bars visibly rebalance.",
+    "completion": "from manim import *\n\nclass MarkovTransitionFlowStory(Scene):\n    def construct(self):\n        title = Text('One Transition Step Redistributes Probability', font_size=31).to_edge(UP)\n        states = VGroup(\n            Circle(radius=0.42, color=BLUE_D, fill_color=BLUE_D, fill_opacity=0.14),\n            Circle(radius=0.42, color=TEAL_D, fill_color=TEAL_D, fill_opacity=0.14),\n            Circle(radius=0.42, color=ORANGE, fill_color=ORANGE, fill_opacity=0.14),\n        ).arrange(RIGHT, buff=1.2).shift(LEFT * 1.5 + UP * 0.55)\n        labels = VGroup(Text('A', font_size=24, color=BLUE_D), Text('B', font_size=24, color=TEAL_D), Text('C', font_size=24, color=ORANGE))\n        for label, circle in zip(labels, states):\n            label.move_to(circle)\n        probs = VGroup(Text('0.50', font_size=20, color=WHITE).next_to(states[0], DOWN, buff=0.18), Text('0.30', font_size=20, color=WHITE).next_to(states[1], DOWN, buff=0.18), Text('0.20', font_size=20, color=WHITE).next_to(states[2], DOWN, buff=0.18))\n        arrow_ab = CurvedArrow(states[0].get_right(), states[1].get_left(), angle=-0.35, color=GRAY_B)\n        arrow_bc = CurvedArrow(states[1].get_right(), states[2].get_left(), angle=-0.35, color=GRAY_B)\n        arrow_ca = CurvedArrow(states[2].get_top(), states[0].get_top(), angle=-0.4, color=GRAY_B)\n        arrow_labels = VGroup(Text('0.3', font_size=18, color=GRAY_D).next_to(arrow_ab, DOWN, buff=0.08), Text('0.4', font_size=18, color=GRAY_D).next_to(arrow_bc, DOWN, buff=0.08), Text('0.2', font_size=18, color=GRAY_D).next_to(arrow_ca, UP, buff=0.08))\n        next_frame = Rectangle(width=2.7, height=3.2, color=GRAY_B).to_edge(RIGHT).shift(DOWN * 0.15)\n        next_title = Text('next step', font_size=22, color=WHITE).next_to(next_frame, UP, buff=0.15)\n        bars = VGroup(\n            Rectangle(width=0.42, height=1.6, color=BLUE_D, fill_color=BLUE_D, fill_opacity=0.45),\n            Rectangle(width=0.42, height=1.15, color=TEAL_D, fill_color=TEAL_D, fill_opacity=0.45),\n            Rectangle(width=0.42, height=1.75, color=ORANGE, fill_color=ORANGE, fill_opacity=0.45),\n        ).arrange(RIGHT, buff=0.28, aligned_edge=DOWN).move_to(next_frame.get_center() + DOWN * 0.25)\n        bar_labels = VGroup(Text('A', font_size=18, color=BLUE_D).next_to(bars[0], DOWN, buff=0.12), Text('B', font_size=18, color=TEAL_D).next_to(bars[1], DOWN, buff=0.12), Text('C', font_size=18, color=ORANGE).next_to(bars[2], DOWN, buff=0.12))\n        caption = Text('The arrows describe how probability mass moves before the next state distribution is read out.', font_size=22, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), FadeIn(states), FadeIn(labels), FadeIn(probs), run_time=2)\n        self.play(Create(arrow_ab), Create(arrow_bc), Create(arrow_ca), FadeIn(arrow_labels), run_time=2.4)\n        self.play(FadeIn(next_frame), FadeIn(next_title), run_time=1.2)\n        self.play(LaggedStart(*[GrowFromEdge(bar, DOWN) for bar in bars], lag_ratio=0.18), LaggedStart(*[FadeIn(label) for label in bar_labels], lag_ratio=0.18), run_time=2.6)\n        self.play(FadeIn(caption_group), run_time=1.4)\n        self.wait(1)\n",
+    "entry_scene": "MarkovTransitionFlowStory",
+    "tags": [
+      "review-candidate",
+      "statistics",
+      "probability",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Circle(",
+      "CurvedArrow(",
+      "Rectangle(",
+      "LaggedStart("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 6",
+    "source_domain": "statistics",
+    "source_repo_path": "data/manim_review_candidates_round6.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_sine_superposition_story",
+    "prompt": "Create a 12-second Manim scene that explains superposition with two simple sine components and their sum. Stack three compact plots vertically so the learner can see component one, component two, and the resulting combined waveform.",
+    "completion": "from manim import *\n\nclass SineSuperpositionStory(Scene):\n    def construct(self):\n        title = Text('Signals Add By Superposition', font_size=32).to_edge(UP)\n        axes_top = Axes(x_range=[0, 6, 1], y_range=[-1.6, 1.6, 1], x_length=6.3, y_length=1.5, tips=False).shift(UP * 1.45)\n        axes_mid = Axes(x_range=[0, 6, 1], y_range=[-1.6, 1.6, 1], x_length=6.3, y_length=1.5, tips=False).move_to(ORIGIN + DOWN * 0.1)\n        axes_bot = Axes(x_range=[0, 6, 1], y_range=[-2.4, 2.4, 1], x_length=6.3, y_length=1.8, tips=False).shift(DOWN * 1.75)\n        wave_a = axes_top.plot(lambda x: 0.95 * np.sin(1.2 * x), x_range=[0, 6], color=BLUE_D)\n        wave_b = axes_mid.plot(lambda x: 0.7 * np.sin(2.4 * x + 0.6), x_range=[0, 6], color=ORANGE)\n        wave_sum = axes_bot.plot(lambda x: 0.95 * np.sin(1.2 * x) + 0.7 * np.sin(2.4 * x + 0.6), x_range=[0, 6], color=TEAL_D)\n        labels = VGroup(Text('component 1', font_size=20, color=BLUE_D).next_to(axes_top, LEFT, buff=0.25), Text('component 2', font_size=20, color=ORANGE).next_to(axes_mid, LEFT, buff=0.25), Text('sum', font_size=20, color=TEAL_D).next_to(axes_bot, LEFT, buff=0.25))\n        plus = Text('+', font_size=30, color=WHITE).next_to(axes_mid, RIGHT, buff=0.3)\n        equals = Text('=', font_size=30, color=WHITE).next_to(axes_bot, RIGHT, buff=0.3)\n        caption = Text('The lower curve is not separate magic. It is the point-by-point sum of the two components above it.', font_size=22, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), Create(axes_top), Create(axes_mid), Create(axes_bot), FadeIn(labels), run_time=2.2)\n        self.play(Create(wave_a), Create(wave_b), FadeIn(plus), run_time=2.2)\n        self.play(Create(wave_sum), FadeIn(equals), run_time=2.2)\n        self.play(FadeIn(caption_group), Indicate(wave_sum, color=YELLOW_A), run_time=1.8)\n        self.wait(1)\n",
+    "entry_scene": "SineSuperpositionStory",
+    "tags": [
+      "review-candidate",
+      "signal-processing",
+      "math",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Axes(",
+      ".plot(",
+      "Text(",
+      "Indicate("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 6",
+    "source_domain": "signal-processing",
+    "source_repo_path": "data/manim_review_candidates_round6.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_entropy_distribution_story",
+    "prompt": "Create a 12-second Manim scene that explains entropy as spread or uncertainty by comparing two side-by-side bar distributions. Show one concentrated distribution, one more even distribution, and a simple entropy readout so the more spread-out case clearly gets the higher value.",
+    "completion": "from manim import *\n\nclass EntropyDistributionStory(Scene):\n    def construct(self):\n        title = Text('More Spread Means Higher Entropy', font_size=31).to_edge(UP)\n        left_frame = Rectangle(width=3.2, height=3.0, color=GRAY_B).shift(LEFT * 3.0 + DOWN * 0.1)\n        right_frame = Rectangle(width=3.2, height=3.0, color=GRAY_B).shift(RIGHT * 3.0 + DOWN * 0.1)\n        left_title = Text('concentrated', font_size=20, color=BLUE_D).next_to(left_frame, UP, buff=0.15)\n        right_title = Text('spread out', font_size=20, color=TEAL_D).next_to(right_frame, UP, buff=0.15)\n        left_bars = VGroup(*[\n            Rectangle(width=0.36, height=h, color=BLUE_D, fill_color=BLUE_D, fill_opacity=0.42).align_to(left_frame, DOWN)\n            for h in [2.2, 0.55, 0.28, 0.18]\n        ]).arrange(RIGHT, buff=0.18).move_to(left_frame.get_center() + DOWN * 0.35)\n        right_bars = VGroup(*[\n            Rectangle(width=0.36, height=h, color=TEAL_D, fill_color=TEAL_D, fill_opacity=0.42).align_to(right_frame, DOWN)\n            for h in [1.2, 1.05, 0.95, 0.85]\n        ]).arrange(RIGHT, buff=0.18).move_to(right_frame.get_center() + DOWN * 0.35)\n        entropy_left = VGroup(Text('entropy', font_size=18, color=WHITE), Text('0.72', font_size=26, color=BLUE_D)).arrange(DOWN, buff=0.08).next_to(left_frame, DOWN, buff=0.18)\n        entropy_right = VGroup(Text('entropy', font_size=18, color=WHITE), Text('1.35', font_size=26, color=TEAL_D)).arrange(DOWN, buff=0.08).next_to(right_frame, DOWN, buff=0.18)\n        caption = Text('When probability spreads across more outcomes, uncertainty rises and so does entropy.', font_size=22, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), FadeIn(left_frame), FadeIn(right_frame), FadeIn(left_title), FadeIn(right_title), run_time=2)\n        self.play(LaggedStart(*[GrowFromEdge(bar, DOWN) for bar in left_bars], lag_ratio=0.12), LaggedStart(*[GrowFromEdge(bar, DOWN) for bar in right_bars], lag_ratio=0.12), run_time=2.4)\n        self.play(FadeIn(entropy_left), FadeIn(entropy_right), run_time=1.5)\n        self.play(FadeIn(caption_group), Indicate(entropy_right[1], color=YELLOW_A), run_time=1.8)\n        self.wait(1)\n",
+    "entry_scene": "EntropyDistributionStory",
+    "tags": [
+      "review-candidate",
+      "statistics",
+      "information-theory",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Rectangle(",
+      "VGroup(",
+      "Text(",
+      "Indicate("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 6",
+    "source_domain": "statistics",
+    "source_repo_path": "data/manim_review_candidates_round6.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_tax_incidence_split_story",
+    "prompt": "Create a 12-second Manim scene that explains tax incidence as a split between the buyer price and seller price. Use a simple supply-demand graph, a vertical tax wedge at the traded quantity, and labels that make it obvious the burden is shared rather than falling on only one side.",
+    "completion": "from manim import *\n\nclass TaxIncidenceSplitStory(Scene):\n    def construct(self):\n        title = Text('Tax Incidence Splits The Burden', font_size=31).to_edge(UP)\n        axes = Axes(x_range=[0, 10, 1], y_range=[0, 10, 1], x_length=6.6, y_length=4.6, tips=False).shift(LEFT * 0.7 + DOWN * 0.15)\n        demand = axes.plot(lambda x: 8.8 - 0.62 * x, x_range=[0.9, 9.0], color=BLUE_D)\n        supply = axes.plot(lambda x: 2.0 + 0.48 * x, x_range=[0.9, 9.0], color=ORANGE)\n        trade_x = 4.6\n        buyer_y = 5.95\n        seller_y = 4.55\n        wedge = Line(axes.c2p(trade_x, seller_y), axes.c2p(trade_x, buyer_y), color=RED_D, stroke_width=6)\n        buyer_dot = Dot(axes.c2p(trade_x, buyer_y), color=BLUE_D, radius=0.07)\n        seller_dot = Dot(axes.c2p(trade_x, seller_y), color=ORANGE, radius=0.07)\n        buyer_label = Text('buyers pay more', font_size=20, color=BLUE_D).next_to(buyer_dot, RIGHT, buff=0.15)\n        seller_label = Text('sellers receive less', font_size=20, color=ORANGE).next_to(seller_dot, RIGHT, buff=0.15)\n        tax_label = Text('tax wedge', font_size=20, color=RED_D).next_to(wedge, LEFT, buff=0.15)\n        caption = Text('The tax creates a gap between the price on the demand side and the price on the supply side.', font_size=22, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), Create(axes), Create(demand), Create(supply), run_time=2.3)\n        self.play(GrowFromCenter(wedge), FadeIn(tax_label), run_time=1.4)\n        self.play(FadeIn(buyer_dot), FadeIn(seller_dot), FadeIn(buyer_label), FadeIn(seller_label), run_time=1.8)\n        self.play(FadeIn(caption_group), Indicate(wedge, color=YELLOW_A), run_time=1.8)\n        self.wait(1)\n",
+    "entry_scene": "TaxIncidenceSplitStory",
+    "tags": [
+      "review-candidate",
+      "economics",
+      "microeconomics",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Axes(",
+      ".plot(",
+      "Line(",
+      "Text("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 6",
+    "source_domain": "economics",
+    "source_repo_path": "data/manim_review_candidates_round6.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_yield_curve_shift_story",
+    "prompt": "Create a 12-second Manim scene that explains a yield curve shift with short, medium, and long maturities on the x-axis. Show one initial curve, then an upward-shifted curve, and use short arrows to make the parallel move visually obvious.",
+    "completion": "from manim import *\n\nclass YieldCurveShiftStory(Scene):\n    def construct(self):\n        title = Text('A Yield Curve Shift Moves Rates Across Maturities', font_size=29).to_edge(UP)\n        axes = Axes(x_range=[0, 10, 2], y_range=[0, 6, 1], x_length=7.0, y_length=4.6, tips=False).shift(DOWN * 0.15)\n        base_curve = axes.plot(lambda x: 1.0 + 0.55 * np.sqrt(x), x_range=[1, 9], color=BLUE_D)\n        shifted_curve = axes.plot(lambda x: 1.8 + 0.55 * np.sqrt(x), x_range=[1, 9], color=ORANGE)\n        labels = VGroup(Text('before', font_size=20, color=BLUE_D).next_to(base_curve, LEFT, buff=0.18), Text('after shift', font_size=20, color=ORANGE).next_to(shifted_curve, RIGHT, buff=0.18))\n        arrows = VGroup(*[\n            Arrow(axes.c2p(x, 1.0 + 0.55 * np.sqrt(x) + 0.05), axes.c2p(x, 1.8 + 0.55 * np.sqrt(x) - 0.05), buff=0.0, color=YELLOW_D, stroke_width=4)\n            for x in [2, 5, 8]\n        ])\n        maturity = Text('maturity', font_size=20, color=WHITE).next_to(axes.x_axis, DOWN, buff=0.15)\n        yield_label = Text('yield', font_size=20, color=WHITE).next_to(axes.y_axis, LEFT, buff=0.15)\n        caption = Text('A parallel shift means rates at many maturities move together in the same direction.', font_size=22, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), Create(axes), FadeIn(maturity), FadeIn(yield_label), run_time=2)\n        self.play(Create(base_curve), FadeIn(labels[0]), run_time=1.8)\n        self.play(ReplacementTransform(base_curve.copy(), shifted_curve), FadeIn(labels[1]), run_time=2.1)\n        self.play(LaggedStart(*[GrowArrow(arrow) for arrow in arrows], lag_ratio=0.18), FadeIn(caption_group), run_time=2)\n        self.wait(1)\n",
+    "entry_scene": "YieldCurveShiftStory",
+    "tags": [
+      "review-candidate",
+      "finance",
+      "bonds",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Axes(",
+      ".plot(",
+      "Arrow(",
+      "ReplacementTransform("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 6",
+    "source_domain": "finance",
+    "source_repo_path": "data/manim_review_candidates_round6.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_gene_regulation_switch_story",
+    "prompt": "Create a 12-second Manim scene that explains a basic gene-regulation switch. Show a DNA line with a promoter, a blocking repressor on top at first, then move the repressor away so an expression bar on the right can rise.",
+    "completion": "from manim import *\n\nclass GeneRegulationSwitchStory(Scene):\n    def construct(self):\n        title = Text('Removing A Repressor Can Turn Expression On', font_size=29).to_edge(UP)\n        dna = Line(LEFT * 5.0, RIGHT * 1.4, color=BLUE_D, stroke_width=6).shift(DOWN * 0.1)\n        promoter = RoundedRectangle(corner_radius=0.08, width=0.9, height=0.42, color=GREEN_D, fill_color=GREEN_D, fill_opacity=0.28).move_to(LEFT * 2.2 + DOWN * 0.1)\n        promoter_label = Text('promoter', font_size=18, color=GREEN_D).next_to(promoter, DOWN, buff=0.12)\n        repressor = RoundedRectangle(corner_radius=0.12, width=1.1, height=0.5, color=RED_D, fill_color=RED_D, fill_opacity=0.32).move_to(promoter.get_top() + UP * 0.18)\n        repressor_label = Text('repressor', font_size=18, color=RED_D).next_to(repressor, UP, buff=0.12)\n        blocked_arrow = Arrow(promoter.get_right(), RIGHT * 1.7 + DOWN * 0.1, buff=0.08, color=GRAY_B)\n        active_arrow = Arrow(promoter.get_right(), RIGHT * 1.7 + DOWN * 0.1, buff=0.08, color=YELLOW_D)\n        expression_frame = Rectangle(width=1.1, height=2.4, color=GRAY_B).to_edge(RIGHT).shift(DOWN * 0.1)\n        expression_bar = Rectangle(width=0.52, height=0.35, color=TEAL_D, fill_color=TEAL_D, fill_opacity=0.52).align_to(expression_frame, DOWN).move_to(expression_frame.get_center() + DOWN * 0.85)\n        expression_label = Text('expression', font_size=18, color=TEAL_D).next_to(expression_frame, UP, buff=0.14)\n        caption = Text('While the repressor sits on the promoter, output stays low. When it leaves, expression can rise.', font_size=22, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), Create(dna), FadeIn(promoter), FadeIn(promoter_label), run_time=2)\n        self.play(FadeIn(repressor), FadeIn(repressor_label), GrowArrow(blocked_arrow), FadeIn(expression_frame), FadeIn(expression_label), FadeIn(expression_bar), run_time=2)\n        self.play(repressor.animate.shift(UP * 1.35 + RIGHT * 0.45), FadeOut(blocked_arrow), GrowArrow(active_arrow), expression_bar.animate.stretch_to_fit_height(1.8).align_to(expression_frame, DOWN).move_to(expression_frame.get_center() + DOWN * 0.12), run_time=2.6)\n        self.play(FadeIn(caption_group), Indicate(expression_bar, color=YELLOW_A), run_time=1.8)\n        self.wait(1)\n",
+    "entry_scene": "GeneRegulationSwitchStory",
+    "tags": [
+      "review-candidate",
+      "biology",
+      "genetics",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Line(",
+      "RoundedRectangle(",
+      "Arrow(",
+      "Indicate("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 6",
+    "source_domain": "biology",
+    "source_repo_path": "data/manim_review_candidates_round6.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_coordinate_frame_rotation_story",
+    "prompt": "Create a 12-second Manim scene that explains a rotated coordinate frame. Show a world frame, then a second local frame rotated about the same origin, plus one fixed point whose coordinates look different in the rotated frame.",
+    "completion": "from manim import *\n\nclass CoordinateFrameRotationStory(Scene):\n    def construct(self):\n        title = Text('Coordinates Depend On The Chosen Frame', font_size=31).to_edge(UP)\n        plane = NumberPlane(x_range=[-3, 3, 1], y_range=[-3, 3, 1], x_length=6.8, y_length=6.0, background_line_style={'stroke_opacity': 0.18}).shift(DOWN * 0.25)\n        origin = plane.c2p(0, 0)\n        world_x = Arrow(origin, plane.c2p(2.2, 0), buff=0, color=BLUE_D)\n        world_y = Arrow(origin, plane.c2p(0, 2.0), buff=0, color=BLUE_D)\n        local_x = Arrow(origin, origin + np.array([1.6, 1.2, 0]), buff=0, color=ORANGE)\n        local_y = Arrow(origin, origin + np.array([-1.05, 1.45, 0]), buff=0, color=ORANGE)\n        point = Dot(plane.c2p(1.7, 1.4), color=YELLOW_D, radius=0.08)\n        point_label = Text('same point', font_size=20, color=YELLOW_D).next_to(point, UR, buff=0.12)\n        world_label = Text('(1.7, 1.4) in world', font_size=20, color=BLUE_D).to_edge(RIGHT).shift(UP * 0.65)\n        local_label = Text('(2.1, 0.3) in local', font_size=20, color=ORANGE).next_to(world_label, DOWN, aligned_edge=LEFT, buff=0.25)\n        frame_labels = VGroup(Text('world', font_size=18, color=BLUE_D).next_to(world_x, RIGHT, buff=0.08), Text('local', font_size=18, color=ORANGE).next_to(local_x.get_end(), RIGHT, buff=0.08))\n        caption = Text('The geometry stays fixed, but the coordinate numbers change when the frame rotates.', font_size=22, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), Create(plane), run_time=2)\n        self.play(GrowArrow(world_x), GrowArrow(world_y), FadeIn(frame_labels[0]), run_time=1.5)\n        self.play(GrowArrow(local_x), GrowArrow(local_y), FadeIn(frame_labels[1]), run_time=1.7)\n        self.play(FadeIn(point), FadeIn(point_label), FadeIn(world_label), FadeIn(local_label), run_time=1.8)\n        self.play(FadeIn(caption_group), Indicate(local_x, color=YELLOW_A), run_time=1.6)\n        self.wait(1)\n",
+    "entry_scene": "CoordinateFrameRotationStory",
+    "tags": [
+      "review-candidate",
+      "robotics",
+      "geometry",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "NumberPlane(",
+      "Arrow(",
+      "Dot(",
+      "Text("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 6",
+    "source_domain": "robotics",
+    "source_repo_path": "data/manim_review_candidates_round6.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_feedback_loop_error_story",
+    "prompt": "Create a 12-second Manim scene that explains a negative-feedback loop with a reference input, an error node, a controller block, a plant block, and a feedback arrow from output back to the summing node. Use a highlight on the error path so the structure is easy to follow.",
+    "completion": "from manim import *\n\nclass FeedbackLoopErrorStory(Scene):\n    def construct(self):\n        title = Text('Negative Feedback Reduces Error', font_size=31).to_edge(UP)\n        sum_node = Circle(radius=0.22, color=YELLOW_D).shift(LEFT * 3.7)\n        plus = Text('+', font_size=20, color=YELLOW_D).move_to(sum_node.get_center() + UP * 0.1)\n        minus = Text('-', font_size=18, color=YELLOW_D).move_to(sum_node.get_center() + DOWN * 0.14)\n        controller = RoundedRectangle(corner_radius=0.08, width=1.7, height=0.82, color=BLUE_D, fill_color=BLUE_D, fill_opacity=0.16).next_to(sum_node, RIGHT, buff=0.55)\n        plant = RoundedRectangle(corner_radius=0.08, width=1.7, height=0.82, color=TEAL_D, fill_color=TEAL_D, fill_opacity=0.16).next_to(controller, RIGHT, buff=0.8)\n        controller_label = Text('controller', font_size=20, color=BLUE_D).move_to(controller)\n        plant_label = Text('plant', font_size=20, color=TEAL_D).move_to(plant)\n        reference_arrow = Arrow(LEFT * 6.0, sum_node.get_left(), buff=0.08, color=WHITE)\n        error_arrow = Arrow(sum_node.get_right(), controller.get_left(), buff=0.08, color=ORANGE)\n        forward_arrow = Arrow(controller.get_right(), plant.get_left(), buff=0.08, color=WHITE)\n        output_arrow = Arrow(plant.get_right(), RIGHT * 5.8, buff=0.08, color=GREEN_D)\n        feedback_path = VMobject(color=GRAY_B, stroke_width=4).set_points_as_corners([\n            output_arrow.get_end(),\n            output_arrow.get_end() + DOWN * 1.45,\n            sum_node.get_center() + DOWN * 1.45,\n            sum_node.get_bottom(),\n        ])\n        labels = VGroup(Text('reference', font_size=18, color=WHITE).next_to(reference_arrow, UP, buff=0.1), Text('error', font_size=18, color=ORANGE).next_to(error_arrow, UP, buff=0.1), Text('output', font_size=18, color=GREEN_D).next_to(output_arrow, UP, buff=0.1), Text('feedback', font_size=18, color=GRAY_B).next_to(feedback_path, DOWN, buff=0.12))\n        caption = Text('The controller reacts to the error, and the feedback path returns the output for comparison.', font_size=22, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), FadeIn(sum_node), FadeIn(plus), FadeIn(minus), GrowArrow(reference_arrow), FadeIn(labels[0]), run_time=2)\n        self.play(FadeIn(controller), FadeIn(controller_label), GrowArrow(error_arrow), FadeIn(labels[1]), run_time=1.8)\n        self.play(FadeIn(plant), FadeIn(plant_label), GrowArrow(forward_arrow), GrowArrow(output_arrow), FadeIn(labels[2]), run_time=2)\n        self.play(Create(feedback_path), FadeIn(labels[3]), FadeIn(caption_group), run_time=2)\n        self.play(Indicate(error_arrow, color=YELLOW_A), run_time=1.2)\n        self.wait(1)\n",
+    "entry_scene": "FeedbackLoopErrorStory",
+    "tags": [
+      "review-candidate",
+      "control-systems",
+      "engineering",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Circle(",
+      "RoundedRectangle(",
+      "Arrow(",
+      "VMobject("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Codex review candidate batch 6",
+    "source_domain": "control-systems",
+    "source_repo_path": "data/manim_review_candidates_round6.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  }
+]

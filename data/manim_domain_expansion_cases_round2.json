@@ -1,0 +1,155 @@
+[
+  {
+    "case_id": "neuroscience_synaptic_integration_story",
+    "tags": [
+      "biology",
+      "neuroscience",
+      "graph",
+      "comparison",
+      "longform"
+    ],
+    "entry_scene": "NeuroscienceSynapticIntegrationStory",
+    "prompt": "Create a 30-second Manim scene that explains synaptic integration. Show a neuron receiving two excitatory inputs and one inhibitory input, a membrane potential trace with a threshold line, and staged captions so the learner can see how nearby excitatory inputs add while inhibition pulls the trace back down.",
+    "must_contain": [
+      "Axes(",
+      ".plot(",
+      "DashedLine(",
+      "ReplacementTransform("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "target_duration_seconds": 30,
+    "target_duration_tolerance_seconds": 6,
+    "completion": "from manim import *\n\nclass NeuroscienceSynapticIntegrationStory(Scene):\n    def construct(self):\n        title = Text(\"Inputs Add Up Before a Neuron Fires\", font_size=34).to_edge(UP)\n        soma = Circle(radius=0.42, color=BLUE_D, fill_opacity=0.16).shift(LEFT * 3.6)\n        inputs = VGroup(\n            Circle(radius=0.24, color=TEAL_D, fill_opacity=0.18).move_to(LEFT * 5.25 + UP * 1.1),\n            Circle(radius=0.24, color=GREEN_D, fill_opacity=0.18).move_to(LEFT * 5.25),\n            Circle(radius=0.24, color=RED_D, fill_opacity=0.18).move_to(LEFT * 5.25 + DOWN * 1.1),\n        )\n        arrows = VGroup(\n            Arrow(inputs[0].get_right(), soma.get_left() + UP * 0.22, buff=0.08, color=TEAL_D),\n            Arrow(inputs[1].get_right(), soma.get_left(), buff=0.08, color=GREEN_D),\n            Arrow(inputs[2].get_right(), soma.get_left() + DOWN * 0.22, buff=0.08, color=RED_D),\n        )\n        input_labels = VGroup(\n            Text(\"EPSP 1\", font_size=20, color=TEAL_D).next_to(inputs[0], LEFT, buff=0.15),\n            Text(\"EPSP 2\", font_size=20, color=GREEN_D).next_to(inputs[1], LEFT, buff=0.15),\n            Text(\"IPSP\", font_size=20, color=RED_D).next_to(inputs[2], LEFT, buff=0.15),\n        )\n        axes = Axes(x_range=[0, 8, 1], y_range=[-80, -40, 10], x_length=6.1, y_length=4.4, tips=False).shift(RIGHT * 1.8 + DOWN * 0.2)\n        membrane = axes.plot(\n            lambda t: -70 + 8 * np.exp(-((t - 1.6) ** 2) / 0.16) + 17 * np.exp(-((t - 3.0) ** 2) / 0.26) - 7 * np.exp(-((t - 5.3) ** 2) / 0.22),\n            x_range=[0.4, 7.4],\n            color=BLUE_E,\n        )\n        threshold = DashedLine(axes.c2p(0.4, -52), axes.c2p(7.4, -52), color=ORANGE)\n        threshold_label = Text(\"threshold\", font_size=20, color=ORANGE).next_to(threshold, RIGHT, buff=0.15)\n        epsp1_dot = Dot(axes.c2p(1.6, -62.0), color=TEAL_D, radius=0.07)\n        fire_dot = Dot(axes.c2p(3.05, -50.5), color=YELLOW_D, radius=0.08)\n        ipsp_dot = Dot(axes.c2p(5.3, -72.5), color=RED_D, radius=0.07)\n        fire_label = Text(\"fires\", font_size=22, color=YELLOW_D).next_to(fire_dot, UP, buff=0.15)\n        labels = VGroup(\n            Text(\"small bump\", font_size=20, color=TEAL_D).next_to(epsp1_dot, UP, buff=0.12),\n            fire_label,\n            Text(\"inhibition\", font_size=20, color=RED_D).next_to(ipsp_dot, DOWN, buff=0.12),\n        )\n        caption_a = Text(\"One excitatory input lifts the membrane potential, but not enough to trigger a spike.\", font_size=23, color=GRAY_D).to_edge(DOWN)\n        caption_b = Text(\"A second nearby excitatory input adds on top and pushes the trace past threshold.\", font_size=23, color=GRAY_D).to_edge(DOWN)\n        caption_c = Text(\"An inhibitory input bends the trace back down and reduces the chance of firing.\", font_size=23, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(soma), FadeIn(inputs), GrowArrow(arrows[0]), GrowArrow(arrows[1]), GrowArrow(arrows[2]), FadeIn(input_labels), run_time=4)\n        self.play(Create(axes), Create(membrane), Create(threshold), FadeIn(threshold_label), FadeIn(caption_a), run_time=5)\n        self.play(FadeIn(epsp1_dot), FadeIn(labels[0]), Indicate(inputs[0]), run_time=3)\n        self.play(FadeIn(fire_dot), FadeIn(labels[1]), Indicate(inputs[1]), ReplacementTransform(caption_a, caption_b), run_time=4)\n        self.play(FadeIn(ipsp_dot), FadeIn(labels[2]), Indicate(inputs[2]), ReplacementTransform(caption_b, caption_c), run_time=4)\n        self.wait(2)\n",
+    "license": "MIT",
+    "source_repo_path": "data/manim_domain_expansion_cases_round2.json"
+  },
+  {
+    "case_id": "neuroscience_saltatory_conduction_story",
+    "tags": [
+      "biology",
+      "neuroscience",
+      "animation",
+      "comparison",
+      "longform"
+    ],
+    "entry_scene": "NeuroscienceSaltatoryConductionStory",
+    "prompt": "Create a 30-second Manim scene that explains saltatory conduction by comparing a myelinated axon with an unmyelinated axon. Show the signal jumping between nodes of Ranvier on the top lane, moving continuously on the lower lane, and keep the captions clear and uncluttered.",
+    "must_contain": [
+      "MoveAlongPath(",
+      "Succession(",
+      "VGroup(",
+      "ReplacementTransform("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "target_duration_seconds": 30,
+    "target_duration_tolerance_seconds": 6,
+    "completion": "from manim import *\n\nclass NeuroscienceSaltatoryConductionStory(Scene):\n    def construct(self):\n        title = Text(\"Myelin Lets Signals Jump Between Nodes\", font_size=34).to_edge(UP)\n        top_line = Line(LEFT * 5.0 + UP * 1.35, RIGHT * 3.9 + UP * 1.35, color=GRAY_B)\n        bottom_line = Line(LEFT * 5.0 + DOWN * 1.2, RIGHT * 3.9 + DOWN * 1.2, color=GRAY_B)\n        top_label = Text(\"myelinated axon\", font_size=24, color=TEAL_D).next_to(top_line, UP, buff=0.25)\n        bottom_label = Text(\"unmyelinated axon\", font_size=24, color=ORANGE).next_to(bottom_line, DOWN, buff=0.25)\n        sheath_centers = [LEFT * 3.95 + UP * 1.35, LEFT * 1.9 + UP * 1.35, RIGHT * 0.15 + UP * 1.35, RIGHT * 2.2 + UP * 1.35]\n        sheaths = VGroup(*[\n            RoundedRectangle(corner_radius=0.16, width=1.25, height=0.58, color=TEAL_D, fill_opacity=0.15).move_to(center)\n            for center in sheath_centers\n        ])\n        node_points = [LEFT * 4.95 + UP * 1.35, LEFT * 2.95 + UP * 1.35, LEFT * 0.9 + UP * 1.35, RIGHT * 1.15 + UP * 1.35, RIGHT * 3.2 + UP * 1.35]\n        nodes = VGroup(*[Dot(point, color=YELLOW_D, radius=0.06) for point in node_points])\n        node_label = Text(\"nodes\", font_size=20, color=YELLOW_D).next_to(nodes[2], UP, buff=0.15)\n        myelin_label = Text(\"myelin\", font_size=20, color=TEAL_D).next_to(sheaths[1], DOWN, buff=0.15)\n        top_segments = [Line(node_points[i], node_points[i + 1], stroke_opacity=0) for i in range(len(node_points) - 1)]\n        bottom_path = Line(bottom_line.get_start(), bottom_line.get_end(), stroke_opacity=0)\n        pulse_top = Dot(node_points[0], color=YELLOW, radius=0.08)\n        pulse_bottom = Dot(bottom_line.get_start(), color=YELLOW, radius=0.08)\n        caption_a = Text(\"Myelin wraps the axon but leaves small exposed gaps called nodes.\", font_size=23, color=GRAY_D).to_edge(DOWN)\n        caption_b = Text(\"In the myelinated fiber, the signal appears to jump from node to node.\", font_size=23, color=GRAY_D).to_edge(DOWN)\n        caption_c = Text(\"Without myelin, the signal spreads continuously and covers the path more slowly.\", font_size=23, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(top_line), Create(bottom_line), FadeIn(top_label), FadeIn(bottom_label), FadeIn(caption_a), run_time=4)\n        self.play(FadeIn(sheaths), FadeIn(nodes), FadeIn(node_label), FadeIn(myelin_label), FadeIn(pulse_top), run_time=4)\n        self.play(\n            Succession(*[MoveAlongPath(pulse_top, segment, rate_func=linear, run_time=0.8) for segment in top_segments]),\n            ReplacementTransform(caption_a, caption_b),\n            run_time=4,\n        )\n        self.play(FadeIn(pulse_bottom), MoveAlongPath(pulse_bottom, bottom_path, rate_func=linear, run_time=6), ReplacementTransform(caption_b, caption_c), run_time=6)\n        self.wait(2)\n",
+    "license": "MIT",
+    "source_repo_path": "data/manim_domain_expansion_cases_round2.json"
+  },
+  {
+    "case_id": "economics_deadweight_loss_story",
+    "tags": [
+      "economics",
+      "graph",
+      "area",
+      "animation",
+      "longform"
+    ],
+    "entry_scene": "EconomicsDeadweightLossStory",
+    "prompt": "Create a 30-second Manim scene that explains deadweight loss from a per-unit tax. Show supply and demand, mark the original equilibrium, add a vertical tax wedge at the lower traded quantity, and shade the deadweight loss triangle so the lost trades become visually obvious.",
+    "must_contain": [
+      "Axes(",
+      ".plot(",
+      "Polygon(",
+      "ReplacementTransform("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "target_duration_seconds": 30,
+    "target_duration_tolerance_seconds": 6,
+    "completion": "from manim import *\n\nclass EconomicsDeadweightLossStory(Scene):\n    def construct(self):\n        title = Text(\"A Tax Can Eliminate Mutually Beneficial Trades\", font_size=34).to_edge(UP)\n        axes = Axes(x_range=[0, 10, 1], y_range=[0, 10, 1], x_length=6.9, y_length=4.8, tips=False).shift(LEFT * 0.85 + DOWN * 0.15)\n        demand = axes.plot(lambda x: 9 - 0.7 * x, x_range=[0.8, 9.2], color=BLUE_D)\n        supply = axes.plot(lambda x: 1.8 + 0.55 * x, x_range=[0.8, 9.2], color=ORANGE)\n        eq_x = 7.2 / 1.25\n        eq_y = 9 - 0.7 * eq_x\n        tax_x = 5.8 / 1.25\n        buyer_y = 9 - 0.7 * tax_x\n        seller_y = 1.8 + 0.55 * tax_x\n        eq_dot = Dot(axes.c2p(eq_x, eq_y), color=YELLOW_D, radius=0.08)\n        taxed_dot = Dot(axes.c2p(tax_x, buyer_y), color=GREEN_D, radius=0.08)\n        wedge = Line(axes.c2p(tax_x, seller_y), axes.c2p(tax_x, buyer_y), color=RED_D, stroke_width=6)\n        wedge_label = Text(\"tax\", font_size=22, color=RED_D).next_to(wedge, RIGHT, buff=0.15)\n        deadweight = Polygon(axes.c2p(tax_x, buyer_y), axes.c2p(tax_x, seller_y), axes.c2p(eq_x, eq_y), color=RED_D, fill_opacity=0.28, stroke_width=0)\n        dwl_label = Text(\"deadweight loss\", font_size=22, color=RED_D).next_to(deadweight, RIGHT, buff=0.15)\n        demand_label = Text(\"demand\", font_size=22, color=BLUE_D).next_to(demand, UP, buff=0.15)\n        supply_label = Text(\"supply\", font_size=22, color=ORANGE).next_to(supply, RIGHT, buff=0.15)\n        caption_a = Text(\"Before the tax, the market trades at the natural supply-demand intersection.\", font_size=23, color=GRAY_D).to_edge(DOWN)\n        caption_b = Text(\"The tax creates a wedge between what buyers pay and what sellers receive.\", font_size=23, color=GRAY_D).to_edge(DOWN)\n        caption_c = Text(\"The shaded triangle is deadweight loss: trades that no longer happen at all.\", font_size=23, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(axes), Create(demand), Create(supply), FadeIn(demand_label), FadeIn(supply_label), FadeIn(eq_dot), FadeIn(caption_a), run_time=5)\n        self.play(GrowFromCenter(wedge), FadeIn(wedge_label), FadeIn(taxed_dot), ReplacementTransform(caption_a, caption_b), run_time=5)\n        self.play(FadeIn(deadweight), FadeIn(dwl_label), Indicate(deadweight), ReplacementTransform(caption_b, caption_c), run_time=5)\n        self.wait(2)\n",
+    "license": "MIT",
+    "source_repo_path": "data/manim_domain_expansion_cases_round2.json"
+  },
+  {
+    "case_id": "economics_price_ceiling_shortage_story",
+    "tags": [
+      "economics",
+      "graph",
+      "comparison",
+      "longform"
+    ],
+    "entry_scene": "EconomicsPriceCeilingShortageStory",
+    "prompt": "Create a 30-second Manim scene that explains a binding price ceiling. Show supply and demand, draw the ceiling below equilibrium, mark quantity supplied and quantity demanded at that ceiling, and use a brace or bracket to make the resulting shortage easy to read.",
+    "must_contain": [
+      "Axes(",
+      ".plot(",
+      "BraceBetweenPoints(",
+      "ReplacementTransform("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "target_duration_seconds": 30,
+    "target_duration_tolerance_seconds": 6,
+    "completion": "from manim import *\n\nclass EconomicsPriceCeilingShortageStory(Scene):\n    def construct(self):\n        title = Text(\"A Binding Price Ceiling Creates a Shortage\", font_size=34).to_edge(UP)\n        axes = Axes(x_range=[0, 10, 1], y_range=[0, 10, 1], x_length=6.9, y_length=4.8, tips=False).shift(LEFT * 0.85 + DOWN * 0.15)\n        demand = axes.plot(lambda x: 9 - 0.7 * x, x_range=[0.8, 9.1], color=BLUE_D)\n        supply = axes.plot(lambda x: 1.8 + 0.55 * x, x_range=[0.8, 9.1], color=ORANGE)\n        eq_x = 7.2 / 1.25\n        eq_y = 9 - 0.7 * eq_x\n        ceiling_y = 4.1\n        q_d = (9 - ceiling_y) / 0.7\n        q_s = (ceiling_y - 1.8) / 0.55\n        eq_dot = Dot(axes.c2p(eq_x, eq_y), color=YELLOW_D, radius=0.08)\n        ceiling = Line(axes.c2p(0.7, ceiling_y), axes.c2p(8.8, ceiling_y), color=RED_D, stroke_width=5)\n        ceiling_label = Text(\"price ceiling\", font_size=22, color=RED_D).next_to(ceiling, UP, buff=0.15)\n        qd_dot = Dot(axes.c2p(q_d, ceiling_y), color=BLUE_D, radius=0.07)\n        qs_dot = Dot(axes.c2p(q_s, ceiling_y), color=ORANGE, radius=0.07)\n        qd_line = DashedLine(axes.c2p(q_d, 0), axes.c2p(q_d, ceiling_y), color=BLUE_D)\n        qs_line = DashedLine(axes.c2p(q_s, 0), axes.c2p(q_s, ceiling_y), color=ORANGE)\n        shortage_brace = BraceBetweenPoints(axes.c2p(q_s, -0.35), axes.c2p(q_d, -0.35), DOWN, color=RED_D)\n        shortage_label = Text(\"shortage\", font_size=22, color=RED_D).next_to(shortage_brace, DOWN, buff=0.12)\n        demand_label = Text(\"demand\", font_size=22, color=BLUE_D).next_to(demand, UP, buff=0.15)\n        supply_label = Text(\"supply\", font_size=22, color=ORANGE).next_to(supply, RIGHT, buff=0.15)\n        caption_a = Text(\"At equilibrium, supply and demand meet at the same price and quantity.\", font_size=23, color=GRAY_D).to_edge(DOWN)\n        caption_b = Text(\"A ceiling set below equilibrium keeps price low but changes who can trade.\", font_size=23, color=GRAY_D).to_edge(DOWN)\n        caption_c = Text(\"Quantity demanded exceeds quantity supplied, and the gap becomes a shortage.\", font_size=23, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(axes), Create(demand), Create(supply), FadeIn(demand_label), FadeIn(supply_label), FadeIn(eq_dot), FadeIn(caption_a), run_time=5)\n        self.play(Create(ceiling), FadeIn(ceiling_label), ReplacementTransform(caption_a, caption_b), run_time=4)\n        self.play(Create(qd_line), Create(qs_line), FadeIn(qd_dot), FadeIn(qs_dot), GrowFromCenter(shortage_brace), FadeIn(shortage_label), ReplacementTransform(caption_b, caption_c), run_time=5)\n        self.wait(2)\n",
+    "license": "MIT",
+    "source_repo_path": "data/manim_domain_expansion_cases_round2.json"
+  },
+  {
+    "case_id": "finance_dollar_cost_averaging_story",
+    "tags": [
+      "finance",
+      "graph-table",
+      "comparison",
+      "longform"
+    ],
+    "entry_scene": "FinanceDollarCostAveragingStory",
+    "prompt": "Create a 30-second Manim scene that explains dollar-cost averaging. Show a price path over time, mark equal recurring purchases, and use a simple side panel so it becomes obvious that the same cash buys more shares when the price is low.",
+    "must_contain": [
+      "Axes(",
+      "Dot(",
+      "Rectangle(",
+      "ReplacementTransform("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "target_duration_seconds": 30,
+    "target_duration_tolerance_seconds": 6,
+    "completion": "from manim import *\n\nclass FinanceDollarCostAveragingStory(Scene):\n    def construct(self):\n        title = Text(\"Equal Cash Buys More Shares When Price Is Lower\", font_size=34).to_edge(UP)\n        axes = Axes(x_range=[0, 8, 1], y_range=[4, 11, 1], x_length=6.3, y_length=4.5, tips=False).shift(LEFT * 2.0 + DOWN * 0.2)\n        price_curve = axes.plot(lambda x: 7.3 + 1.2 * np.sin(1.05 * x) - 0.65 * np.sin(0.45 * x), x_range=[0.3, 7.4], color=BLUE_D)\n        purchase_times = [1.0, 2.6, 4.2, 6.1]\n        purchase_prices = [7.3 + 1.2 * np.sin(1.05 * t) - 0.65 * np.sin(0.45 * t) for t in purchase_times]\n        purchase_dots = VGroup(*[Dot(axes.c2p(t, p), color=YELLOW_D, radius=0.07) for t, p in zip(purchase_times, purchase_prices)])\n        amount_card = VGroup(\n            RoundedRectangle(corner_radius=0.16, width=2.5, height=1.0, color=GREEN_D, fill_opacity=0.08),\n            Text(\"each purchase\", font_size=22, color=GRAY_D),\n            Text(\"$100\", font_size=30, color=GREEN_D),\n        ).arrange(DOWN, buff=0.08).to_edge(RIGHT).shift(UP * 1.7)\n        share_title = Text(\"shares bought\", font_size=22, color=WHITE).next_to(amount_card, DOWN, buff=0.45)\n        share_values = [1.18, 1.46, 1.89, 1.30]\n        bar_group = VGroup()\n        for index, value in enumerate(share_values):\n            bar = Rectangle(width=1.2 * value, height=0.28, color=TEAL_D, fill_opacity=0.8, stroke_width=1)\n            label = Text(f\"buy {index + 1}\", font_size=18, color=WHITE).next_to(bar, LEFT, buff=0.18)\n            value_label = DecimalNumber(value, num_decimal_places=2, font_size=20, color=TEAL_D).next_to(bar, RIGHT, buff=0.12)\n            row = VGroup(label, bar, value_label).arrange(RIGHT, buff=0.18)\n            bar_group.add(row)\n        bar_group.arrange(DOWN, aligned_edge=LEFT, buff=0.28).next_to(share_title, DOWN, aligned_edge=LEFT, buff=0.25)\n        highlight = SurroundingRectangle(bar_group[2], color=YELLOW_D, buff=0.12)\n        caption_a = Text(\"The investor puts the same cash amount in at regular times.\", font_size=23, color=GRAY_D).to_edge(DOWN)\n        caption_b = Text(\"The purchase at the lower price converts the same $100 into more shares.\", font_size=23, color=GRAY_D).to_edge(DOWN)\n        caption_c = Text(\"That is the central intuition behind dollar-cost averaging.\", font_size=23, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(axes), Create(price_curve), FadeIn(amount_card), FadeIn(share_title), FadeIn(caption_a), run_time=5)\n        self.play(LaggedStart(*[FadeIn(dot) for dot in purchase_dots], lag_ratio=0.18), LaggedStart(*[FadeIn(row) for row in bar_group], lag_ratio=0.18), run_time=6)\n        self.play(Create(highlight), Indicate(purchase_dots[2]), ReplacementTransform(caption_a, caption_b), run_time=4)\n        self.play(Indicate(highlight), ReplacementTransform(caption_b, caption_c), run_time=3)\n        self.wait(2)\n",
+    "license": "MIT",
+    "source_repo_path": "data/manim_domain_expansion_cases_round2.json"
+  },
+  {
+    "case_id": "finance_drawdown_recovery_story",
+    "tags": [
+      "finance",
+      "graph",
+      "comparison",
+      "longform"
+    ],
+    "entry_scene": "FinanceDrawdownRecoveryStory",
+    "prompt": "Create a 30-second Manim scene that explains drawdown and recovery. Show a portfolio curve that rises to a peak, falls to a trough, and then climbs back. Add a side comparison so the learner can see that a 25 percent loss requires a larger positive gain to recover.",
+    "must_contain": [
+      "Axes(",
+      ".plot(",
+      "DashedLine(",
+      "ReplacementTransform("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "target_duration_seconds": 30,
+    "target_duration_tolerance_seconds": 6,
+    "completion": "from manim import *\n\nclass FinanceDrawdownRecoveryStory(Scene):\n    def construct(self):\n        title = Text(\"Losses Need Larger Gains To Recover\", font_size=34).to_edge(UP)\n        axes = Axes(x_range=[0, 8, 1], y_range=[80, 130, 10], x_length=6.4, y_length=4.6, tips=False).shift(LEFT * 1.9 + DOWN * 0.2)\n        x_points = [0.6, 1.8, 3.0, 4.2, 5.5, 7.0]\n        y_points = [100, 109, 120, 90, 104, 120]\n        curve = axes.plot(lambda x: np.interp(x, x_points, y_points), x_range=[0.6, 7.0], color=BLUE_D)\n        peak_dot = Dot(axes.c2p(3.0, 120), color=YELLOW_D, radius=0.08)\n        trough_dot = Dot(axes.c2p(4.2, 90), color=RED_D, radius=0.08)\n        recover_dot = Dot(axes.c2p(7.0, 120), color=GREEN_D, radius=0.08)\n        peak_line = DashedLine(axes.c2p(3.0, 80), axes.c2p(3.0, 120), color=YELLOW_D)\n        trough_line = DashedLine(axes.c2p(4.2, 80), axes.c2p(4.2, 90), color=RED_D)\n        panel = RoundedRectangle(corner_radius=0.16, width=3.0, height=3.3, color=GRAY_B, fill_opacity=0.05).to_edge(RIGHT).shift(DOWN * 0.2)\n        down_bar = Rectangle(width=0.7, height=1.3, color=RED_D, fill_opacity=0.8).move_to(panel.get_center() + LEFT * 0.65 + DOWN * 0.25)\n        up_bar = Rectangle(width=0.7, height=1.75, color=GREEN_D, fill_opacity=0.8).move_to(panel.get_center() + RIGHT * 0.65 + DOWN * 0.0)\n        down_label = Text(\"-25%\", font_size=24, color=RED_D).next_to(down_bar, DOWN, buff=0.12)\n        up_label = Text(\"+33%\", font_size=24, color=GREEN_D).next_to(up_bar, DOWN, buff=0.12)\n        panel_title = Text(\"recovery math\", font_size=22, color=WHITE).next_to(panel, UP, buff=0.18)\n        panel_note = Text(\"same peak, larger rebound\", font_size=18, color=GRAY_D).next_to(panel, DOWN, buff=0.18)\n        caption_a = Text(\"The portfolio reaches a peak before falling into a drawdown.\", font_size=23, color=GRAY_D).to_edge(DOWN)\n        caption_b = Text(\"A drop from 120 to 90 is a 25 percent loss from the peak.\", font_size=23, color=GRAY_D).to_edge(DOWN)\n        caption_c = Text(\"Recovering from that loss takes a larger gain because the base is now smaller.\", font_size=23, color=GRAY_D).to_edge(DOWN)\n\n        self.play(FadeIn(title), Create(axes), Create(curve), FadeIn(peak_dot), FadeIn(caption_a), run_time=5)\n        self.play(FadeIn(trough_dot), Create(peak_line), Create(trough_line), ReplacementTransform(caption_a, caption_b), run_time=4)\n        self.play(FadeIn(panel), FadeIn(panel_title), GrowFromCenter(down_bar), GrowFromCenter(up_bar), FadeIn(down_label), FadeIn(up_label), FadeIn(panel_note), FadeIn(recover_dot), ReplacementTransform(caption_b, caption_c), run_time=5)\n        self.wait(2)\n",
+    "license": "MIT",
+    "source_repo_path": "data/manim_domain_expansion_cases_round2.json"
+  }
+]
