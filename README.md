@@ -19,6 +19,10 @@ Each run trains a LoRA adapter on a curated Manim dataset and evaluates it on:
 
 That gives you the fast metric you asked for, `test_loss`, while still catching the common failure mode where a model gets lower loss but worse at actually producing runnable scenes.
 
+## Weco Integration
+
+If you want to try the hosted Weco optimization/dashboard flow on this repo, install the optional extra with `uv sync --extra weco` and follow the repo-native workflow in [`docs/weco.md`](docs/weco.md).
+
 ## Recommended Starting Point on Your Machine
 
 For an Apple Silicon laptop, start with:
