@@ -23,6 +23,12 @@ That gives you the fast metric you asked for, `test_loss`, while still catching 
 
 If you want to try the hosted Weco optimization/dashboard flow on this repo, install the optional extra with `uv sync --extra weco` and follow the repo-native workflow in [`docs/weco.md`](docs/weco.md).
 
+For Prism ML's Bonsai 8B MLX 1-bit model, install the additional optional extra before local benchmarking or Weco runs:
+
+```bash
+uv sync --extra bonsai --extra weco
+```
+
 ## Recommended Starting Point on Your Machine
 
 For an Apple Silicon laptop, start with:
@@ -142,6 +148,13 @@ Re-run evaluation only after you already have adapter weights:
 ```bash
 uv run python -m mac_pipeline.cli eval \
   --config configs/m4_max_qwen25coder_3b.json
+```
+
+Run the Bonsai base model through the same local experiment pipeline:
+
+```bash
+uv run python -m mac_pipeline.cli run \
+  --config configs/bonsai_8b_mlx_1bit.json
 ```
 
 Compare two evaluation outputs:
@@ -358,6 +371,15 @@ uv run python -m mac_pipeline.cli benchmark --config configs/openrouter_frontier
 - The default benchmark lineup in [openrouter_frontier_benchmark.json](/Users/sebastianboehler/Documents/GitHub/autoresearch_manim_finetune/configs/openrouter_frontier_benchmark.json) compares the local base model, the local fine-tuned adapter, and OpenRouter-hosted Claude frontier models on identical prompts and scoring rules.
 - OpenRouter requests use the official `chat/completions` API endpoint with OpenAI-style `messages`. `HTTP-Referer` and `X-Title` are configurable in the benchmark config for attribution.
 - Remote benchmark runs will incur API cost. Keep `evaluation.max_cases` small while iterating on the pipeline.
+
+Local MLX model benchmark:
+
+```bash
+uv run python -m mac_pipeline.cli benchmark \
+  --config configs/local_mlx_model_benchmark.json
+```
+
+- The local benchmark lineup in [local_mlx_model_benchmark.json](/Users/sebastianboehler/Documents/GitHub/autoresearch_manim_finetune/configs/local_mlx_model_benchmark.json) compares the Qwen base model, the local Qwen LoRA adapter, and Prism ML's Bonsai 8B MLX 1-bit checkpoint on identical prompts and scoring rules.
 
 ## Using the Karpathy Loop
 

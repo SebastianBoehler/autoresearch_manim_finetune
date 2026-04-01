@@ -22,6 +22,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+bonsai = [
+    "mlx @ git+https://github.com/PrismML-Eng/mlx.git@prism",
+]
 weco = [
     "weco>=0.3.25",
 ]

@@ -1,0 +1,64 @@
+{
+  "name": "m4-max-bonsai-8b-1bit",
+  "base_model": "prism-ml/Bonsai-8B-mlx-1bit",
+  "source_dataset": "data/manim_dataset.jsonl",
+  "dataset_dir": "artifacts/datasets/m4-max-bonsai-8b-1bit",
+  "adapter_path": "artifacts/adapters/m4-max-bonsai-8b-1bit",
+  "eval_output_path": "artifacts/evals/m4-max-bonsai-8b-1bit.json",
+  "results_tsv": "results.tsv",
+  "run_loss_eval": true,
+  "dataset_filter": {
+    "include_tags": [],
+    "exclude_tags": []
+  },
+  "splits": {
+    "train_fraction": 0.75,
+    "valid_fraction": 0.125,
+    "seed": 42
+  },
+  "train": {
+    "fine_tune_type": "lora",
+    "optimizer": "adamw",
+    "mask_prompt": true,
+    "num_layers": 16,
+    "batch_size": 1,
+    "iters": 240,
+    "val_batches": 20,
+    "learning_rate": 0.00008,
+    "steps_per_report": 10,
+    "steps_per_eval": 20,
+    "grad_accumulation_steps": 8,
+    "save_every": 20,
+    "test_batches": -1,
+    "max_seq_length": 3072,
+    "grad_checkpoint": true,
+    "seed": 42,
+    "early_stopping_patience": 3,
+    "early_stopping_min_delta": 0.01,
+    "early_stopping_chunk_size": 20,
+    "restore_best_checkpoint": true
+  },
+  "generation": {
+    "max_tokens": 2560,
+    "temperature": 0.5,
+    "top_p": 0.9,
+    "top_k": 20,
+    "seed": 42
+  },
+  "evaluation": {
+    "run_render": true,
+    "max_cases": 0,
+    "render_quality": "low",
+    "max_render_seconds": 120,
+    "allowed_render_regression": 0.05,
+    "min_loss_delta": 0.01,
+    "tie_loss_delta": 0.003,
+    "metric_weights": {
+      "syntax": 0.25,
+      "scene_class": 0.15,
+      "required_snippets": 0.25,
+      "forbidden_snippets": 0.05,
+      "render": 0.3
+    }
+  }
+}

@@ -29,6 +29,12 @@ Then authenticate the CLI:
 uv run weco login
 ```
 
+For Prism ML's Bonsai 8B MLX 1-bit model, install the additional MLX fork required by that checkpoint:
+
+```bash
+uv sync --extra bonsai --extra weco
+```
+
 ## Fastest Real Trial
 
 This repo now includes a dedicated Weco target file plus a launcher, so you can run a real short-horizon Manim optimization immediately:
@@ -65,6 +71,15 @@ Use `--dry-run` first if you want to inspect the exact command:
 
 ```bash
 uv run python scripts/weco_manim_run.py --dry-run
+```
+
+Run the same workflow against the Bonsai-specific target:
+
+```bash
+uv run python scripts/weco_manim_run.py \
+  --source weco_targets/bonsai_manim_lora_trial.py \
+  --steps 6 \
+  --save-logs
 ```
 
 ## Primary Metric

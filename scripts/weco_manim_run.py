@@ -52,6 +52,10 @@ def build_parser() -> argparse.ArgumentParser:
         description="Launch a repo-native Weco optimization for Manim fine-tuning."
     )
     parser.add_argument("--source", default=str(DEFAULT_SOURCE))
+    parser.add_argument(
+        "--instructions",
+        help="Optional instructions file. Defaults to a sibling *_instructions.md file when present.",
+    )
     parser.add_argument("--steps", type=int, default=6)
     parser.add_argument("--metric", default="mean_case_score")
     parser.add_argument("--goal", default="maximize")
@@ -75,6 +79,13 @@ def main() -> None:
         source_path = Path(args.source).resolve()
         weco_executable = require_weco_cli()
         _validate_api_key_passthrough(passthrough)
+        instructions_path = (
+            Path(args.instructions).resolve()
+            if args.instructions
+            else source_path.with_name(f"{source_path.stem}_instructions.md")
+        )
+        if not instructions_path.exists():
+            instructions_path = DEFAULT_INSTRUCTIONS
 
         eval_command = (
             "uv run python scripts/weco_manim_eval.py "
@@ -96,7 +107,7 @@ def main() -> None:
             "--log-dir",
             args.log_dir,
             "--additional-instructions",
-            str(DEFAULT_INSTRUCTIONS),
+            str(instructions_path),
         ]
         if args.model:
             command.extend(["--model", args.model])
