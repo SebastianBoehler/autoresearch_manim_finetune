@@ -12,12 +12,12 @@ TRIAL_OVERRIDES = {
     "name": "m4-max-qwen25coder-3b-weco-trial",
     "dataset_filter": {
         "include_tags": [],
-        "exclude_tags": ["3d"],
+        "exclude_tags": [],
     },
     "train": {
         "iters": 120,
-        "learning_rate": 0.0002,
-        "val_batches": 16,
+        "learning_rate": 0.00015,
+        "val_batches": 12,
         "steps_per_eval": 20,
         "save_every": 20,
         "grad_accumulation_steps": 8,
