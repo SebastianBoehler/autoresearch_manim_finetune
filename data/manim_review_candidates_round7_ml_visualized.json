@@ -1,0 +1,233 @@
+[
+  {
+    "case_id": "candidate_gradient_descent_contour_story",
+    "prompt": "Create a 12-second Manim scene that explains gradient descent as repeated downhill steps on a loss surface. Use a contour-style basin on the left with a step-by-step path toward the minimum, and a compact loss-vs-iteration chart on the right that drops as the steps progress.",
+    "completion": "from manim import *\n\nclass GradientDescentContourStory(Scene):\n    def construct(self):\n        title = Text('Gradient Descent Moves Step by Step Toward Lower Loss', font_size=28).to_edge(UP)\n        left_frame = RoundedRectangle(corner_radius=0.14, width=5.2, height=4.8, color=GRAY_B).shift(LEFT * 3.2 + DOWN * 0.1)\n        right_frame = RoundedRectangle(corner_radius=0.14, width=4.0, height=4.8, color=GRAY_B).shift(RIGHT * 3.35 + DOWN * 0.1)\n        basin_center = left_frame.get_center() + RIGHT * 0.25 + DOWN * 0.2\n        contours = VGroup(*[\n            Ellipse(width=w, height=h, color=BLUE_D, stroke_opacity=0.55).move_to(basin_center)\n            for w, h in [(3.8, 2.8), (3.0, 2.15), (2.2, 1.55), (1.45, 0.95)]\n        ])\n        minimum = Dot(basin_center, color=YELLOW_D, radius=0.08)\n        minimum_label = Text('minimum', font_size=18, color=YELLOW_D).next_to(minimum, DOWN, buff=0.14)\n        path_points = [\n            basin_center + np.array([-1.45, 1.05, 0]),\n            basin_center + np.array([-0.95, 0.55, 0]),\n            basin_center + np.array([-0.48, 0.18, 0]),\n            basin_center + np.array([-0.18, 0.05, 0]),\n        ]\n        dots = VGroup(*[Dot(point, color=ORANGE, radius=0.07) for point in path_points])\n        arrows = VGroup(*[\n            Arrow(path_points[i], path_points[i + 1], buff=0.06, color=ORANGE, stroke_width=5)\n            for i in range(len(path_points) - 1)\n        ])\n        axes = Axes(x_range=[0, 4, 1], y_range=[0, 2.6, 0.5], x_length=3.1, y_length=2.7, tips=False).move_to(right_frame.get_center() + DOWN * 0.12)\n        loss_curve = VMobject(color=TEAL_D, stroke_width=4)\n        loss_curve.set_points_smoothly([\n            axes.c2p(0, 2.2),\n            axes.c2p(1, 1.35),\n            axes.c2p(2, 0.78),\n            axes.c2p(3, 0.48),\n        ])\n        loss_dots = VGroup(*[Dot(axes.c2p(x, y), color=TEAL_D, radius=0.05) for x, y in [(0, 2.2), (1, 1.35), (2, 0.78), (3, 0.48)]])\n        axis_labels = VGroup(Text('step', font_size=18, color=WHITE).next_to(axes.x_axis, DOWN, buff=0.12), Text('loss', font_size=18, color=WHITE).next_to(axes.y_axis, LEFT, buff=0.12))\n        caption = Text('Each update follows the local slope, and the loss readout falls as the weights approach the basin floor.', font_size=22, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), FadeIn(left_frame), FadeIn(right_frame), Create(contours), FadeIn(minimum), FadeIn(minimum_label), run_time=2.2)\n        self.play(FadeIn(dots[0]), run_time=0.6)\n        self.play(LaggedStart(*[GrowArrow(arrow) for arrow in arrows], lag_ratio=0.2), LaggedStart(*[FadeIn(dot) for dot in dots[1:]], lag_ratio=0.2), run_time=2.4)\n        self.play(Create(axes), FadeIn(axis_labels), Create(loss_curve), FadeIn(loss_dots), run_time=2.2)\n        self.play(FadeIn(caption_group), Indicate(minimum, color=YELLOW_A), run_time=1.6)\n        self.wait(1)\n",
+    "entry_scene": "GradientDescentContourStory",
+    "tags": [
+      "review-candidate",
+      "ml",
+      "optimization",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Ellipse(",
+      "Arrow(",
+      "Axes(",
+      "VMobject("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Machine Learning Visualized inspired batch",
+    "source_url": "https://ml-visualized.com/chapter1/linear_regression.html",
+    "source_domain": "ml",
+    "source_repo_path": "data/manim_review_candidates_round7_ml_visualized.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_kmeans_centroid_update_story",
+    "prompt": "Create a 12-second Manim scene that explains one K-means update. Show two point clouds, two initial centroids, color the assignments, then move each centroid to the average of its assigned points. Add a tiny elbow chart on the right so the viewer also sees why increasing K eventually gives smaller returns.",
+    "completion": "from manim import *\n\nclass KMeansCentroidUpdateStory(Scene):\n    def construct(self):\n        title = Text('K-Means Reassigns Points Then Moves Centroids', font_size=28).to_edge(UP)\n        left_frame = RoundedRectangle(corner_radius=0.14, width=5.5, height=4.9, color=GRAY_B).shift(LEFT * 3.0 + DOWN * 0.1)\n        right_frame = RoundedRectangle(corner_radius=0.14, width=3.7, height=4.9, color=GRAY_B).shift(RIGHT * 3.55 + DOWN * 0.1)\n        left_center = left_frame.get_center() + DOWN * 0.15\n        left_points = VGroup(*[\n            Dot(left_center + offset, color=GRAY_C, radius=0.06)\n            for offset in [LEFT * 1.3 + UP * 0.8, LEFT * 1.05 + UP * 0.25, LEFT * 0.9 + DOWN * 0.2, LEFT * 1.45 + DOWN * 0.55, LEFT * 0.65 + UP * 0.55, LEFT * 0.75 + DOWN * 0.75]\n        ])\n        right_points = VGroup(*[\n            Dot(left_center + offset, color=GRAY_C, radius=0.06)\n            for offset in [RIGHT * 0.55 + UP * 0.85, RIGHT * 1.05 + UP * 0.35, RIGHT * 1.25 + DOWN * 0.2, RIGHT * 0.7 + DOWN * 0.55, RIGHT * 1.45 + UP * 0.7, RIGHT * 0.95 + DOWN * 0.8]\n        ])\n        centroid_a = Dot(left_center + LEFT * 0.2 + UP * 0.75, color=ORANGE, radius=0.1)\n        centroid_b = Dot(left_center + RIGHT * 0.15 + DOWN * 0.25, color=TEAL_D, radius=0.1)\n        centroid_a_target = Dot(left_center + LEFT * 1.0 + UP * 0.02, color=ORANGE, radius=0.1)\n        centroid_b_target = Dot(left_center + RIGHT * 1.0 + UP * 0.05, color=TEAL_D, radius=0.1)\n        update_arrows = VGroup(\n            Arrow(centroid_a.get_center(), centroid_a_target.get_center(), buff=0.08, color=ORANGE),\n            Arrow(centroid_b.get_center(), centroid_b_target.get_center(), buff=0.08, color=TEAL_D),\n        )\n        axes = Axes(x_range=[1, 5, 1], y_range=[0, 8, 2], x_length=2.6, y_length=2.8, tips=False).move_to(right_frame.get_center() + DOWN * 0.25)\n        elbow_curve = VMobject(color=BLUE_D, stroke_width=4)\n        elbow_curve.set_points_smoothly([\n            axes.c2p(1, 7.2),\n            axes.c2p(2, 3.9),\n            axes.c2p(3, 2.4),\n            axes.c2p(4, 1.75),\n        ])\n        elbow_dots = VGroup(*[Dot(axes.c2p(x, y), color=BLUE_D, radius=0.05) for x, y in [(1, 7.2), (2, 3.9), (3, 2.4), (4, 1.75)]])\n        elbow_box = SurroundingRectangle(elbow_dots[1], color=YELLOW_D, buff=0.12)\n        axis_labels = VGroup(Text('K', font_size=18, color=WHITE).next_to(axes.x_axis, DOWN, buff=0.12), Text('error', font_size=18, color=WHITE).next_to(axes.y_axis, LEFT, buff=0.12))\n        caption = Text('After assignment, each centroid jumps to the average of its cluster, while the elbow chart shows that more clusters help less and less.', font_size=21, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), FadeIn(left_frame), FadeIn(right_frame), FadeIn(left_points), FadeIn(right_points), FadeIn(centroid_a), FadeIn(centroid_b), run_time=2.2)\n        self.play(LaggedStart(*[point.animate.set_color(ORANGE) for point in left_points], lag_ratio=0.08), LaggedStart(*[point.animate.set_color(TEAL_D) for point in right_points], lag_ratio=0.08), run_time=1.8)\n        self.play(GrowArrow(update_arrows[0]), GrowArrow(update_arrows[1]), centroid_a.animate.move_to(centroid_a_target), centroid_b.animate.move_to(centroid_b_target), run_time=2.2)\n        self.play(Create(axes), FadeIn(axis_labels), Create(elbow_curve), FadeIn(elbow_dots), Create(elbow_box), run_time=2.3)\n        self.play(FadeIn(caption_group), Indicate(elbow_box, color=YELLOW_A), run_time=1.5)\n        self.wait(1)\n",
+    "entry_scene": "KMeansCentroidUpdateStory",
+    "tags": [
+      "review-candidate",
+      "ml",
+      "clustering",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Dot(",
+      "Axes(",
+      "Arrow(",
+      "SurroundingRectangle("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Machine Learning Visualized inspired batch",
+    "source_url": "https://ml-visualized.com/chapter2/k_means.html",
+    "source_domain": "ml",
+    "source_repo_path": "data/manim_review_candidates_round7_ml_visualized.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_pca_projection_axis_story",
+    "prompt": "Create a 12-second Manim scene that explains PCA as projecting data onto the dominant direction of variation. Show an elongated point cloud, a principal axis through it, several perpendicular projection lines, and then a compact 1D number-line readout of the projected values.",
+    "completion": "from manim import *\n\nclass PCAProjectionAxisStory(Scene):\n    def construct(self):\n        title = Text('PCA Keeps The Strongest Direction Of Variation', font_size=28).to_edge(UP)\n        plane = NumberPlane(x_range=[-3, 3, 1], y_range=[-3, 3, 1], x_length=5.8, y_length=5.3, background_line_style={'stroke_opacity': 0.18}).shift(LEFT * 2.8 + DOWN * 0.2)\n        axis_line = DashedLine(plane.c2p(-2.5, -1.6), plane.c2p(2.4, 1.45), color=YELLOW_D, dash_length=0.16)\n        points = [(-2.0, -1.35), (-1.35, -0.7), (-0.8, -0.45), (0.1, 0.18), (0.95, 0.72), (1.8, 1.1)]\n        projections = [(-1.9, -1.18), (-1.15, -0.72), (-0.6, -0.38), (0.0, 0.0), (0.85, 0.53), (1.65, 1.02)]\n        data_dots = VGroup(*[Dot(plane.c2p(x, y), color=BLUE_D, radius=0.07) for x, y in points])\n        projection_lines = VGroup(*[\n            Line(plane.c2p(px, py), plane.c2p(qx, qy), color=GRAY_B, stroke_opacity=0.75)\n            for (px, py), (qx, qy) in zip(points, projections)\n        ])\n        projected_dots = VGroup(*[Dot(plane.c2p(x, y), color=ORANGE, radius=0.05) for x, y in projections])\n        readout = NumberLine(x_range=[0, 6, 1], length=3.7, include_numbers=False).to_edge(RIGHT).shift(DOWN * 0.2)\n        readout_label = Text('1D projection', font_size=20, color=ORANGE).next_to(readout, UP, buff=0.14)\n        readout_dots = VGroup(*[\n            Dot(readout.n2p(value), color=ORANGE, radius=0.06)\n            for value in [0.55, 1.4, 2.0, 2.8, 4.0, 5.0]\n        ])\n        caption = Text('Instead of keeping every direction, PCA keeps the axis that preserves the largest spread in the data.', font_size=21, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), Create(plane), Create(axis_line), FadeIn(data_dots), run_time=2.2)\n        self.play(LaggedStart(*[Create(line) for line in projection_lines], lag_ratio=0.12), FadeIn(projected_dots), run_time=2.1)\n        self.play(Create(readout), FadeIn(readout_label), LaggedStart(*[TransformFromCopy(dot, readout_dot) for dot, readout_dot in zip(projected_dots, readout_dots)], lag_ratio=0.14), run_time=2.5)\n        self.play(FadeIn(caption_group), Indicate(axis_line, color=YELLOW_A), run_time=1.6)\n        self.wait(1)\n",
+    "entry_scene": "PCAProjectionAxisStory",
+    "tags": [
+      "review-candidate",
+      "ml",
+      "dimensionality-reduction",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "NumberPlane(",
+      "DashedLine(",
+      "NumberLine(",
+      "TransformFromCopy("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Machine Learning Visualized inspired batch",
+    "source_url": "https://ml-visualized.com/chapter2/pca.html",
+    "source_domain": "ml",
+    "source_repo_path": "data/manim_review_candidates_round7_ml_visualized.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_logistic_sigmoid_boundary_story",
+    "prompt": "Create a 12-second Manim scene that explains logistic regression as a linear score passed through a sigmoid. Show a 2D classification plot with a decision boundary on the left, a sigmoid probability curve on the right, and highlight that the boundary corresponds to a probability threshold of 0.5.",
+    "completion": "from manim import *\n\nclass LogisticSigmoidBoundaryStory(Scene):\n    def construct(self):\n        title = Text('Logistic Regression Turns A Score Into A Probability', font_size=28).to_edge(UP)\n        left_axes = Axes(x_range=[0, 6, 1], y_range=[0, 6, 1], x_length=4.2, y_length=4.2, tips=False).shift(LEFT * 3.2 + DOWN * 0.15)\n        class_a = VGroup(*[Dot(left_axes.c2p(x, y), color=BLUE_D, radius=0.07) for x, y in [(1.1, 1.2), (1.8, 1.5), (2.0, 2.2), (2.5, 1.6)]])\n        class_b = VGroup(*[Dot(left_axes.c2p(x, y), color=RED_D, radius=0.07) for x, y in [(3.7, 4.3), (4.3, 3.8), (4.8, 4.6), (3.9, 3.2)]])\n        boundary = DashedLine(left_axes.c2p(1.9, 5.3), left_axes.c2p(5.1, 1.1), color=YELLOW_D, dash_length=0.16)\n        boundary_label = Text('decision boundary', font_size=18, color=YELLOW_D).next_to(boundary, RIGHT, buff=0.12)\n        right_axes = Axes(x_range=[-4, 4, 2], y_range=[0, 1.1, 0.5], x_length=3.9, y_length=4.0, tips=False).shift(RIGHT * 3.25 + DOWN * 0.15)\n        sigmoid = right_axes.plot(lambda x: 1 / (1 + np.exp(-x)), x_range=[-4, 4], color=TEAL_D)\n        threshold_dot = Dot(right_axes.c2p(0, 0.5), color=ORANGE, radius=0.07)\n        threshold_v = DashedLine(right_axes.c2p(0, 0), right_axes.c2p(0, 0.5), color=GRAY_B)\n        threshold_h = DashedLine(right_axes.c2p(-4, 0.5), right_axes.c2p(0, 0.5), color=GRAY_B)\n        threshold_label = Text('0.5 threshold', font_size=18, color=ORANGE).next_to(threshold_dot, UR, buff=0.12)\n        score_label = Text('score', font_size=18, color=WHITE).next_to(right_axes.x_axis, DOWN, buff=0.12)\n        prob_label = Text('probability', font_size=18, color=WHITE).next_to(right_axes.y_axis, LEFT, buff=0.12)\n        caption = Text('A linear separator becomes a probability model after the sigmoid, and the decision flips at 0.5.', font_size=21, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), Create(left_axes), FadeIn(class_a), FadeIn(class_b), run_time=2.0)\n        self.play(Create(boundary), FadeIn(boundary_label), run_time=1.4)\n        self.play(Create(right_axes), FadeIn(score_label), FadeIn(prob_label), Create(sigmoid), run_time=2.0)\n        self.play(Create(threshold_v), Create(threshold_h), FadeIn(threshold_dot), FadeIn(threshold_label), run_time=1.7)\n        self.play(FadeIn(caption_group), Indicate(threshold_dot, color=YELLOW_A), run_time=1.5)\n        self.wait(1)\n",
+    "entry_scene": "LogisticSigmoidBoundaryStory",
+    "tags": [
+      "review-candidate",
+      "ml",
+      "logistic-regression",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Axes(",
+      ".plot(",
+      "Dot(",
+      "DashedLine("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Machine Learning Visualized inspired batch",
+    "source_url": "https://ml-visualized.com/chapter3/logistic_regression.html",
+    "source_domain": "ml",
+    "source_repo_path": "data/manim_review_candidates_round7_ml_visualized.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_hidden_representation_story",
+    "prompt": "Create a 12-second Manim scene that explains how a hidden layer can transform data into a more separable representation. Use three side-by-side panels labeled input space, hidden space, and output decision, with the same colored points becoming easier to separate after the middle transformation.",
+    "completion": "from manim import *\n\nclass HiddenRepresentationStory(Scene):\n    def construct(self):\n        title = Text('Hidden Layers Reorganize Data Into A Simpler Representation', font_size=26).to_edge(UP)\n        panels = VGroup(*[\n            RoundedRectangle(corner_radius=0.12, width=2.5, height=3.6, color=GRAY_B)\n            for _ in range(3)\n        ]).arrange(RIGHT, buff=0.55).shift(DOWN * 0.15)\n        panel_titles = VGroup(\n            Text('input space', font_size=18, color=WHITE).next_to(panels[0], UP, buff=0.12),\n            Text('hidden space', font_size=18, color=WHITE).next_to(panels[1], UP, buff=0.12),\n            Text('output decision', font_size=18, color=WHITE).next_to(panels[2], UP, buff=0.12),\n        )\n        input_points = VGroup(\n            Dot(panels[0].get_center() + LEFT * 0.55 + UP * 0.85, color=BLUE_D, radius=0.07),\n            Dot(panels[0].get_center() + RIGHT * 0.55 + UP * 0.85, color=ORANGE, radius=0.07),\n            Dot(panels[0].get_center() + LEFT * 0.55 + DOWN * 0.85, color=ORANGE, radius=0.07),\n            Dot(panels[0].get_center() + RIGHT * 0.55 + DOWN * 0.85, color=BLUE_D, radius=0.07),\n        )\n        hidden_points = VGroup(\n            Dot(panels[1].get_center() + LEFT * 0.6 + UP * 0.55, color=BLUE_D, radius=0.07),\n            Dot(panels[1].get_center() + RIGHT * 0.55 + UP * 0.35, color=ORANGE, radius=0.07),\n            Dot(panels[1].get_center() + RIGHT * 0.45 + DOWN * 0.25, color=ORANGE, radius=0.07),\n            Dot(panels[1].get_center() + LEFT * 0.65 + DOWN * 0.45, color=BLUE_D, radius=0.07),\n        )\n        separator = DashedLine(panels[2].get_center() + UP * 1.3, panels[2].get_center() + DOWN * 1.3, color=YELLOW_D, dash_length=0.16)\n        output_points = VGroup(\n            Dot(panels[2].get_center() + LEFT * 0.55 + UP * 0.5, color=BLUE_D, radius=0.07),\n            Dot(panels[2].get_center() + RIGHT * 0.55 + UP * 0.25, color=ORANGE, radius=0.07),\n            Dot(panels[2].get_center() + RIGHT * 0.45 + DOWN * 0.35, color=ORANGE, radius=0.07),\n            Dot(panels[2].get_center() + LEFT * 0.55 + DOWN * 0.55, color=BLUE_D, radius=0.07),\n        )\n        arrows = VGroup(\n            Arrow(panels[0].get_right(), panels[1].get_left(), buff=0.12, color=GRAY_B),\n            Arrow(panels[1].get_right(), panels[2].get_left(), buff=0.12, color=GRAY_B),\n        )\n        caption = Text('The hidden layer is useful because it reshapes the representation until a simple output rule can separate the classes.', font_size=21, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), FadeIn(panels), FadeIn(panel_titles), FadeIn(input_points), run_time=2.1)\n        self.play(GrowArrow(arrows[0]), LaggedStart(*[TransformFromCopy(dot, hidden_dot) for dot, hidden_dot in zip(input_points, hidden_points)], lag_ratio=0.12), run_time=2.2)\n        self.play(GrowArrow(arrows[1]), Create(separator), LaggedStart(*[TransformFromCopy(dot, output_dot) for dot, output_dot in zip(hidden_points, output_points)], lag_ratio=0.12), run_time=2.2)\n        self.play(FadeIn(caption_group), Indicate(separator, color=YELLOW_A), run_time=1.5)\n        self.wait(1)\n",
+    "entry_scene": "HiddenRepresentationStory",
+    "tags": [
+      "review-candidate",
+      "ml",
+      "neural-networks",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "RoundedRectangle(",
+      "Dot(",
+      "Arrow(",
+      "TransformFromCopy("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Machine Learning Visualized inspired batch",
+    "source_url": "https://ml-visualized.com/chapter4/neural_network.html",
+    "source_domain": "ml",
+    "source_repo_path": "data/manim_review_candidates_round7_ml_visualized.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_backprop_gradient_flow_story",
+    "prompt": "Create a 12-second Manim scene that explains backpropagation as an error signal flowing backward through layers. Show a small network of layer blocks, then send orange gradient arrows from the output back toward the input while a set of bars below the layers shows the gradient magnitude shrinking in earlier layers.",
+    "completion": "from manim import *\n\nclass BackpropGradientFlowStory(Scene):\n    def construct(self):\n        title = Text('Backpropagation Sends Error Information Back Through The Network', font_size=25).to_edge(UP)\n        layers = VGroup(*[\n            RoundedRectangle(corner_radius=0.1, width=1.3, height=1.0, color=BLUE_D if i < 3 else TEAL_D, fill_opacity=0.15)\n            for i in range(4)\n        ]).arrange(RIGHT, buff=0.8).shift(UP * 0.5)\n        labels = VGroup(*[\n            Text(label, font_size=18, color=WHITE).move_to(layer)\n            for label, layer in zip(['input', 'hidden 1', 'hidden 2', 'output'], layers)\n        ])\n        forward_arrows = VGroup(*[\n            Arrow(layers[i].get_right(), layers[i + 1].get_left(), buff=0.08, color=GRAY_B)\n            for i in range(3)\n        ])\n        backward_arrows = VGroup(\n            Arrow(layers[3].get_left(), layers[2].get_right(), buff=0.08, color=ORANGE, stroke_width=6),\n            Arrow(layers[2].get_left(), layers[1].get_right(), buff=0.08, color=ORANGE, stroke_width=4),\n            Arrow(layers[1].get_left(), layers[0].get_right(), buff=0.08, color=ORANGE, stroke_width=3),\n        )\n        bars = VGroup(*[\n            Rectangle(width=0.42, height=h, color=ORANGE, fill_color=ORANGE, fill_opacity=0.45)\n            for h in [0.45, 0.75, 1.15, 1.5]\n        ]).arrange(RIGHT, buff=1.68, aligned_edge=DOWN).move_to(DOWN * 2.15)\n        bar_labels = VGroup(*[\n            Text(text, font_size=16, color=ORANGE).next_to(bar, DOWN, buff=0.1)\n            for text, bar in zip(['tiny', 'small', 'medium', 'large'], bars)\n        ])\n        magnitude_label = Text('gradient magnitude', font_size=18, color=ORANGE).next_to(bars, UP, buff=0.16)\n        caption = Text('The loss is measured at the output, then gradients flow backward so each earlier layer knows how to update.', font_size=21, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), FadeIn(layers), FadeIn(labels), run_time=2.0)\n        self.play(LaggedStart(*[GrowArrow(arrow) for arrow in forward_arrows], lag_ratio=0.16), run_time=1.6)\n        self.play(LaggedStart(*[GrowArrow(arrow) for arrow in backward_arrows], lag_ratio=0.2), run_time=2.0)\n        self.play(LaggedStart(*[GrowFromEdge(bar, DOWN) for bar in bars], lag_ratio=0.14), FadeIn(bar_labels), FadeIn(magnitude_label), run_time=2.1)\n        self.play(FadeIn(caption_group), Indicate(backward_arrows, color=YELLOW_A), run_time=1.5)\n        self.wait(1)\n",
+    "entry_scene": "BackpropGradientFlowStory",
+    "tags": [
+      "review-candidate",
+      "ml",
+      "backpropagation",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "RoundedRectangle(",
+      "Arrow(",
+      "Rectangle(",
+      "LaggedStart("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Machine Learning Visualized inspired batch",
+    "source_url": "https://ml-visualized.com/chapter4/neural_network_weights.html",
+    "source_domain": "ml",
+    "source_repo_path": "data/manim_review_candidates_round7_ml_visualized.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  },
+  {
+    "case_id": "candidate_function_approximation_story",
+    "prompt": "Create a 12-second Manim scene that explains neural network function approximation. Show a target curve with sample points, an initial rough model curve, then morph it into a much better fit while a small loss card decreases so the viewer connects the improved shape to the training objective.",
+    "completion": "from manim import *\n\nclass FunctionApproximationStory(Scene):\n    def construct(self):\n        title = Text('Training Improves The Function Approximation', font_size=28).to_edge(UP)\n        axes = Axes(x_range=[0, 8, 1], y_range=[-1.6, 1.8, 1], x_length=7.5, y_length=4.8, tips=False).shift(DOWN * 0.15)\n        target = axes.plot(lambda x: 0.9 * np.sin(0.95 * x) + 0.2 * np.cos(2.1 * x), x_range=[0, 8], color=GRAY_B)\n        rough = axes.plot(lambda x: 0.35 * np.sin(0.95 * x - 0.4), x_range=[0, 8], color=ORANGE)\n        refined = axes.plot(lambda x: 0.86 * np.sin(0.95 * x) + 0.16 * np.cos(2.1 * x + 0.1), x_range=[0, 8], color=BLUE_D)\n        samples = VGroup(*[\n            Dot(axes.c2p(x, 0.9 * np.sin(0.95 * x) + 0.2 * np.cos(2.1 * x)), color=GRAY_A, radius=0.05)\n            for x in [0.6, 1.4, 2.1, 2.9, 3.8, 4.7, 5.6, 6.5, 7.3]\n        ])\n        card = RoundedRectangle(corner_radius=0.12, width=1.8, height=1.0, color=TEAL_D, fill_color=TEAL_D, fill_opacity=0.12).to_corner(UR).shift(DOWN * 0.6)\n        loss_label = Text('loss', font_size=18, color=TEAL_D).move_to(card.get_center() + UP * 0.18)\n        loss_start = DecimalNumber(1.82, num_decimal_places=2, font_size=28, color=ORANGE).move_to(card.get_center() + DOWN * 0.18)\n        loss_end = DecimalNumber(0.34, num_decimal_places=2, font_size=28, color=BLUE_D).move_to(card.get_center() + DOWN * 0.18)\n        caption = Text('The model starts with the wrong shape, then training bends it toward the target while the loss falls.', font_size=21, color=WHITE).to_edge(DOWN)\n        caption_group = VGroup(BackgroundRectangle(caption, fill_opacity=0.88, buff=0.14), caption)\n\n        self.play(FadeIn(title), Create(axes), Create(target), FadeIn(samples), FadeIn(card), FadeIn(loss_label), FadeIn(loss_start), run_time=2.3)\n        self.play(Create(rough), run_time=1.6)\n        self.play(ReplacementTransform(rough, refined), ReplacementTransform(loss_start, loss_end), run_time=2.6)\n        self.play(FadeIn(caption_group), Indicate(refined, color=YELLOW_A), run_time=1.6)\n        self.wait(1)\n",
+    "entry_scene": "FunctionApproximationStory",
+    "tags": [
+      "review-candidate",
+      "ml",
+      "function-approximation",
+      "10s",
+      "tier:candidate",
+      "status:unreviewed"
+    ],
+    "must_contain": [
+      "Axes(",
+      ".plot(",
+      "ReplacementTransform(",
+      "DecimalNumber("
+    ],
+    "must_not_contain": [
+      "ThreeDScene"
+    ],
+    "source_name": "Machine Learning Visualized inspired batch",
+    "source_url": "https://ml-visualized.com/chapter4/neural_network.html",
+    "source_domain": "ml",
+    "source_repo_path": "data/manim_review_candidates_round7_ml_visualized.json",
+    "uses_custom_library": false,
+    "is_plain_manim_candidate": true,
+    "requires_manual_conversion": false,
+    "target_duration_seconds": 12,
+    "target_duration_tolerance_seconds": 3,
+    "license": "MIT"
+  }
+]
