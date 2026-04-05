@@ -9,6 +9,10 @@ import warnings
 from pathlib import Path
 from typing import Any
 
+from mac_pipeline.manim_hardening import (
+    normalize_generated_code,
+    repair_generated_code,
+)
 from mac_pipeline.mlx import evaluate_loss, generate_completion
 from mac_pipeline.types import ExperimentConfig, MetricWeights
 from mac_pipeline.utils import load_records, write_json
@@ -72,7 +76,7 @@ def run_render_check(code: str, scene_name: str, quality: str, timeout_seconds: 
         return result.returncode == 0, output[-1500:]
 
 
-def score_case(case: dict[str, Any], code: str, render_enabled: bool, weights: MetricWeights, quality: str, timeout_seconds: int) -> dict[str, Any]:
+def analyze_code(code: str) -> tuple[bool, str, str | None]:
     syntax_ok = True
     syntax_error = ""
     scene_name = None
@@ -81,18 +85,41 @@ def score_case(case: dict[str, Any], code: str, render_enabled: bool, weights: M
     except SyntaxError as exc:
         syntax_ok = False
         syntax_error = str(exc)
+    return syntax_ok, syntax_error, scene_name
 
-    required = case.get("must_contain", [])
-    required_ratio = (
-        sum(1 for snippet in required if snippet in code) / len(required) if required else 1.0
-    )
-    forbidden = case.get("must_not_contain", [])
-    forbidden_ok = all(snippet not in code for snippet in forbidden)
+
+def score_case(case: dict[str, Any], code: str, render_enabled: bool, weights: MetricWeights, quality: str, timeout_seconds: int) -> dict[str, Any]:
+    normalized_code, hardening_notes = normalize_generated_code(code)
+    syntax_ok, syntax_error, scene_name = analyze_code(normalized_code)
 
     render_ok = None
     render_log = ""
-    if render_enabled and syntax_ok and scene_name:
-        render_ok, render_log = run_render_check(code, scene_name, quality, timeout_seconds)
+    repair_attempts = 0
+    while render_enabled and syntax_ok and scene_name:
+        render_ok, render_log = run_render_check(
+            normalized_code,
+            scene_name,
+            quality,
+            timeout_seconds,
+        )
+        if render_ok:
+            break
+        repaired_code, repair_notes = repair_generated_code(normalized_code, render_log)
+        if repaired_code == normalized_code:
+            break
+        repair_attempts += 1
+        hardening_notes.extend(note for note in repair_notes if note not in hardening_notes)
+        normalized_code = repaired_code
+        syntax_ok, syntax_error, scene_name = analyze_code(normalized_code)
+
+    required = case.get("must_contain", [])
+    required_ratio = (
+        sum(1 for snippet in required if snippet in normalized_code) / len(required)
+        if required
+        else 1.0
+    )
+    forbidden = case.get("must_not_contain", [])
+    forbidden_ok = all(snippet not in normalized_code for snippet in forbidden)
 
     enabled_weights = {
         "syntax": weights.syntax,
@@ -121,6 +148,9 @@ def score_case(case: dict[str, Any], code: str, render_enabled: bool, weights: M
         "render_ok": render_ok,
         "render_log_tail": render_log,
         "weighted_score": weighted_score,
+        "normalization_notes": hardening_notes,
+        "repair_attempts": repair_attempts,
+        "final_code": normalized_code,
     }
 
 
@@ -159,8 +189,10 @@ def evaluate_adapter(
             timeout_seconds=config.evaluation.max_render_seconds,
         )
         case_result["raw_response"] = raw_response
-        case_result["code"] = code
+        case_result["generated_code"] = code
+        case_result["code"] = case_result["final_code"]
         case_result["prompt"] = user_prompt
+        case_result["system_prompt"] = system_prompt
         per_case.append(case_result)
 
     syntax_rate = sum(item["syntax_ok"] for item in per_case) / len(per_case)
