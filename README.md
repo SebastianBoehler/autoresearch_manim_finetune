@@ -40,6 +40,23 @@ For an Apple Silicon laptop, start with:
 
 On a 36 GB M4 Max, a 3B model is the right baseline for fast A/B iteration. Move to a larger code model only after the dataset and eval loop are stable.
 
+## Current Promoted Release
+
+The current render-first promoted stack is:
+
+- Config: `configs/m4_max_qwen25coder_3b_release_render.json`
+- Adapter: `artifacts/weco/manim-render-reliability-trial-2c7ba720a4a1/adapter`
+- Full held-out eval: `artifacts/evals/m4-max-qwen25coder-3b-gold-silver-weco-2c7-repair-full.json`
+
+Current held-out metrics on the 22-case `gold-silver` split:
+
+- render success rate: `0.722`
+- syntax success rate: `0.818`
+- mean case score: `0.709`
+- test loss: `0.554`
+
+This is the best current option if your priority is actual Manim render reliability rather than maximum syntax score alone.
+
 ## Mac Setup
 
 Requirements:
