@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import os
+import time
 from typing import Any
 
 import requests
 
 from mac_pipeline.types import BenchmarkTargetConfig, GenerationConfig, OpenRouterConfig
+
+MAX_OPENROUTER_ATTEMPTS = 4
+OPENROUTER_RETRY_BASE_SECONDS = 10
 
 
 def _normalize_content(content: Any) -> str:
@@ -80,23 +84,39 @@ def generate_openrouter_completion(
     generation: GenerationConfig,
     config: OpenRouterConfig,
 ) -> str:
-    response = requests.post(
-        f"{config.api_base.rstrip('/')}/chat/completions",
-        headers=_headers(config),
-        json=_payload(target, prompt, system_prompt, generation, config),
-        timeout=config.timeout_seconds,
-    )
-    if response.status_code >= 400:
-        raise RuntimeError(
-            f"OpenRouter request failed with {response.status_code}: {response.text[:1200]}"
-        )
+    last_error: Exception | None = None
+    for attempt in range(1, MAX_OPENROUTER_ATTEMPTS + 1):
+        try:
+            response = requests.post(
+                f"{config.api_base.rstrip('/')}/chat/completions",
+                headers=_headers(config),
+                json=_payload(target, prompt, system_prompt, generation, config),
+                timeout=config.timeout_seconds,
+            )
+        except requests.RequestException as exc:
+            last_error = exc
+            if attempt < MAX_OPENROUTER_ATTEMPTS:
+                time.sleep(OPENROUTER_RETRY_BASE_SECONDS * attempt)
+                continue
+            break
 
-    payload = response.json()
-    choices = payload.get("choices")
-    if not choices:
-        raise RuntimeError(f"OpenRouter response did not include choices: {payload}")
-    message = choices[0].get("message", {})
-    content = message.get("content")
-    if content is None:
-        raise RuntimeError(f"OpenRouter response did not include message content: {payload}")
-    return _normalize_content(content)
+        if response.status_code >= 400:
+            last_error = RuntimeError(
+                f"OpenRouter request failed with {response.status_code}: {response.text[:1200]}"
+            )
+            if response.status_code in {408, 429, 500, 502, 503, 504} and attempt < MAX_OPENROUTER_ATTEMPTS:
+                time.sleep(OPENROUTER_RETRY_BASE_SECONDS * attempt)
+                continue
+            break
+
+        payload = response.json()
+        choices = payload.get("choices")
+        if not choices:
+            raise RuntimeError(f"OpenRouter response did not include choices: {payload}")
+        message = choices[0].get("message", {})
+        content = message.get("content")
+        if content is None:
+            raise RuntimeError(f"OpenRouter response did not include message content: {payload}")
+        return _normalize_content(content)
+
+    raise RuntimeError(f"OpenRouter failed for model {target.model}: {last_error}")

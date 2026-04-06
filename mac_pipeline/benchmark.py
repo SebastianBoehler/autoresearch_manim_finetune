@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable
 
+from mac_pipeline.benchmark_prompting import compose_system_prompt, load_target_skill
 from mac_pipeline.eval import extract_code, score_case
 from mac_pipeline.mlx import generate_completion
 from mac_pipeline.openrouter import generate_openrouter_completion
@@ -43,6 +44,19 @@ def _target_generator(
 
         return _generate
 
+    if target.backend == "adk_openrouter":
+        from mac_pipeline.adk_openrouter import generate_adk_openrouter_completion
+
+        def _generate(prompt: str, system_prompt: str | None) -> str:
+            return generate_adk_openrouter_completion(
+                model=target.model,
+                prompt=prompt,
+                system_prompt=system_prompt,
+                generation=benchmark.generation,
+            )
+
+        return _generate
+
     raise ValueError(f"Unsupported benchmark backend: {target.backend}")
 
 
@@ -53,12 +67,14 @@ def _evaluate_target(
     repo_root: Path,
 ) -> dict:
     generate = _target_generator(benchmark, target, repo_root)
+    skill_text, resolved_skill_path = load_target_skill(target, repo_root)
     per_case: list[dict] = []
     for record in records:
-        system_prompt = next(
+        base_system_prompt = next(
             (message["content"] for message in record["messages"] if message["role"] == "system"),
             None,
         )
+        system_prompt = compose_system_prompt(base_system_prompt, skill_text)
         user_prompt = next(
             message["content"] for message in record["messages"] if message["role"] == "user"
         )
@@ -90,6 +106,7 @@ def _evaluate_target(
         "backend": target.backend,
         "model": target.model,
         "adapter_path": target.adapter_path,
+        "skill_path": resolved_skill_path,
         "summary": {
             "num_cases": len(per_case),
             "syntax_success_rate": syntax_rate,
@@ -109,21 +126,42 @@ def run_benchmark(benchmark: BenchmarkConfig, repo_root: Path) -> dict:
 
     target_results: list[dict] = []
     for target in benchmark.targets:
-        payload = _evaluate_target(benchmark, target, selected, repo_root)
         output_path = output_dir / f"{slugify(target.name)}.json"
-        write_json(output_path, payload)
-        target_results.append(
-            {
-                "name": target.name,
+        try:
+            payload = _evaluate_target(benchmark, target, selected, repo_root)
+            write_json(output_path, payload)
+            target_results.append(
+                {
+                    "name": target.name,
+                    "backend": target.backend,
+                    "model": target.model,
+                    "skill_path": payload.get("skill_path"),
+                    "output_path": str(output_path),
+                    "summary": payload["summary"],
+                }
+            )
+        except Exception as exc:
+            error_payload = {
+                "run_name": target.name,
                 "backend": target.backend,
                 "model": target.model,
-                "output_path": str(output_path),
-                "summary": payload["summary"],
+                "skill_path": target.skill_path,
+                "error": str(exc),
             }
-        )
+            write_json(output_path, error_payload)
+            target_results.append(
+                {
+                    "name": target.name,
+                    "backend": target.backend,
+                    "model": target.model,
+                    "skill_path": target.skill_path,
+                    "output_path": str(output_path),
+                    "error": str(exc),
+                }
+            )
 
     leaderboard = sorted(
-        target_results,
+        [item for item in target_results if "summary" in item],
         key=lambda item: (
             item["summary"].get("mean_case_score", 0.0),
             item["summary"].get("render_success_rate") or 0.0,

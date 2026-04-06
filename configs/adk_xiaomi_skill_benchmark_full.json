@@ -1,0 +1,41 @@
+{
+  "name": "adk-xiaomi-skill-benchmark",
+  "dataset_dir": "artifacts/datasets/m4-max-qwen25coder-3b",
+  "output_dir": "artifacts/benchmarks/adk-xiaomi-skill-benchmark",
+  "generation": {
+    "max_tokens": 2560,
+    "temperature": 0.2,
+    "top_p": 0.95,
+    "top_k": 40,
+    "seed": 42
+  },
+  "evaluation": {
+    "run_render": true,
+    "max_cases": 0,
+    "render_quality": "low",
+    "max_render_seconds": 120,
+    "allowed_render_regression": 0.05,
+    "min_loss_delta": 0.01,
+    "tie_loss_delta": 0.003,
+    "metric_weights": {
+      "syntax": 0.25,
+      "scene_class": 0.15,
+      "required_snippets": 0.25,
+      "forbidden_snippets": 0.05,
+      "render": 0.3
+    }
+  },
+  "targets": [
+    {
+      "name": "xiaomi-mimo-v2-pro-adk",
+      "backend": "adk_openrouter",
+      "model": "xiaomi/mimo-v2-pro"
+    },
+    {
+      "name": "xiaomi-mimo-v2-pro-adk-with-hermes-skill",
+      "backend": "adk_openrouter",
+      "model": "xiaomi/mimo-v2-pro",
+      "skill_path": "skills/creative/manim-video"
+    }
+  ]
+}

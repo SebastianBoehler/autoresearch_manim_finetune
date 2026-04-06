@@ -136,6 +136,7 @@ class BenchmarkTargetConfig:
     backend: str
     model: str
     adapter_path: str | None = None
+    skill_path: str | None = None
     route: str | None = None
     transforms: list[str] = field(default_factory=list)
 

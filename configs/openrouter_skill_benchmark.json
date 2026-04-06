@@ -1,0 +1,107 @@
+{
+  "name": "openrouter-skill-benchmark",
+  "dataset_dir": "artifacts/datasets/m4-max-qwen25coder-3b",
+  "output_dir": "artifacts/benchmarks/openrouter-skill-benchmark",
+  "generation": {
+    "max_tokens": 2560,
+    "temperature": 0.2,
+    "top_p": 0.95,
+    "top_k": 40,
+    "seed": 42
+  },
+  "evaluation": {
+    "run_render": true,
+    "max_cases": 8,
+    "render_quality": "low",
+    "max_render_seconds": 120,
+    "allowed_render_regression": 0.05,
+    "min_loss_delta": 0.01,
+    "tie_loss_delta": 0.003,
+    "metric_weights": {
+      "syntax": 0.25,
+      "scene_class": 0.15,
+      "required_snippets": 0.25,
+      "forbidden_snippets": 0.05,
+      "render": 0.3
+    }
+  },
+  "openrouter": {
+    "api_base": "https://openrouter.ai/api/v1",
+    "api_key_env": "OPENROUTER_API_KEY",
+    "site_url": "https://github.com/SebastianBoehler/autoresearch_manim_finetune",
+    "app_name": "autoresearch-manim-finetune",
+    "timeout_seconds": 180,
+    "route": null,
+    "transforms": []
+  },
+  "targets": [
+    {
+      "name": "local-base-qwen25coder-3b",
+      "backend": "local",
+      "model": "Qwen/Qwen2.5-Coder-3B-Instruct"
+    },
+    {
+      "name": "local-base-qwen25coder-3b-with-hermes-skill",
+      "backend": "local",
+      "model": "Qwen/Qwen2.5-Coder-3B-Instruct",
+      "skill_path": "skills/creative/manim-video"
+    },
+    {
+      "name": "local-finetuned-qwen25coder-3b",
+      "backend": "local",
+      "model": "Qwen/Qwen2.5-Coder-3B-Instruct",
+      "adapter_path": "artifacts/adapters/m4-max-qwen25coder-3b"
+    },
+    {
+      "name": "local-finetuned-qwen25coder-3b-with-hermes-skill",
+      "backend": "local",
+      "model": "Qwen/Qwen2.5-Coder-3B-Instruct",
+      "adapter_path": "artifacts/adapters/m4-max-qwen25coder-3b",
+      "skill_path": "skills/creative/manim-video"
+    },
+    {
+      "name": "qwen-qwen3-6-plus-free",
+      "backend": "openrouter",
+      "model": "qwen/qwen3.6-plus:free"
+    },
+    {
+      "name": "qwen-qwen3-6-plus-free-with-hermes-skill",
+      "backend": "openrouter",
+      "model": "qwen/qwen3.6-plus:free",
+      "skill_path": "skills/creative/manim-video"
+    },
+    {
+      "name": "xiaomi-mimo-v2-pro",
+      "backend": "openrouter",
+      "model": "xiaomi/mimo-v2-pro"
+    },
+    {
+      "name": "xiaomi-mimo-v2-pro-with-hermes-skill",
+      "backend": "openrouter",
+      "model": "xiaomi/mimo-v2-pro",
+      "skill_path": "skills/creative/manim-video"
+    },
+    {
+      "name": "minimax-m2-7",
+      "backend": "openrouter",
+      "model": "minimax/minimax-m2.7"
+    },
+    {
+      "name": "minimax-m2-7-with-hermes-skill",
+      "backend": "openrouter",
+      "model": "minimax/minimax-m2.7",
+      "skill_path": "skills/creative/manim-video"
+    },
+    {
+      "name": "nvidia-nemotron-3-super-120b-a12b-free",
+      "backend": "openrouter",
+      "model": "nvidia/nemotron-3-super-120b-a12b:free"
+    },
+    {
+      "name": "nvidia-nemotron-3-super-120b-a12b-free-with-hermes-skill",
+      "backend": "openrouter",
+      "model": "nvidia/nemotron-3-super-120b-a12b:free",
+      "skill_path": "skills/creative/manim-video"
+    }
+  ]
+}
