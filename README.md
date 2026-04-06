@@ -389,6 +389,29 @@ uv run python -m mac_pipeline.cli benchmark --config configs/openrouter_frontier
 - OpenRouter requests use the official `chat/completions` API endpoint with OpenAI-style `messages`. `HTTP-Referer` and `X-Title` are configurable in the benchmark config for attribution.
 - Remote benchmark runs will incur API cost. Keep `evaluation.max_cases` small while iterating on the pipeline.
 
+OpenRouter skill benchmark:
+
+```bash
+export OPENROUTER_API_KEY=...
+uv run python -m mac_pipeline.cli benchmark \
+  --config configs/openrouter_skill_benchmark.json
+```
+
+- The benchmark lineup in [openrouter_skill_benchmark.json](/Users/sebastianboehler/Documents/GitHub/autoresearch_manim_finetune/configs/openrouter_skill_benchmark.json) compares the local Qwen 2.5 Coder 3B base model, the local LoRA adapter, and these OpenRouter models both plain and with the copied Hermes Manim skill: `qwen/qwen3.6-plus:free`, `xiaomi/mimo-v2-pro`, `minimax/minimax-m2.7`, and `nvidia/nemotron-3-super-120b-a12b:free`.
+- Benchmark targets now support an optional `skill_path`. Point it at a file or a directory containing `SKILL.md` to append that skill to the system prompt for the target.
+- The copied Hermes skill lives at [skills/creative/manim-video/SKILL.md](/Users/sebastianboehler/Documents/GitHub/autoresearch_manim_finetune/skills/creative/manim-video/SKILL.md). The benchmark wrapper keeps the output contract fixed to a single runnable Manim snippet, so the skill acts as style and planning guidance instead of turning the task into a multi-file project scaffold.
+- The default skill benchmark is intentionally capped at `evaluation.max_cases = 8` because several remote targets are paid. Raise it to `0` for the full held-out split only after you shortlist the promising models.
+
+API leaderboard report:
+
+```bash
+uv run python scripts/build_model_benchmark_report.py
+```
+
+- The report script merges the current 21-case held-out artifacts for the local base model, the current local fine-tuned model, Xiaomi MiMo-V2-Pro, Xiaomi plus the Hermes skill, MiniMax M2.7, and any completed provider runs into `artifacts/benchmarks/model-benchmark-report.json`.
+- It also renders a static figure at `docs/figures/model-benchmark-leaderboard.png` so the latest cross-model comparison can be embedded directly in this README.
+- Provider failures are recorded as explicit error rows in the JSON report instead of silently dropping those models from the benchmark.
+
 Local MLX model benchmark:
 
 ```bash
@@ -408,15 +431,31 @@ Point your coding agent at `program.md`. The adapted loop treats:
 
 ## Current Comparison
 
-Below is the current direct comparison figure for the latest locally available base-vs-fine-tuned eval pair. If you install the repo hook above, the plot is refreshed automatically from the local eval JSONs before each commit.
+Current held-out leaderboard as of April 6, 2026 on the 21-case `artifacts/datasets/m4-max-qwen25coder-3b/test.jsonl` split:
 
-![Base vs Fine-tuned model comparison](docs/figures/base-vs-finetuned.png)
+![Held-out model benchmark leaderboard](docs/figures/model-benchmark-leaderboard.png)
+
+Current ranking:
+
+1. `Xiaomi MiMo-V2-Pro`: case score `0.791`, render `0.875`, syntax `0.810`
+2. `Xiaomi MiMo-V2-Pro + Hermes Skill`: case score `0.717`, render `0.800`, syntax `0.762`
+3. `MiniMax M2.7`: case score `0.658`, render `0.533`, syntax `0.762`
+4. `Qwen 2.5 Coder 3B Fine-tuned`: case score `0.656`, render `0.562`, syntax `0.762`, test loss `0.662`
+5. `Qwen 2.5 Coder 3B Base`: case score `0.585`, render `0.250`, syntax `0.810`
 
 Interpretation:
 
-- The latest early-stopped run improved held-out loss compared with the overfit final-checkpoint run, but the base model still performs better on held-out render success and mean case score.
-- The comparison inputs live in `artifacts/evals/m4-max-qwen25coder-3b-base-v2.json` and `artifacts/evals/m4-max-qwen25coder-3b.json`.
-- The base-model loss is still `n/a` in the plot because `mlx_lm lora --test` requires an adapter path; the base comparison remains generation-based.
+- `xiaomi/mimo-v2-pro` is the strongest current option in this repo's held-out Manim benchmark and substantially outperforms the local fine-tuned 3B model on render success.
+- The copied Hermes Manim skill helps Xiaomi less than the plain model and should not currently be treated as the default prompting layer.
+- `minimax/minimax-m2.7` is close to the current fine-tune on mean case score, but it does not beat Xiaomi and does not clearly justify abandoning the local fine-tune path on its own.
+- `qwen/qwen3.6-plus:free` could not be benchmarked reliably in this run because OpenRouter returned repeated upstream rate limits and timeouts.
+- `nvidia/nemotron-3-super-120b-a12b:free` did not produce a completed benchmark result in the current run window and is recorded as unresolved in the report JSON.
+
+For the local-only comparison, the latest base-vs-fine-tuned figure still lives below:
+
+![Base vs Fine-tuned model comparison](docs/figures/base-vs-finetuned.png)
+
+- The local comparison inputs live in `artifacts/evals/m4-max-qwen25coder-3b-base-current-full.json` and `artifacts/evals/m4-max-qwen25coder-3b.json`.
 - Long-form curriculum experiments live in `configs/m4_max_qwen25coder_3b_with_longform.json` and `configs/m4_max_qwen25coder_3b_without_longform.json` so you can compare long-form mixing without forking the dataset.
 
 ## Notes
