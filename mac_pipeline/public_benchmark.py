@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import json
+import shutil
 from datetime import date
 from pathlib import Path
 from typing import Any
 
 from mac_pipeline.plotting import plot_benchmark_leaderboard
-from mac_pipeline.public_benchmark_examples import EXAMPLE_SPECS, build_example_panel
+from mac_pipeline.public_benchmark_examples import EXAMPLE_SPECS, build_example_bundle
 from mac_pipeline.utils import ensure_parent
 
 CATEGORY_LABELS = {
@@ -118,22 +119,25 @@ def render_public_benchmark_markdown(
                 "",
                 f"Prompt: `{example['prompt']}`",
                 "",
-                f"![{example['title']}]({example['panel_path']})",
-                "",
             ]
         )
         for row in example["rows"]:
-            sections.append(
-                "- "
-                f"{row['name']}: {row['status']}, score `{row['score']}`, "
-                f"render `{row['render']}`, syntax `{row['syntax']}`."
+            sections.extend(
+                [
+                    f"#### {row['name']}",
+                    "",
+                    (
+                        f"<video controls playsinline preload=\"metadata\" poster=\"{row['poster_path']}\" "
+                        f"src=\"{row['video_path']}\"></video>"
+                    ),
+                    "",
+                    (
+                        f"Status: `{row['status']}`. Score `{row['score']}`. "
+                        f"Render `{row['render']}`. Syntax `{row['syntax']}`."
+                    ),
+                    "",
+                ]
             )
-        sections.append("")
-    if report.get("errors"):
-        sections.extend(["## Unresolved Models", "", "| Model | Status |", "| --- | --- |"])
-        for entry in report["errors"]:
-            sections.append(f"| {entry['name']} | {entry['error']} |")
-        sections.append("")
     sections.extend(
         [
             "## Public Data Snapshot",
@@ -160,12 +164,16 @@ def build_public_benchmark_page(
         for entry in report["entries"]
         if "summary" in entry
     }
+    video_dir = output_path.parent / "videos" / "benchmark_examples"
+    _reset_dir(examples_dir)
+    _reset_dir(video_dir)
     generated_examples = [
-        build_example_panel(
+        build_example_bundle(
             spec=spec,
             payloads=payloads,
             docs_root=output_path.parent,
-            output_dir=examples_dir,
+            poster_dir=examples_dir,
+            video_dir=video_dir,
             render_cache_dir=render_cache_dir,
             status_fn=describe_case_status,
             format_metric_fn=_format_metric,
@@ -184,8 +192,13 @@ def build_public_benchmark_page(
         "generated_on": generated_on,
         "num_cases": report.get("num_cases"),
         "leaderboard": report["leaderboard"],
-        "errors": report.get("errors", []),
         "examples": generated_examples,
     }
     ensure_parent(public_data_path).write_text(json.dumps(public_payload, indent=2) + "\n")
     return public_payload
+
+
+def _reset_dir(path: Path) -> None:
+    if path.exists():
+        shutil.rmtree(path)
+    path.mkdir(parents=True, exist_ok=True)

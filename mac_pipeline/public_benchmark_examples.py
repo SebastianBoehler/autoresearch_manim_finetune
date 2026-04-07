@@ -1,12 +1,9 @@
 from __future__ import annotations
 
-import math
+import shutil
 import subprocess
-import textwrap
 from pathlib import Path
 from typing import Any
-
-import matplotlib.pyplot as plt
 
 from mac_pipeline.eval import detect_scene_class
 from mac_pipeline.review.render import render_review_candidate
@@ -14,47 +11,47 @@ from mac_pipeline.utils import ensure_parent, slugify
 
 EXAMPLE_SPECS = [
     {
-        "case_id": "ml_cnn_pipeline_blocks",
-        "title": "Structured Pipeline Prompt",
-        "summary": "A hard held-out explainer where only the leading API model produced a clean render.",
-        "models": [
-            "Xiaomi MiMo-V2-Pro",
-            "Qwen 2.5 Coder 3B Fine-tuned",
-            "Qwen 2.5 Coder 3B Base",
-            "MiniMax M2.7",
-        ],
-    },
-    {
-        "case_id": "control_feedback_loop_story",
-        "title": "Classical Control Diagram",
-        "summary": "The base model can still match on some simple block-diagram prompts, while the Hermes skill hurt Xiaomi here.",
+        "case_id": "anim_matching_shapes_word_morph",
+        "title": "Transform Matching Shapes",
+        "summary": "All compared models render this prompt, which makes it a clean side-by-side quality comparison instead of an error showcase.",
         "models": [
             "Xiaomi MiMo-V2-Pro",
             "Xiaomi MiMo-V2-Pro + Hermes Skill",
+            "MiniMax M2.7",
             "Qwen 2.5 Coder 3B Fine-tuned",
-            "Qwen 2.5 Coder 3B Base",
         ],
     },
     {
-        "case_id": "neuroscience_synapse_strength_story",
-        "title": "Narrative Science Prompt",
-        "summary": "The local fine-tune still wins some prompts, which means the specialization path still has real signal.",
+        "case_id": "docs_square_to_circle",
+        "title": "Square-To-Circle Primitive",
+        "summary": "A canonical docs-style scene where every shown model completes the same basic animation successfully.",
         "models": [
-            "Qwen 2.5 Coder 3B Fine-tuned",
             "Xiaomi MiMo-V2-Pro",
             "Xiaomi MiMo-V2-Pro + Hermes Skill",
             "MiniMax M2.7",
+            "Qwen 2.5 Coder 3B Fine-tuned",
+        ],
+    },
+    {
+        "case_id": "docs_create_circle",
+        "title": "Create Circle Primitive",
+        "summary": "A very small primitive scene that every shown model can render, making style and pacing differences easy to inspect.",
+        "models": [
+            "Xiaomi MiMo-V2-Pro",
+            "Xiaomi MiMo-V2-Pro + Hermes Skill",
+            "MiniMax M2.7",
+            "Qwen 2.5 Coder 3B Fine-tuned",
         ],
     },
     {
         "case_id": "chem_bohr_carbon_diagram",
-        "title": "Low-Complexity Canonical Diagram",
-        "summary": "Simple canonical prompts are now close to solved across the stack, with only small quality differences.",
+        "title": "Labeled Bohr Diagram",
+        "summary": "A richer chemistry diagram where every shown model still produces a valid end-to-end render.",
         "models": [
             "Xiaomi MiMo-V2-Pro",
+            "Xiaomi MiMo-V2-Pro + Hermes Skill",
             "MiniMax M2.7",
             "Qwen 2.5 Coder 3B Fine-tuned",
-            "Qwen 2.5 Coder 3B Base",
         ],
     },
 ]
@@ -68,73 +65,68 @@ MODEL_SHORT_LABELS = {
 }
 
 
-def build_example_panel(
+def build_example_bundle(
     *,
     spec: dict[str, Any],
     payloads: dict[str, dict[str, Any]],
     docs_root: Path,
-    output_dir: Path,
+    poster_dir: Path,
+    video_dir: Path,
     render_cache_dir: Path,
     status_fn,
     format_metric_fn,
 ) -> dict[str, Any]:
-    cards = []
+    rows = []
     prompt = ""
     for model_name in spec["models"]:
         payload = payloads[model_name]
         case = next(item for item in payload["cases"] if item["case_id"] == spec["case_id"])
+        if case.get("render_ok") is not True:
+            raise RuntimeError(f"{spec['case_id']} is not a valid all-rendered example for {model_name}.")
         prompt = prompt or case.get("prompt", "")
-        preview_path = None
-        if case.get("render_ok") is True:
-            preview_path = _ensure_preview(
-                case=case,
-                model_name=model_name,
-                render_cache_dir=render_cache_dir / spec["case_id"],
-                preview_dir=output_dir,
-            )
-        cards.append(
+        poster_path, video_path = _ensure_media_assets(
+            case=case,
+            model_name=model_name,
+            poster_dir=poster_dir,
+            video_dir=video_dir,
+            render_cache_dir=render_cache_dir / spec["case_id"],
+        )
+        rows.append(
             {
                 "name": model_name,
                 "short": MODEL_SHORT_LABELS.get(model_name, model_name),
                 "status": status_fn(case),
                 "score": format_metric_fn(case.get("weighted_score")),
-                "render": format_metric_fn(1.0 if case.get("render_ok") is True else 0.0 if case.get("render_ok") is False else None),
+                "render": format_metric_fn(1.0),
                 "syntax": format_metric_fn(1.0 if case.get("syntax_ok") else 0.0),
-                "preview_path": preview_path,
+                "poster_path": str(poster_path.relative_to(docs_root)),
+                "video_path": str(video_path.relative_to(docs_root)),
             }
         )
 
-    panel_path = output_dir / f"{slugify(spec['case_id'])}.png"
-    _write_example_panel(panel_path, spec["title"], prompt, cards)
     return {
         "case_id": spec["case_id"],
         "title": spec["title"],
         "summary": spec["summary"],
         "prompt": prompt,
-        "panel_path": str(panel_path.relative_to(docs_root)),
-        "rows": [
-            {
-                "name": card["name"],
-                "status": card["status"],
-                "score": card["score"],
-                "render": card["render"],
-                "syntax": card["syntax"],
-            }
-            for card in cards
-        ],
+        "rows": rows,
     }
 
 
-def _ensure_preview(
+def _ensure_media_assets(
     *,
     case: dict[str, Any],
     model_name: str,
+    poster_dir: Path,
+    video_dir: Path,
     render_cache_dir: Path,
-    preview_dir: Path,
-) -> Path:
-    preview_path = preview_dir / f"{slugify(case['case_id'])}-{slugify(model_name)}.png"
-    if preview_path.exists():
-        return preview_path
+) -> tuple[Path, Path]:
+    stem = f"{slugify(case['case_id'])}-{slugify(model_name)}"
+    poster_path = poster_dir / f"{stem}.png"
+    video_path = video_dir / f"{stem}.mp4"
+    if poster_path.exists() and video_path.exists():
+        return poster_path, video_path
+
     code = case.get("final_code") or case.get("code") or case.get("generated_code")
     if not isinstance(code, str) or not code.strip():
         raise RuntimeError(f"Missing code for {case['case_id']} from {model_name}.")
@@ -148,8 +140,11 @@ def _ensure_preview(
     )
     if not render["render_ok"] or render["video_path"] is None:
         raise RuntimeError(f"Failed to render {case['case_id']} for {model_name}.")
-    _extract_thumbnail(Path(render["video_path"]), preview_path)
-    return preview_path
+
+    ensure_parent(video_path)
+    shutil.copy2(Path(render["video_path"]), video_path)
+    _extract_thumbnail(video_path, poster_path)
+    return poster_path, video_path
 
 
 def _extract_thumbnail(video_path: Path, output_path: Path) -> None:
@@ -186,41 +181,11 @@ def _thumbnail_timestamp(video_path: Path) -> str:
     ]
     result = subprocess.run(command, capture_output=True, text=True, check=False)
     if result.returncode != 0:
-        return "00:00:02.0"
+        return "2.00"
     try:
         duration = float(result.stdout.strip())
     except ValueError:
-        return "00:00:02.0"
-    seconds = max(1.5, duration * 0.45)
-    return f"{seconds:.2f}"
-
-
-def _write_example_panel(
-    output_path: Path,
-    title: str,
-    prompt: str,
-    cards: list[dict[str, Any]],
-) -> None:
-    columns = 2
-    rows = math.ceil(len(cards) / columns)
-    fig, axes = plt.subplots(rows, columns, figsize=(10, max(4.8, rows * 3.4)))
-    axes_list = list(axes.flat) if hasattr(axes, "flat") else [axes]
-    for ax, card in zip(axes_list, cards, strict=False):
-        preview_path = card["preview_path"]
-        if preview_path and preview_path.exists():
-            ax.imshow(plt.imread(preview_path))
-        else:
-            ax.set_facecolor("#eef1f5")
-            ax.text(0.5, 0.58, card["status"], ha="center", va="center", fontsize=12, weight="bold")
-            ax.text(0.5, 0.38, f"score {card['score']}", ha="center", va="center", fontsize=10)
-        ax.set_title(f"{card['short']}\nscore {card['score']} | {card['status']}", fontsize=10)
-        ax.set_xticks([])
-        ax.set_yticks([])
-    for ax in axes_list[len(cards):]:
-        ax.axis("off")
-    fig.suptitle(title, fontsize=15, weight="bold")
-    fig.text(0.5, 0.03, textwrap.fill(prompt, 110), ha="center", fontsize=9)
-    fig.tight_layout(rect=(0, 0.08, 1, 0.92))
-    ensure_parent(output_path)
-    fig.savefig(output_path, dpi=180, bbox_inches="tight")
-    plt.close(fig)
+        return "0.50"
+    if duration <= 0.2:
+        return "0.10"
+    return f"{min(max(0.1, duration * 0.45), duration - 0.05):.2f}"

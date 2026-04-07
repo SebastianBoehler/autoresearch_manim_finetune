@@ -29,64 +29,125 @@ Generated on April 7, 2026 from the current 21-case held-out split. This page is
 
 ## Rendered Examples
 
-### Structured Pipeline Prompt
+### Transform Matching Shapes
 
-A hard held-out explainer where only the leading API model produced a clean render.
+All compared models render this prompt, which makes it a clean side-by-side quality comparison instead of an error showcase.
 
-Prompt: `Create a 20-second Manim scene that explains a convolutional neural network pipeline. Show an input image grid, a sequence of convolution and pooling feature-map blocks, and a final classifier block with arrows between stages.`
+Prompt: `Create a short Manim scene that morphs one phrase into another using TransformMatchingShapes, so the animation emphasizes shared letter geometry rather than a simple fade.`
 
-![Structured Pipeline Prompt](figures/benchmark_examples/ml-cnn-pipeline-blocks.png)
+#### Xiaomi MiMo-V2-Pro
 
-- Xiaomi MiMo-V2-Pro: Rendered, score `1.000`, render `1.000`, syntax `1.000`.
-- Qwen 2.5 Coder 3B Fine-tuned: Syntax error, score `0.339`, render `n/a`, syntax `0.000`.
-- Qwen 2.5 Coder 3B Base: Render failed, score `0.575`, render `0.000`, syntax `1.000`.
-- MiniMax M2.7: Syntax error, score `0.429`, render `n/a`, syntax `0.000`.
+<video controls playsinline preload="metadata" poster="figures/benchmark_examples/anim-matching-shapes-word-morph-xiaomi-mimo-v2-pro.png" src="videos/benchmark_examples/anim-matching-shapes-word-morph-xiaomi-mimo-v2-pro.mp4"></video>
 
-### Classical Control Diagram
+Status: `Rendered`. Score `0.917`. Render `1.000`. Syntax `1.000`.
 
-The base model can still match on some simple block-diagram prompts, while the Hermes skill hurt Xiaomi here.
+#### Xiaomi MiMo-V2-Pro + Hermes Skill
 
-Prompt: `Create a 30-second Manim scene that explains a simple feedback loop with reference, controller, plant, and measured output. Use arrows and captions to show how the error signal closes the loop.`
+<video controls playsinline preload="metadata" poster="figures/benchmark_examples/anim-matching-shapes-word-morph-xiaomi-mimo-v2-pro-hermes-skill.png" src="videos/benchmark_examples/anim-matching-shapes-word-morph-xiaomi-mimo-v2-pro-hermes-skill.mp4"></video>
 
-![Classical Control Diagram](figures/benchmark_examples/control-feedback-loop-story.png)
+Status: `Rendered`. Score `0.917`. Render `1.000`. Syntax `1.000`.
 
-- Xiaomi MiMo-V2-Pro: Rendered, score `0.875`, render `1.000`, syntax `1.000`.
-- Xiaomi MiMo-V2-Pro + Hermes Skill: Syntax error, score `0.071`, render `n/a`, syntax `0.000`.
-- Qwen 2.5 Coder 3B Fine-tuned: Render failed, score `0.575`, render `0.000`, syntax `1.000`.
-- Qwen 2.5 Coder 3B Base: Rendered, score `0.875`, render `1.000`, syntax `1.000`.
+#### MiniMax M2.7
 
-### Narrative Science Prompt
+<video controls playsinline preload="metadata" poster="figures/benchmark_examples/anim-matching-shapes-word-morph-minimax-m2-7.png" src="videos/benchmark_examples/anim-matching-shapes-word-morph-minimax-m2-7.mp4"></video>
 
-The local fine-tune still wins some prompts, which means the specialization path still has real signal.
+Status: `Rendered`. Score `0.917`. Render `1.000`. Syntax `1.000`.
 
-Prompt: `Create a 30-second Manim scene that compares a weak synapse and a strong synapse. Use two simple neuron pairs, animated neurotransmitter dots, and captions showing how stronger connections drive a larger downstream response.`
+#### Qwen 2.5 Coder 3B Fine-tuned
 
-![Narrative Science Prompt](figures/benchmark_examples/neuroscience-synapse-strength-story.png)
+<video controls playsinline preload="metadata" poster="figures/benchmark_examples/anim-matching-shapes-word-morph-qwen-2-5-coder-3b-fine-tuned.png" src="videos/benchmark_examples/anim-matching-shapes-word-morph-qwen-2-5-coder-3b-fine-tuned.mp4"></video>
 
-- Qwen 2.5 Coder 3B Fine-tuned: Rendered, score `0.812`, render `1.000`, syntax `1.000`.
-- Xiaomi MiMo-V2-Pro: Syntax error, score `0.250`, render `n/a`, syntax `0.000`.
-- Xiaomi MiMo-V2-Pro + Hermes Skill: Rendered, score `0.875`, render `1.000`, syntax `1.000`.
-- MiniMax M2.7: Rendered, score `0.875`, render `1.000`, syntax `1.000`.
+Status: `Rendered`. Score `0.917`. Render `1.000`. Syntax `1.000`.
 
-### Low-Complexity Canonical Diagram
+### Square-To-Circle Primitive
 
-Simple canonical prompts are now close to solved across the stack, with only small quality differences.
+A canonical docs-style scene where every shown model completes the same basic animation successfully.
+
+Prompt: `Create a basic Manim scene that first draws a rotated square and then transforms it into a filled circle.`
+
+#### Xiaomi MiMo-V2-Pro
+
+<video controls playsinline preload="metadata" poster="figures/benchmark_examples/docs-square-to-circle-xiaomi-mimo-v2-pro.png" src="videos/benchmark_examples/docs-square-to-circle-xiaomi-mimo-v2-pro.mp4"></video>
+
+Status: `Rendered`. Score `1.000`. Render `1.000`. Syntax `1.000`.
+
+#### Xiaomi MiMo-V2-Pro + Hermes Skill
+
+<video controls playsinline preload="metadata" poster="figures/benchmark_examples/docs-square-to-circle-xiaomi-mimo-v2-pro-hermes-skill.png" src="videos/benchmark_examples/docs-square-to-circle-xiaomi-mimo-v2-pro-hermes-skill.mp4"></video>
+
+Status: `Rendered`. Score `1.000`. Render `1.000`. Syntax `1.000`.
+
+#### MiniMax M2.7
+
+<video controls playsinline preload="metadata" poster="figures/benchmark_examples/docs-square-to-circle-minimax-m2-7.png" src="videos/benchmark_examples/docs-square-to-circle-minimax-m2-7.mp4"></video>
+
+Status: `Rendered`. Score `1.000`. Render `1.000`. Syntax `1.000`.
+
+#### Qwen 2.5 Coder 3B Fine-tuned
+
+<video controls playsinline preload="metadata" poster="figures/benchmark_examples/docs-square-to-circle-qwen-2-5-coder-3b-fine-tuned.png" src="videos/benchmark_examples/docs-square-to-circle-qwen-2-5-coder-3b-fine-tuned.mp4"></video>
+
+Status: `Rendered`. Score `1.000`. Render `1.000`. Syntax `1.000`.
+
+### Create Circle Primitive
+
+A very small primitive scene that every shown model can render, making style and pacing differences easy to inspect.
+
+Prompt: `Create a short Manim scene that draws a filled pink circle in the center of the frame using the basic Create animation.`
+
+#### Xiaomi MiMo-V2-Pro
+
+<video controls playsinline preload="metadata" poster="figures/benchmark_examples/docs-create-circle-xiaomi-mimo-v2-pro.png" src="videos/benchmark_examples/docs-create-circle-xiaomi-mimo-v2-pro.mp4"></video>
+
+Status: `Rendered`. Score `0.917`. Render `1.000`. Syntax `1.000`.
+
+#### Xiaomi MiMo-V2-Pro + Hermes Skill
+
+<video controls playsinline preload="metadata" poster="figures/benchmark_examples/docs-create-circle-xiaomi-mimo-v2-pro-hermes-skill.png" src="videos/benchmark_examples/docs-create-circle-xiaomi-mimo-v2-pro-hermes-skill.mp4"></video>
+
+Status: `Rendered`. Score `0.917`. Render `1.000`. Syntax `1.000`.
+
+#### MiniMax M2.7
+
+<video controls playsinline preload="metadata" poster="figures/benchmark_examples/docs-create-circle-minimax-m2-7.png" src="videos/benchmark_examples/docs-create-circle-minimax-m2-7.mp4"></video>
+
+Status: `Rendered`. Score `1.000`. Render `1.000`. Syntax `1.000`.
+
+#### Qwen 2.5 Coder 3B Fine-tuned
+
+<video controls playsinline preload="metadata" poster="figures/benchmark_examples/docs-create-circle-qwen-2-5-coder-3b-fine-tuned.png" src="videos/benchmark_examples/docs-create-circle-qwen-2-5-coder-3b-fine-tuned.mp4"></video>
+
+Status: `Rendered`. Score `0.917`. Render `1.000`. Syntax `1.000`.
+
+### Labeled Bohr Diagram
+
+A richer chemistry diagram where every shown model still produces a valid end-to-end render.
 
 Prompt: `Create a 10-second Manim scene that explains a simplified Bohr model of carbon with a nucleus, two electron shells, and six electrons arranged around the shells. Label the shells and the atom name.`
 
-![Low-Complexity Canonical Diagram](figures/benchmark_examples/chem-bohr-carbon-diagram.png)
+#### Xiaomi MiMo-V2-Pro
 
-- Xiaomi MiMo-V2-Pro: Rendered, score `0.938`, render `1.000`, syntax `1.000`.
-- MiniMax M2.7: Rendered, score `0.875`, render `1.000`, syntax `1.000`.
-- Qwen 2.5 Coder 3B Fine-tuned: Rendered, score `0.938`, render `1.000`, syntax `1.000`.
-- Qwen 2.5 Coder 3B Base: Rendered, score `0.938`, render `1.000`, syntax `1.000`.
+<video controls playsinline preload="metadata" poster="figures/benchmark_examples/chem-bohr-carbon-diagram-xiaomi-mimo-v2-pro.png" src="videos/benchmark_examples/chem-bohr-carbon-diagram-xiaomi-mimo-v2-pro.mp4"></video>
 
-## Unresolved Models
+Status: `Rendered`. Score `0.938`. Render `1.000`. Syntax `1.000`.
 
-| Model | Status |
-| --- | --- |
-| Qwen 3.6 Plus Free | ADK did not return a final text response for model qwen/qwen3.6-plus:free. |
-| NVIDIA Nemotron 3 Super 120B A12B Free | OpenRouter benchmark did not return a completed result after extended wait; run aborted. |
+#### Xiaomi MiMo-V2-Pro + Hermes Skill
+
+<video controls playsinline preload="metadata" poster="figures/benchmark_examples/chem-bohr-carbon-diagram-xiaomi-mimo-v2-pro-hermes-skill.png" src="videos/benchmark_examples/chem-bohr-carbon-diagram-xiaomi-mimo-v2-pro-hermes-skill.mp4"></video>
+
+Status: `Rendered`. Score `0.938`. Render `1.000`. Syntax `1.000`.
+
+#### MiniMax M2.7
+
+<video controls playsinline preload="metadata" poster="figures/benchmark_examples/chem-bohr-carbon-diagram-minimax-m2-7.png" src="videos/benchmark_examples/chem-bohr-carbon-diagram-minimax-m2-7.mp4"></video>
+
+Status: `Rendered`. Score `0.875`. Render `1.000`. Syntax `1.000`.
+
+#### Qwen 2.5 Coder 3B Fine-tuned
+
+<video controls playsinline preload="metadata" poster="figures/benchmark_examples/chem-bohr-carbon-diagram-qwen-2-5-coder-3b-fine-tuned.png" src="videos/benchmark_examples/chem-bohr-carbon-diagram-qwen-2-5-coder-3b-fine-tuned.mp4"></video>
+
+Status: `Rendered`. Score `0.938`. Render `1.000`. Syntax `1.000`.
 
 ## Public Data Snapshot
 

@@ -44,14 +44,12 @@ class PublicBenchmarkTests(unittest.TestCase):
                     },
                 },
             ],
-            "errors": [{"name": "Qwen 3.6 Plus Free", "error": "timeout"}],
         }
         examples = [
             {
-                "title": "Structured Pipeline Prompt",
-                "summary": "Only Xiaomi rendered it.",
-                "prompt": "Create a CNN pipeline scene.",
-                "panel_path": "figures/benchmark_examples/cnn.png",
+                "title": "Transform Matching Shapes",
+                "summary": "All selected models rendered it.",
+                "prompt": "Create a morph scene.",
                 "rows": [
                     {
                         "name": "Xiaomi MiMo-V2-Pro",
@@ -59,6 +57,8 @@ class PublicBenchmarkTests(unittest.TestCase):
                         "score": "1.000",
                         "render": "1.000",
                         "syntax": "1.000",
+                        "poster_path": "figures/benchmark_examples/xiaomi.png",
+                        "video_path": "videos/benchmark_examples/xiaomi.mp4",
                     }
                 ],
             }
@@ -71,5 +71,5 @@ class PublicBenchmarkTests(unittest.TestCase):
         self.assertIn("# Public Manim Benchmark", markdown)
         self.assertIn("Xiaomi MiMo-V2-Pro", markdown)
         self.assertIn("## Rendered Examples", markdown)
-        self.assertIn("figures/benchmark_examples/cnn.png", markdown)
-        self.assertIn("Qwen 3.6 Plus Free", markdown)
+        self.assertIn("videos/benchmark_examples/xiaomi.mp4", markdown)
+        self.assertNotIn("## Unresolved Models", markdown)
