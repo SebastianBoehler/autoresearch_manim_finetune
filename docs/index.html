@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Autoresearch Manim Benchmark</title>
+    <meta
+      name="description"
+      content="Public held-out benchmark for local and API Manim code-generation models."
+    />
+    <script>
+      tailwind = {
+        config: {
+          theme: {
+            extend: {
+              colors: {
+                sand: "#f4efe6",
+                paper: "#fffaf2",
+                accent: "#d66e2f",
+                ink: "#1e1d1a",
+                muted: "#62594b",
+              },
+              fontFamily: {
+                display: ["Georgia", "Times New Roman", "serif"],
+                body: ["Avenir Next", "Segoe UI", "Helvetica Neue", "sans-serif"],
+              },
+              boxShadow: {
+                soft: "0 24px 70px rgba(56, 43, 24, 0.10)",
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body
+    class="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(214,110,47,0.18),transparent_32rem),radial-gradient(circle_at_top_right,rgba(46,123,180,0.16),transparent_28rem),linear-gradient(180deg,#fbf7f0_0%,#f4efe6_100%)] font-body text-ink"
+  >
+    <main class="mx-auto w-[min(1180px,calc(100vw-32px))] py-7 md:py-10">
+      <section class="rounded-[28px] border border-black/10 bg-white/85 p-7 shadow-soft backdrop-blur md:p-8">
+        <span class="inline-flex rounded-full bg-accent/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#8b4320]">
+          Autoresearch Manim
+        </span>
+        <h1 class="mt-5 max-w-[9ch] font-display text-5xl font-bold leading-[0.92] md:text-7xl">
+          Public Benchmark
+        </h1>
+        <p class="mt-5 max-w-3xl text-lg leading-8 text-muted">
+          Held-out comparison of local and API models for Manim code generation, measured on syntax,
+          render success, and case-level benchmark score.
+        </p>
+        <div class="mt-7 grid gap-3 md:grid-cols-3">
+          <div class="rounded-3xl border border-black/10 bg-paper p-5">
+            <div class="text-xs uppercase tracking-[0.2em] text-muted">Best Current Model</div>
+            <div class="mt-2 text-2xl font-bold" id="top-model">Loading</div>
+          </div>
+          <div class="rounded-3xl border border-black/10 bg-paper p-5">
+            <div class="text-xs uppercase tracking-[0.2em] text-muted">Held-out Cases</div>
+            <div class="mt-2 text-2xl font-bold" id="case-count">...</div>
+          </div>
+          <div class="rounded-3xl border border-black/10 bg-paper p-5">
+            <div class="text-xs uppercase tracking-[0.2em] text-muted">Snapshot Date</div>
+            <div class="mt-2 text-2xl font-bold" id="generated-on">...</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-6 rounded-[28px] border border-black/10 bg-white/85 p-6 shadow-soft backdrop-blur md:p-7">
+        <div class="mb-4 flex flex-col gap-3 md:flex-row md:items-baseline md:justify-between">
+          <div>
+            <h2 class="font-display text-3xl font-bold">Leaderboard</h2>
+            <p class="mt-1 text-muted">Same held-out split across local and API runs.</p>
+          </div>
+          <a class="text-sm font-medium text-muted underline decoration-accent/40 underline-offset-4" href="benchmark.md">
+            Markdown snapshot
+          </a>
+        </div>
+        <img
+          class="w-full rounded-3xl border border-black/10 bg-white"
+          src="figures/model-benchmark-leaderboard.png"
+          alt="Held-out Manim model benchmark leaderboard"
+        />
+        <div id="leaderboard-table" class="mt-5 rounded-3xl border border-black/10 bg-paper px-5 py-4 text-muted">
+          Loading benchmark data...
+        </div>
+      </section>
+
+      <section class="mt-6 rounded-[28px] border border-black/10 bg-white/85 p-6 shadow-soft backdrop-blur md:p-7">
+        <div class="mb-4">
+          <h2 class="font-display text-3xl font-bold">Rendered Examples</h2>
+          <p class="mt-1 text-muted">Panels are generated from the saved benchmark outputs.</p>
+        </div>
+        <div id="examples" class="rounded-3xl border border-black/10 bg-paper px-5 py-4 text-muted">
+          Loading rendered examples...
+        </div>
+      </section>
+
+      <section class="mt-6 rounded-[28px] border border-black/10 bg-white/85 p-6 shadow-soft backdrop-blur md:p-7">
+        <div class="mb-4">
+          <h2 class="font-display text-3xl font-bold">Provider Status</h2>
+          <p class="mt-1 text-muted">Models that did not produce a complete benchmark run.</p>
+        </div>
+        <div id="errors" class="rounded-3xl border border-black/10 bg-paper px-5 py-4 text-muted">
+          Loading provider status...
+        </div>
+        <p class="mt-5 text-sm text-muted">
+          Source JSON:
+          <a class="underline decoration-accent/40 underline-offset-4" href="data/model-benchmark-public.json">
+            model-benchmark-public.json
+          </a>
+        </p>
+      </section>
+    </main>
+
+    <script>
+      const byId = (id) => document.getElementById(id);
+      const categoryLabels = {
+        api: "API model",
+        api_skill: "API model + skill",
+        local_finetuned: "Local fine-tune",
+        local_base: "Local base",
+      };
+
+      function renderLeaderboard(entries) {
+        byId("leaderboard-table").outerHTML = `
+          <div id="leaderboard-table" class="mt-5 overflow-x-auto rounded-3xl border border-black/10 bg-paper">
+            <table class="min-w-full text-left">
+              <thead class="border-b border-black/10 text-xs uppercase tracking-[0.18em] text-muted">
+                <tr>
+                  <th class="px-4 py-4">Rank</th>
+                  <th class="px-4 py-4">Model</th>
+                  <th class="px-4 py-4">Case Score</th>
+                  <th class="px-4 py-4">Render Rate</th>
+                  <th class="px-4 py-4">Syntax Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${entries
+                  .map(
+                    (entry, index) => `
+                      <tr class="border-b border-black/10 last:border-b-0">
+                        <td class="px-4 py-4 font-semibold tabular-nums">${index + 1}</td>
+                        <td class="px-4 py-4">
+                          <div class="font-semibold text-ink">${entry.name}</div>
+                          <div class="mt-1 text-sm text-muted">${categoryLabels[entry.category] ?? entry.category}</div>
+                        </td>
+                        <td class="px-4 py-4 font-semibold tabular-nums">${Number(entry.summary.mean_case_score).toFixed(3)}</td>
+                        <td class="px-4 py-4 font-semibold tabular-nums">${Number(entry.summary.render_success_rate).toFixed(3)}</td>
+                        <td class="px-4 py-4 font-semibold tabular-nums">${Number(entry.summary.syntax_success_rate).toFixed(3)}</td>
+                      </tr>
+                    `
+                  )
+                  .join("")}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function renderExamples(examples) {
+        byId("examples").outerHTML = `
+          <div id="examples" class="grid gap-4">
+            ${examples
+              .map(
+                (example) => `
+                  <article class="rounded-[24px] border border-black/10 bg-paper p-5">
+                    <h3 class="font-display text-2xl font-bold">${example.title}</h3>
+                    <p class="mt-2 text-muted">${example.summary}</p>
+                    <div class="mt-4 rounded-2xl border border-sky-700/10 bg-sky-700/5 px-4 py-3 text-sm leading-7 text-muted">
+                      ${example.prompt}
+                    </div>
+                    <img
+                      class="mt-4 w-full rounded-3xl border border-black/10 bg-white"
+                      src="${example.panel_path}"
+                      alt="${example.title}"
+                    />
+                    <div class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                      ${example.rows
+                        .map(
+                          (row) => `
+                            <div class="rounded-2xl border border-black/10 bg-white/70 p-4">
+                              <div class="font-semibold">${row.name}</div>
+                              <div class="mt-2 text-sm leading-6 text-muted">
+                                ${row.status}<br>
+                                score ${row.score} | render ${row.render} | syntax ${row.syntax}
+                              </div>
+                            </div>
+                          `
+                        )
+                        .join("")}
+                    </div>
+                  </article>
+                `
+              )
+              .join("")}
+          </div>
+        `;
+      }
+
+      function renderErrors(errors) {
+        if (!errors.length) {
+          byId("errors").outerHTML = `
+            <div id="errors" class="rounded-3xl border border-black/10 bg-paper px-5 py-4 text-muted">
+              All configured models completed.
+            </div>
+          `;
+          return;
+        }
+        byId("errors").outerHTML = `
+          <div id="errors" class="grid gap-3">
+            ${errors
+              .map(
+                (entry) => `
+                  <div class="rounded-2xl border border-red-800/15 bg-red-50/70 px-4 py-4">
+                    <div class="font-semibold text-ink">${entry.name}</div>
+                    <div class="mt-1 text-sm leading-6 text-muted">${entry.error}</div>
+                  </div>
+                `
+              )
+              .join("")}
+          </div>
+        `;
+      }
+
+      function renderFailure(message) {
+        const markup = `<div class="rounded-3xl border border-red-800/15 bg-red-50/70 px-5 py-4 text-muted">${message}</div>`;
+        byId("leaderboard-table").outerHTML = `<div id="leaderboard-table">${markup}</div>`;
+        byId("examples").outerHTML = `<div id="examples">${markup}</div>`;
+        byId("errors").outerHTML = `<div id="errors">${markup}</div>`;
+        byId("top-model").textContent = "Load failed";
+      }
+
+      fetch("data/model-benchmark-public.json")
+        .then((response) => {
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return response.json();
+        })
+        .then((data) => {
+          byId("top-model").textContent = data.leaderboard[0]?.name ?? "Unavailable";
+          byId("case-count").textContent = data.num_cases ?? "n/a";
+          byId("generated-on").textContent = data.generated_on ?? "n/a";
+          renderLeaderboard(data.leaderboard || []);
+          renderExamples(data.examples || []);
+          renderErrors(data.errors || []);
+        })
+        .catch((error) => renderFailure(`Failed to load benchmark snapshot: ${error.message}`));
+    </script>
+  </body>
+</html>
