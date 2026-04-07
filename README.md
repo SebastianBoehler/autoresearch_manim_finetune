@@ -412,6 +412,15 @@ uv run python scripts/build_model_benchmark_report.py
 - It also renders a static figure at `docs/figures/model-benchmark-leaderboard.png` so the latest cross-model comparison can be embedded directly in this README.
 - Provider failures are recorded as explicit error rows in the JSON report instead of silently dropping those models from the benchmark.
 
+Public benchmark page:
+
+```bash
+uv run python scripts/build_public_benchmark_page.py
+```
+
+- The page builder writes a committed docs snapshot to `docs/benchmark.md`, a public JSON snapshot to `docs/data/model-benchmark-public.json`, and rendered example panels to `docs/figures/benchmark_examples/`.
+- The example panels are regenerated from the saved benchmark outputs, so the docs page stays tied to the actual held-out cases instead of hand-picked mock examples.
+
 Local MLX model benchmark:
 
 ```bash
@@ -434,6 +443,8 @@ Point your coding agent at `program.md`. The adapted loop treats:
 Current held-out leaderboard as of April 6, 2026 on the 21-case `artifacts/datasets/m4-max-qwen25coder-3b/test.jsonl` split:
 
 ![Held-out model benchmark leaderboard](docs/figures/model-benchmark-leaderboard.png)
+
+Public docs snapshot with rendered examples: [`docs/benchmark.md`](docs/benchmark.md)
 
 Current ranking:
 

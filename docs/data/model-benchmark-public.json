@@ -1,0 +1,230 @@
+{
+  "generated_on": "April 7, 2026",
+  "num_cases": 21,
+  "leaderboard": [
+    {
+      "name": "Xiaomi MiMo-V2-Pro",
+      "category": "api",
+      "path": "/Users/sebastianboehler/Documents/GitHub/autoresearch_manim_finetune/artifacts/benchmarks/adk-xiaomi-skill-benchmark/xiaomi-mimo-v2-pro-adk.json",
+      "summary": {
+        "num_cases": 21,
+        "syntax_success_rate": 0.8095238095238095,
+        "render_success_rate": 0.875,
+        "mean_case_score": 0.790873015873016,
+        "test_loss": null
+      }
+    },
+    {
+      "name": "Xiaomi MiMo-V2-Pro + Hermes Skill",
+      "category": "api_skill",
+      "path": "/Users/sebastianboehler/Documents/GitHub/autoresearch_manim_finetune/artifacts/benchmarks/adk-xiaomi-skill-benchmark/xiaomi-mimo-v2-pro-adk-with-hermes-skill.json",
+      "summary": {
+        "num_cases": 21,
+        "syntax_success_rate": 0.7619047619047619,
+        "render_success_rate": 0.8,
+        "mean_case_score": 0.7174886621315193,
+        "test_loss": null
+      }
+    },
+    {
+      "name": "MiniMax M2.7",
+      "category": "api",
+      "path": "/Users/sebastianboehler/Documents/GitHub/autoresearch_manim_finetune/artifacts/benchmarks/adk-api-model-benchmark/minimax-m2-7-adk.json",
+      "summary": {
+        "num_cases": 21,
+        "syntax_success_rate": 0.7619047619047619,
+        "render_success_rate": 0.5333333333333333,
+        "mean_case_score": 0.657936507936508,
+        "test_loss": null
+      }
+    },
+    {
+      "name": "Qwen 2.5 Coder 3B Fine-tuned",
+      "category": "local_finetuned",
+      "path": "/Users/sebastianboehler/Documents/GitHub/autoresearch_manim_finetune/artifacts/evals/m4-max-qwen25coder-3b.json",
+      "summary": {
+        "num_cases": 21,
+        "syntax_success_rate": 0.7619047619047619,
+        "render_success_rate": 0.5625,
+        "mean_case_score": 0.655952380952381,
+        "test_loss": 0.662
+      }
+    },
+    {
+      "name": "Qwen 2.5 Coder 3B Base",
+      "category": "local_base",
+      "path": "/Users/sebastianboehler/Documents/GitHub/autoresearch_manim_finetune/artifacts/evals/m4-max-qwen25coder-3b-base-current-full.json",
+      "summary": {
+        "num_cases": 21,
+        "syntax_success_rate": 0.8095238095238095,
+        "render_success_rate": 0.25,
+        "mean_case_score": 0.5852324263038549,
+        "test_loss": null
+      }
+    }
+  ],
+  "errors": [
+    {
+      "name": "Qwen 3.6 Plus Free",
+      "category": "api",
+      "path": "/Users/sebastianboehler/Documents/GitHub/autoresearch_manim_finetune/artifacts/benchmarks/adk-api-model-benchmark/qwen-qwen3-6-plus-free-adk.json",
+      "error": "ADK did not return a final text response for model qwen/qwen3.6-plus:free."
+    },
+    {
+      "name": "NVIDIA Nemotron 3 Super 120B A12B Free",
+      "category": "api",
+      "path": "/Users/sebastianboehler/Documents/GitHub/autoresearch_manim_finetune/artifacts/benchmarks/adk-api-model-benchmark/nvidia-nemotron-3-super-120b-a12b-free-openrouter.json",
+      "error": "OpenRouter benchmark did not return a completed result after extended wait; run aborted."
+    }
+  ],
+  "examples": [
+    {
+      "case_id": "ml_cnn_pipeline_blocks",
+      "title": "Structured Pipeline Prompt",
+      "summary": "A hard held-out explainer where only the leading API model produced a clean render.",
+      "prompt": "Create a 20-second Manim scene that explains a convolutional neural network pipeline. Show an input image grid, a sequence of convolution and pooling feature-map blocks, and a final classifier block with arrows between stages.",
+      "panel_path": "figures/benchmark_examples/ml-cnn-pipeline-blocks.png",
+      "rows": [
+        {
+          "name": "Xiaomi MiMo-V2-Pro",
+          "status": "Rendered",
+          "score": "1.000",
+          "render": "1.000",
+          "syntax": "1.000"
+        },
+        {
+          "name": "Qwen 2.5 Coder 3B Fine-tuned",
+          "status": "Syntax error",
+          "score": "0.339",
+          "render": "n/a",
+          "syntax": "0.000"
+        },
+        {
+          "name": "Qwen 2.5 Coder 3B Base",
+          "status": "Render failed",
+          "score": "0.575",
+          "render": "0.000",
+          "syntax": "1.000"
+        },
+        {
+          "name": "MiniMax M2.7",
+          "status": "Syntax error",
+          "score": "0.429",
+          "render": "n/a",
+          "syntax": "0.000"
+        }
+      ]
+    },
+    {
+      "case_id": "control_feedback_loop_story",
+      "title": "Classical Control Diagram",
+      "summary": "The base model can still match on some simple block-diagram prompts, while the Hermes skill hurt Xiaomi here.",
+      "prompt": "Create a 30-second Manim scene that explains a simple feedback loop with reference, controller, plant, and measured output. Use arrows and captions to show how the error signal closes the loop.",
+      "panel_path": "figures/benchmark_examples/control-feedback-loop-story.png",
+      "rows": [
+        {
+          "name": "Xiaomi MiMo-V2-Pro",
+          "status": "Rendered",
+          "score": "0.875",
+          "render": "1.000",
+          "syntax": "1.000"
+        },
+        {
+          "name": "Xiaomi MiMo-V2-Pro + Hermes Skill",
+          "status": "Syntax error",
+          "score": "0.071",
+          "render": "n/a",
+          "syntax": "0.000"
+        },
+        {
+          "name": "Qwen 2.5 Coder 3B Fine-tuned",
+          "status": "Render failed",
+          "score": "0.575",
+          "render": "0.000",
+          "syntax": "1.000"
+        },
+        {
+          "name": "Qwen 2.5 Coder 3B Base",
+          "status": "Rendered",
+          "score": "0.875",
+          "render": "1.000",
+          "syntax": "1.000"
+        }
+      ]
+    },
+    {
+      "case_id": "neuroscience_synapse_strength_story",
+      "title": "Narrative Science Prompt",
+      "summary": "The local fine-tune still wins some prompts, which means the specialization path still has real signal.",
+      "prompt": "Create a 30-second Manim scene that compares a weak synapse and a strong synapse. Use two simple neuron pairs, animated neurotransmitter dots, and captions showing how stronger connections drive a larger downstream response.",
+      "panel_path": "figures/benchmark_examples/neuroscience-synapse-strength-story.png",
+      "rows": [
+        {
+          "name": "Qwen 2.5 Coder 3B Fine-tuned",
+          "status": "Rendered",
+          "score": "0.812",
+          "render": "1.000",
+          "syntax": "1.000"
+        },
+        {
+          "name": "Xiaomi MiMo-V2-Pro",
+          "status": "Syntax error",
+          "score": "0.250",
+          "render": "n/a",
+          "syntax": "0.000"
+        },
+        {
+          "name": "Xiaomi MiMo-V2-Pro + Hermes Skill",
+          "status": "Rendered",
+          "score": "0.875",
+          "render": "1.000",
+          "syntax": "1.000"
+        },
+        {
+          "name": "MiniMax M2.7",
+          "status": "Rendered",
+          "score": "0.875",
+          "render": "1.000",
+          "syntax": "1.000"
+        }
+      ]
+    },
+    {
+      "case_id": "chem_bohr_carbon_diagram",
+      "title": "Low-Complexity Canonical Diagram",
+      "summary": "Simple canonical prompts are now close to solved across the stack, with only small quality differences.",
+      "prompt": "Create a 10-second Manim scene that explains a simplified Bohr model of carbon with a nucleus, two electron shells, and six electrons arranged around the shells. Label the shells and the atom name.",
+      "panel_path": "figures/benchmark_examples/chem-bohr-carbon-diagram.png",
+      "rows": [
+        {
+          "name": "Xiaomi MiMo-V2-Pro",
+          "status": "Rendered",
+          "score": "0.938",
+          "render": "1.000",
+          "syntax": "1.000"
+        },
+        {
+          "name": "MiniMax M2.7",
+          "status": "Rendered",
+          "score": "0.875",
+          "render": "1.000",
+          "syntax": "1.000"
+        },
+        {
+          "name": "Qwen 2.5 Coder 3B Fine-tuned",
+          "status": "Rendered",
+          "score": "0.938",
+          "render": "1.000",
+          "syntax": "1.000"
+        },
+        {
+          "name": "Qwen 2.5 Coder 3B Base",
+          "status": "Rendered",
+          "score": "0.938",
+          "render": "1.000",
+          "syntax": "1.000"
+        }
+      ]
+    }
+  ]
+}
