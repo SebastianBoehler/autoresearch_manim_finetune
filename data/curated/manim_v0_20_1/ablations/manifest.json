@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "holdout_policy": "shared-valid-and-test-from-full-curated-split",
+  "variants": {
+    "pedagogical_only": {
+      "train": 107,
+      "valid": 15,
+      "test": 15
+    },
+    "api_reference_only": {
+      "train": 13,
+      "valid": 15,
+      "test": 15
+    },
+    "without_composite": {
+      "train": 73,
+      "valid": 15,
+      "test": 15
+    }
+  }
+}

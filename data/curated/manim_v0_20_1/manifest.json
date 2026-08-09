@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "dataset_version": "manim-curated-v1",
+  "source_path": "data/manim_dataset.jsonl",
+  "curation_manifest_path": "data/manim_curation_v1.json",
+  "api_surface_path": "data/manim_api_surface_v0_20_1.json",
+  "target_runtime": {
+    "manim_version": "0.20.1",
+    "python_version": "3.13",
+    "renderer": "cairo"
+  },
+  "source_sha256": "db3fd64fae6eba46100afec9579ecdf9c457bfc07eca2555afcb99c3e2562990",
+  "curated_sha256": "c565ad297691a022981e9f9d0c04bab7b36f63a779928d727ba3e4574e74d43f",
+  "counts": {
+    "accepted": 150,
+    "quarantine": 68,
+    "rewrite": 24,
+    "source": 242
+  },
+  "split_counts": {
+    "train": 120,
+    "valid": 15,
+    "test": 15
+  },
+  "split_seed": 42,
+  "split_policy": "concept-and-source-grouped-v1",
+  "ablation_variants": {
+    "pedagogical_only": {
+      "train": 107,
+      "valid": 15,
+      "test": 15
+    },
+    "api_reference_only": {
+      "train": 13,
+      "valid": 15,
+      "test": 15
+    },
+    "without_composite": {
+      "train": 73,
+      "valid": 15,
+      "test": 15
+    }
+  }
+}
