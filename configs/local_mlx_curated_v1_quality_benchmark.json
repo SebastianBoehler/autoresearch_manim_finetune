@@ -1,0 +1,14 @@
+{
+  "name": "local-mlx-curated-v1-quality-benchmark",
+  "dataset_dir": "data/curated/manim_v0_20_1",
+  "output_dir": "artifacts/benchmarks/local-mlx-curated-v1-quality",
+  "generation": {"max_tokens": 1800, "temperature": 0.2, "top_p": 0.95, "top_k": 40, "seed": 42, "local_transport": "in_process"},
+  "evaluation": {"run_render": true, "max_cases": 0, "render_quality": "low", "max_render_seconds": 120},
+  "targets": [
+    {"name": "qwen25coder-3b-base", "backend": "local", "model": "Qwen/Qwen2.5-Coder-3B-Instruct"},
+    {"name": "qwen25coder-3b-curated-full", "backend": "local", "model": "Qwen/Qwen2.5-Coder-3B-Instruct", "adapter_path": "artifacts/adapters/m4-max-qwen25coder-3b-curated-v1"},
+    {"name": "qwen25coder-3b-pedagogical-only", "backend": "local", "model": "Qwen/Qwen2.5-Coder-3B-Instruct", "adapter_path": "artifacts/adapters/m4-max-qwen25coder-3b-curated-v1-pedagogical-only"},
+    {"name": "qwen25coder-3b-api-reference-only", "backend": "local", "model": "Qwen/Qwen2.5-Coder-3B-Instruct", "adapter_path": "artifacts/adapters/m4-max-qwen25coder-3b-curated-v1-api-reference-only"},
+    {"name": "qwen25coder-3b-without-composite", "backend": "local", "model": "Qwen/Qwen2.5-Coder-3B-Instruct", "adapter_path": "artifacts/adapters/m4-max-qwen25coder-3b-curated-v1-without-composite"}
+  ]
+}

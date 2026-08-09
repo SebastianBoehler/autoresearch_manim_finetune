@@ -13,7 +13,13 @@ from mac_pipeline.manim_hardening import (
     normalize_generated_code,
     repair_generated_code,
 )
-from mac_pipeline.mlx import evaluate_loss, generate_completion
+from mac_pipeline.eval_summary import summarize_case_results
+from mac_pipeline.generation_quality import analyze_generation_quality, is_generation_quality_ok
+from mac_pipeline.local_inference import generate_completion
+from mac_pipeline.mlx import evaluate_loss
+from mac_pipeline.pacing_repair import compact_repetitive_pacing
+from mac_pipeline.render_repair import repair_runtime_generated_code
+from mac_pipeline.syntax_repair import repair_syntax_generated_code
 from mac_pipeline.types import ExperimentConfig, MetricWeights
 from mac_pipeline.utils import load_records, write_json
 
@@ -88,9 +94,29 @@ def analyze_code(code: str) -> tuple[bool, str, str | None]:
     return syntax_ok, syntax_error, scene_name
 
 
-def score_case(case: dict[str, Any], code: str, render_enabled: bool, weights: MetricWeights, quality: str, timeout_seconds: int) -> dict[str, Any]:
-    normalized_code, hardening_notes = normalize_generated_code(code)
+def score_case(
+    case: dict[str, Any],
+    code: str,
+    render_enabled: bool,
+    weights: MetricWeights,
+    quality: str,
+    timeout_seconds: int,
+    *,
+    allow_code_repair: bool = False,
+) -> dict[str, Any]:
+    normalized_code = code
+    hardening_notes: list[str] = []
+    if allow_code_repair:
+        normalized_code, hardening_notes = normalize_generated_code(code)
+        normalized_code, pacing_notes = compact_repetitive_pacing(normalized_code)
+        hardening_notes.extend(note for note in pacing_notes if note not in hardening_notes)
     syntax_ok, syntax_error, scene_name = analyze_code(normalized_code)
+    if allow_code_repair and not syntax_ok:
+        repaired_code, syntax_notes = repair_syntax_generated_code(normalized_code, syntax_error)
+        if repaired_code != normalized_code:
+            hardening_notes.extend(note for note in syntax_notes if note not in hardening_notes)
+            normalized_code = repaired_code
+            syntax_ok, syntax_error, scene_name = analyze_code(normalized_code)
 
     render_ok = None
     render_log = ""
@@ -104,7 +130,15 @@ def score_case(case: dict[str, Any], code: str, render_enabled: bool, weights: M
         )
         if render_ok:
             break
+        if not allow_code_repair:
+            break
         repaired_code, repair_notes = repair_generated_code(normalized_code, render_log)
+        runtime_repaired_code, runtime_notes = repair_runtime_generated_code(
+            repaired_code,
+            render_log,
+        )
+        repaired_code = runtime_repaired_code
+        repair_notes.extend(note for note in runtime_notes if note not in repair_notes)
         if repaired_code == normalized_code:
             break
         repair_attempts += 1
@@ -138,6 +172,7 @@ def score_case(case: dict[str, Any], code: str, render_enabled: bool, weights: M
         + enabled_weights.get("render", 0.0) * float(bool(render_ok))
     ) / total_weight
 
+    quality_report = analyze_generation_quality(normalized_code)
     return {
         "case_id": case["case_id"],
         "syntax_ok": syntax_ok,
@@ -148,8 +183,11 @@ def score_case(case: dict[str, Any], code: str, render_enabled: bool, weights: M
         "render_ok": render_ok,
         "render_log_tail": render_log,
         "weighted_score": weighted_score,
+        "generation_quality": quality_report.to_dict(),
+        "generation_quality_ok": is_generation_quality_ok(quality_report),
         "normalization_notes": hardening_notes,
         "repair_attempts": repair_attempts,
+        "code_repair_enabled": allow_code_repair,
         "final_code": normalized_code,
     }
 
@@ -178,6 +216,7 @@ def evaluate_adapter(
             prompt=user_prompt,
             system_prompt=system_prompt,
             generation=config.generation,
+            transport=config.generation.local_transport,
         )
         code = extract_code(raw_response)
         case_result = score_case(
@@ -187,6 +226,7 @@ def evaluate_adapter(
             weights=config.evaluation.metric_weights,
             quality=config.evaluation.render_quality,
             timeout_seconds=config.evaluation.max_render_seconds,
+            allow_code_repair=config.evaluation.allow_code_repair,
         )
         case_result["raw_response"] = raw_response
         case_result["generated_code"] = code
@@ -195,26 +235,12 @@ def evaluate_adapter(
         case_result["system_prompt"] = system_prompt
         per_case.append(case_result)
 
-    syntax_rate = sum(item["syntax_ok"] for item in per_case) / len(per_case)
-    render_attempts = [item for item in per_case if item["render_ok"] is not None]
-    render_rate = (
-        sum(item["render_ok"] for item in render_attempts) / len(render_attempts)
-        if render_attempts
-        else None
-    )
-    mean_case_score = sum(item["weighted_score"] for item in per_case) / len(per_case)
-
     payload = {
         "run_name": config.name,
         "base_model": config.base_model,
         "adapter_path": str(adapter_path) if adapter_path is not None else None,
         "dataset_dir": str(dataset_dir),
-        "summary": {
-            "num_cases": len(per_case),
-            "syntax_success_rate": syntax_rate,
-            "render_success_rate": render_rate,
-            "mean_case_score": mean_case_score,
-        },
+        "summary": summarize_case_results(per_case),
         "cases": per_case,
     }
     if config.run_loss_eval:

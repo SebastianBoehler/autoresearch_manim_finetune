@@ -4,12 +4,14 @@ import argparse
 from pathlib import Path
 
 from mac_pipeline.benchmark import run_benchmark
+from mac_pipeline.cli_args import configure_compare_subparser, configure_main_subparser
 from mac_pipeline.compare import compare_runs
 from mac_pipeline.dataset import build_dataset
 from mac_pipeline.dataset_sources import resolve_dataset_source
 from mac_pipeline.docs_seed import import_doc_examples, merge_case_files
 from mac_pipeline.eval import evaluate_adapter
 from mac_pipeline.hf_dataset import export_hf_dataset
+from mac_pipeline.latency_cli import cmd_latency_benchmark
 from mac_pipeline.mlx import train_adapter
 from mac_pipeline.plotting import plot_eval_comparison
 from mac_pipeline.review.cli import (
@@ -251,6 +253,7 @@ def cmd_export_hf_dataset(args: argparse.Namespace) -> None:
         preview_image=Path(args.preview_image).resolve() if args.preview_image else None,
         preview_caption=args.preview_caption,
         preview_items=_parse_preview_items(args.preview_item),
+        frozen_splits_dir=Path(args.frozen_splits_dir).resolve() if args.frozen_splits_dir else None,
     )
     print(f"Exported HF dataset staging folder to {output_dir}")
     print(payload)
@@ -271,6 +274,7 @@ def build_parser() -> argparse.ArgumentParser:
         "run": cmd_run,
         "plot-comparison": cmd_plot_comparison,
         "benchmark": cmd_benchmark,
+        "latency-benchmark": cmd_latency_benchmark,
         "export-hf-dataset": cmd_export_hf_dataset,
         "build-review-session": cmd_build_review_session,
         "build-sample-review-session": cmd_build_sample_review_session,
@@ -280,105 +284,17 @@ def build_parser() -> argparse.ArgumentParser:
         "apply-dataset-review-decisions": cmd_apply_dataset_review_decisions,
     }.items():
         subparser = subparsers.add_parser(name)
-        if name in {"build-dataset", "train", "eval", "run", "benchmark", "export-hf-dataset"}:
-            subparser.add_argument("--config", required=True)
-        if name == "import-doc-seeds":
-            subparser.add_argument("--manifest", required=True)
-            subparser.add_argument("--output", required=True)
-        if name == "import-repo-examples":
-            subparser.add_argument("--manifest", required=True)
-            subparser.add_argument("--output", required=True)
-            subparser.add_argument("--metadata")
-        if name == "filter-repo-candidates":
-            subparser.add_argument("--input", required=True)
-            subparser.add_argument("--plain-output", required=True)
-            subparser.add_argument("--custom-output")
-            subparser.add_argument("--summary")
-        if name == "merge-case-files":
-            subparser.add_argument("--inputs", nargs="+", required=True)
-            subparser.add_argument("--output", required=True)
-        if name == "eval":
-            subparser.add_argument("--base-only", action="store_true")
-            subparser.add_argument("--output")
-        if name in {"build-dataset", "run", "export-hf-dataset"}:
-            subparser.add_argument("--source")
-            subparser.add_argument("--source-kind", choices=["local", "hf"])
-            subparser.add_argument("--source-config-name")
-            subparser.add_argument("--source-split")
-            subparser.add_argument("--source-revision")
-        if name == "export-hf-dataset":
-            subparser.add_argument("--output-dir", required=True)
-            subparser.add_argument("--repo-id")
-            subparser.add_argument("--pretty-name")
-            subparser.add_argument("--license")
-            subparser.add_argument("--license-name")
-            subparser.add_argument("--license-link")
-            subparser.add_argument("--language", action="append")
-            subparser.add_argument("--task-category", action="append")
-            subparser.add_argument("--size-category", action="append")
-            subparser.add_argument("--tag", action="append")
-            subparser.add_argument("--preview-image")
-            subparser.add_argument("--preview-caption")
-            subparser.add_argument("--preview-item", action="append")
-        if name == "plot-comparison":
-            subparser.add_argument("--baseline", required=True)
-            subparser.add_argument("--finetuned", required=True)
-            subparser.add_argument("--output", required=True)
-        if name == "build-review-session":
-            subparser.add_argument("--left", required=True)
-            subparser.add_argument("--right", required=True)
-            subparser.add_argument("--output-dir", required=True)
-            subparser.add_argument("--left-label")
-            subparser.add_argument("--right-label")
-            subparser.add_argument("--seed", type=int, default=42)
-            subparser.add_argument("--limit", type=int, default=0)
-            subparser.add_argument("--quality", default="low")
-            subparser.add_argument("--timeout-seconds", type=int, default=120)
-            subparser.add_argument("--include-failed-renders", action="store_true")
-        if name == "build-sample-review-session":
-            subparser.add_argument("--input", required=True)
-            subparser.add_argument("--output-dir", required=True)
-            subparser.add_argument("--start-index", type=int, default=0)
-            subparser.add_argument("--limit", type=int, default=0)
-            subparser.add_argument("--exclude-review", action="append")
-            subparser.add_argument("--quality", default="low")
-            subparser.add_argument("--timeout-seconds", type=int, default=120)
-        if name == "serve-review-app":
-            subparser.add_argument("--session-dir", required=True)
-            subparser.add_argument("--host", default="127.0.0.1")
-            subparser.add_argument("--port", type=int, default=8765)
-        if name == "render-review-candidates":
-            subparser.add_argument("--input", required=True)
-            subparser.add_argument("--output-dir", required=True)
-            subparser.add_argument("--quality", default="low")
-            subparser.add_argument("--timeout-seconds", type=int, default=120)
-        if name == "promote-review-candidates":
-            subparser.add_argument("--input", required=True)
-            subparser.add_argument("--review", required=True)
-            subparser.add_argument("--promoted-output", default="data/manim_review_promoted.jsonl")
-            subparser.add_argument("--promoted-tier", default="tier:silver")
-            subparser.add_argument("--keep-promoted-in-input", action="store_true")
-        if name == "apply-dataset-review-decisions":
-            subparser.add_argument("--input", default="data/manim_dataset.jsonl")
-            subparser.add_argument("--review", required=True)
-            subparser.add_argument("--decision-log", default="data/manim_review_decisions.jsonl")
-            subparser.add_argument("--rejected-output", default="data/manim_review_rejected.jsonl")
+        configure_main_subparser(name, subparser)
         subparser.set_defaults(func=handler)
 
     compare = subparsers.add_parser("compare")
-    compare.add_argument("--config", required=True)
-    compare.add_argument("--baseline", required=True)
-    compare.add_argument("--candidate", required=True)
-    compare.add_argument("--output", required=True)
+    configure_compare_subparser(compare)
     compare.set_defaults(func=cmd_compare)
     return parser
 
 
 def main() -> None:
-    parser = build_parser()
-    args = parser.parse_args()
+    args = build_parser().parse_args()
     args.func(args)
-
-
 if __name__ == "__main__":
     main()

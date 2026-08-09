@@ -312,7 +312,7 @@ requires-dist = [
     { name = "datasets", specifier = ">=4.3.0" },
     { name = "huggingface-hub", specifier = ">=0.36.0" },
     { name = "kernels", marker = "sys_platform != 'darwin'", specifier = ">=0.11.7" },
-    { name = "manim", marker = "platform_machine == 'arm64' and sys_platform == 'darwin'", specifier = ">=0.20.1" },
+    { name = "manim", marker = "platform_machine == 'arm64' and sys_platform == 'darwin'", specifier = "==0.20.1" },
     { name = "matplotlib", specifier = ">=3.10.8" },
     { name = "mlx", marker = "extra == 'bonsai'", git = "https://github.com/PrismML-Eng/mlx.git?rev=prism" },
     { name = "mlx-lm", extras = ["train"], marker = "platform_machine == 'arm64' and sys_platform == 'darwin'", specifier = ">=0.31.1" },

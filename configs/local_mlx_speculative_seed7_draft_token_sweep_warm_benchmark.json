@@ -1,0 +1,53 @@
+{
+  "name": "local-mlx-speculative-seed7-draft-token-sweep-warm-benchmark",
+  "dataset_dir": "artifacts/datasets/learning-app-taste-qwen25coder-3b",
+  "output_dir": "artifacts/benchmarks/local-mlx-speculative-seed7-draft-token-sweep-warm",
+  "generation": {
+    "max_tokens": 2560,
+    "temperature": 0.2,
+    "top_p": 0.95,
+    "top_k": 40,
+    "seed": 7,
+    "local_transport": "in_process",
+    "draft_model": "mlx-community/Qwen2.5-Coder-0.5B-Instruct-4bit",
+    "dynamic_manim_stop": true,
+    "dynamic_stop_min_tokens": 240,
+    "dynamic_stop_check_interval": 1,
+    "dynamic_stop_target_ratio": 0.55,
+    "dynamic_stop_default_duration_seconds": 15.0
+  },
+  "evaluation": {
+    "run_render": false,
+    "max_cases": 4
+  },
+  "targets": [
+    {
+      "name": "seed7-draft-tokens-2",
+      "backend": "local",
+      "model": "Qwen/Qwen2.5-Coder-3B-Instruct",
+      "adapter_path": "artifacts/adapters/m4-max-qwen25coder-3b",
+      "num_draft_tokens": 2
+    },
+    {
+      "name": "seed7-draft-tokens-3",
+      "backend": "local",
+      "model": "Qwen/Qwen2.5-Coder-3B-Instruct",
+      "adapter_path": "artifacts/adapters/m4-max-qwen25coder-3b",
+      "num_draft_tokens": 3
+    },
+    {
+      "name": "seed7-draft-tokens-4",
+      "backend": "local",
+      "model": "Qwen/Qwen2.5-Coder-3B-Instruct",
+      "adapter_path": "artifacts/adapters/m4-max-qwen25coder-3b",
+      "num_draft_tokens": 4
+    },
+    {
+      "name": "seed7-draft-tokens-5",
+      "backend": "local",
+      "model": "Qwen/Qwen2.5-Coder-3B-Instruct",
+      "adapter_path": "artifacts/adapters/m4-max-qwen25coder-3b",
+      "num_draft_tokens": 5
+    }
+  ]
+}

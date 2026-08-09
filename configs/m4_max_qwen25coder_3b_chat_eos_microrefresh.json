@@ -1,0 +1,66 @@
+{
+  "name": "m4-max-qwen25coder-3b-chat-eos-microrefresh",
+  "base_model": "Qwen/Qwen2.5-Coder-3B-Instruct",
+  "source_dataset": "data/manim_dataset.jsonl",
+  "dataset_dir": "artifacts/datasets/m4-max-qwen25coder-3b-chat-eos-probe",
+  "adapter_path": "artifacts/adapters/m4-max-qwen25coder-3b-chat-eos-microrefresh",
+  "eval_output_path": "artifacts/evals/m4-max-qwen25coder-3b-chat-eos-microrefresh.json",
+  "results_tsv": "results.tsv",
+  "run_loss_eval": false,
+  "dataset_filter": {
+    "include_tags": [],
+    "exclude_tags": []
+  },
+  "splits": {
+    "train_fraction": 0.75,
+    "valid_fraction": 0.125,
+    "seed": 42
+  },
+  "train": {
+    "fine_tune_type": "lora",
+    "optimizer": "adamw",
+    "mask_prompt": true,
+    "resume_adapter_file": "artifacts/adapters/m4-max-qwen25coder-3b/adapters.safetensors",
+    "num_layers": 12,
+    "batch_size": 1,
+    "iters": 25,
+    "val_batches": 10,
+    "learning_rate": 0.00001,
+    "steps_per_report": 5,
+    "steps_per_eval": 25,
+    "grad_accumulation_steps": 8,
+    "save_every": 25,
+    "test_batches": -1,
+    "max_seq_length": 3072,
+    "grad_checkpoint": true,
+    "seed": 42,
+    "early_stopping_patience": 1,
+    "early_stopping_min_delta": 0.005,
+    "early_stopping_chunk_size": 25,
+    "restore_best_checkpoint": true
+  },
+  "generation": {
+    "max_tokens": 2560,
+    "temperature": 0.2,
+    "top_p": 0.95,
+    "top_k": 40,
+    "seed": 42,
+    "local_transport": "in_process"
+  },
+  "evaluation": {
+    "run_render": true,
+    "max_cases": 0,
+    "render_quality": "low",
+    "max_render_seconds": 120,
+    "allowed_render_regression": 0.05,
+    "min_loss_delta": 0.01,
+    "tie_loss_delta": 0.003,
+    "metric_weights": {
+      "syntax": 0.25,
+      "scene_class": 0.15,
+      "required_snippets": 0.25,
+      "forbidden_snippets": 0.05,
+      "render": 0.3
+    }
+  }
+}

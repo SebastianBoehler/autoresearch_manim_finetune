@@ -11,11 +11,34 @@ HARDENED_SYSTEM_PROMPT_SUFFIX = (
     "NumberLine, NumberPlane, Circle, Dot, Line, Arrow, Graph, Text, MathTex, VGroup, "
     "Rectangle, RoundedRectangle, SurroundingRectangle, ValueTracker, ArrowVectorField, and Surface. "
     "Put run_time only on self.play calls, not on constructors or plot methods. "
+    "Use fill_opacity or stroke_opacity instead of a generic opacity keyword. "
+    "Do not pass raw setter calls such as object.set_color(...) to self.play; use object.animate.set_color(...) instead. "
+    "Do not customize NumberLine tips with Triangle or unsupported tip-length kwargs. "
     "Use layout='circular' style strings for Graph layouts. "
     "Use PolarPlane.plot_polar_graph for polar plots. "
     "Use only color constants that exist in manim; ORANGE has no A/B/C/D/E variants in this environment. "
     "If you need a panel, build it from Rectangle or RoundedRectangle and move a Text onto it instead of calling custom methods."
 )
+
+def _remove_kwarg(line: str, key: str) -> str:
+    line = re.sub(rf",\s*{key}\s*=\s*[^,)]+", "", line)
+    return re.sub(rf"{key}\s*=\s*[^,)]+,\s*", "", line)
+
+def _normalize_opacity_kwarg(line: str) -> str:
+    if "opacity=" not in line:
+        return line
+    if ("Rectangle(" in line or "SurroundingRectangle(" in line) and "fill_opacity=" not in line:
+        return line.replace("opacity=", "fill_opacity=")
+    if "Line(" in line and "stroke_opacity=" not in line:
+        return line.replace("opacity=", "stroke_opacity=")
+    return _remove_kwarg(line, "opacity")
+
+def _rewrite_positional_numberline(match: re.Match[str]) -> str:
+    start = float(match.group(1))
+    end = float(match.group(2))
+    divisions = float(match.group(3))
+    step = (end - start) / divisions if divisions else end - start
+    return f"NumberLine(x_range=[{start:g}, {end:g}, {step:g}])"
 
 _LINE_RULES: tuple[tuple[str, callable[[str], str], str], ...] = (
     (
@@ -31,6 +54,25 @@ _LINE_RULES: tuple[tuple[str, callable[[str], str], str], ...] = (
         if "Axes(" in line and "z_range=" in line
         else line,
         "upgrade 3d Axes to ThreeDAxes",
+    ),
+    (
+        "remove unsupported NumberLine tips_length kwarg",
+        lambda line: _remove_kwarg(line, "tips_length")
+        if "NumberLine(" in line and "tips_length=" in line
+        else line,
+        "remove unsupported NumberLine tips_length kwarg",
+    ),
+    (
+        "remove unsupported custom Triangle number-line tips",
+        lambda line: ""
+        if ".add_tip(" in line and "Triangle(" in line
+        else line,
+        "remove unsupported custom Triangle number-line tips",
+    ),
+    (
+        "normalize generic opacity kwargs",
+        _normalize_opacity_kwarg,
+        "normalize generic opacity kwargs",
     ),
     (
         "remove unsupported add_caption calls",
@@ -105,7 +147,7 @@ _GLOBAL_REGEX_RULES: tuple[tuple[re.Pattern[str], str | callable[[re.Match[str]]
         "replace get_axis_range() with x_range",
     ),
     (
-        re.compile(r"\.get_origin\(\)"),
+        re.compile(r"\b[A-Za-z_]\w*\.get_origin\(\)"),
         "ORIGIN",
         "replace get_origin() with ORIGIN",
     ),
@@ -118,6 +160,21 @@ _GLOBAL_REGEX_RULES: tuple[tuple[re.Pattern[str], str | callable[[re.Match[str]]
         re.compile(r"\bVectorField\("),
         "ArrowVectorField(",
         "replace VectorField with ArrowVectorField",
+    ),
+    (
+        re.compile(r"\bVector\(([^,\n()]+),\s*([^,\n()]+),\s*([^,\n()]+)\)"),
+        r"Vector([\1, \2, \3])",
+        "wrap positional Vector coordinates in a list",
+    ),
+    (
+        re.compile(r"\bNumberLine\(\s*(-?[0-9.]+)\s*,\s*(-?[0-9.]+)\s*,\s*([0-9.]+)\s*\)"),
+        _rewrite_positional_numberline,
+        "rewrite positional NumberLine arguments to x_range",
+    ),
+    (
+        re.compile(r"self\.play\(\s*Delay\(([^)]*)\)\s*\)"),
+        r"self.wait(\1)",
+        "replace unsupported Delay animation with wait",
     ),
     (
         re.compile(r",\s*texture\s*=\s*ImageTexture\([^)]*\)"),
@@ -168,6 +225,16 @@ _REPAIR_TRIGGER_RULES: tuple[tuple[re.Pattern[str], tuple[tuple[re.Pattern[str],
                 re.compile(r"(\b\w+)\.set_points_smoothly\("),
                 r"\1.animate.set_points_smoothly(",
                 "animate set_points_smoothly calls after Scene.play failure",
+            ),
+            (
+                re.compile(r"(\b[A-Za-z_]\w*(?:\[[^\]]+\])?)\.(?<!animate\.)set_color\("),
+                r"\1.animate.set_color(",
+                "animate set_color calls after Scene.play failure",
+            ),
+            (
+                re.compile(r"(\b[A-Za-z_]\w*(?:\[[^\]]+\])?)\.(?<!animate\.)set_value\("),
+                r"\1.animate.set_value(",
+                "animate set_value calls after Scene.play failure",
             ),
         ),
     ),

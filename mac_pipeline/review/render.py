@@ -96,7 +96,4 @@ def render_review_candidate(
 
 def _find_rendered_video(media_dir: Path, scene_name: str) -> Path | None:
     preferred = sorted(media_dir.glob(f"**/{scene_name}.mp4"))
-    if preferred:
-        return preferred[0]
-    fallback = sorted(media_dir.glob("**/*.mp4"))
-    return fallback[0] if fallback else None
+    return preferred[0] if preferred else None

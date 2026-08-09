@@ -10,6 +10,8 @@ from mac_pipeline.utils import ensure_dir, load_records, write_json, write_recor
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PROMOTION_DECISIONS = {"promote", "approved", "approve", "keep", "good", "winner"}
+MIN_REVIEW_SCORE = 4.0
+MIN_REVIEW_CONFIDENCE = 0.8
 
 
 def render_candidate_cases(
@@ -121,10 +123,33 @@ def _selected_case_ids(review_records: list[dict[str, Any]]) -> list[str]:
             or ""
         ).strip().lower()
         if decision in PROMOTION_DECISIONS:
+            _validate_promotion_evidence(record)
             selected_case_ids.append(case_id)
     if not selected_case_ids:
         raise ValueError("No promotable review decisions found in the review file.")
     return selected_case_ids
+
+
+def _validate_promotion_evidence(record: dict[str, Any]) -> None:
+    case_id = record["case_id"]
+    if record.get("render_ok") is not True:
+        raise ValueError(f"Promotable review for {case_id} requires render_ok=true.")
+    for field in ("factual_score", "pedagogical_score", "visual_score"):
+        score = record.get(field)
+        if not isinstance(score, (int, float)) or score < MIN_REVIEW_SCORE:
+            raise ValueError(
+                f"Promotable review for {case_id} requires {field}>={MIN_REVIEW_SCORE:g}."
+            )
+    confidence = record.get("confidence")
+    if not isinstance(confidence, (int, float)) or confidence < MIN_REVIEW_CONFIDENCE:
+        raise ValueError(
+            f"Promotable review for {case_id} requires confidence>={MIN_REVIEW_CONFIDENCE:g}."
+        )
+    blocking_issues = record.get("blocking_issues")
+    if not isinstance(blocking_issues, list) or blocking_issues:
+        raise ValueError(
+            f"Promotable review for {case_id} requires an empty blocking_issues list."
+        )
 
 
 def _promoted_record(case: dict[str, Any], promoted_tier: str) -> dict[str, Any]:

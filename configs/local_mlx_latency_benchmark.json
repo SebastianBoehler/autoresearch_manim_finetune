@@ -1,0 +1,40 @@
+{
+  "name": "local-mlx-latency-benchmark",
+  "dataset_dir": "artifacts/datasets/m4-max-qwen25coder-3b",
+  "output_dir": "artifacts/benchmarks/local-mlx-latency",
+  "generation": {
+    "max_tokens": 2560,
+    "temperature": 0.2,
+    "top_p": 0.95,
+    "top_k": 40,
+    "seed": 42,
+    "local_transport": "in_process"
+  },
+  "targets": [
+    {
+      "name": "local-base-qwen25coder-3b-subprocess",
+      "backend": "local",
+      "model": "Qwen/Qwen2.5-Coder-3B-Instruct",
+      "local_transport": "subprocess"
+    },
+    {
+      "name": "local-base-qwen25coder-3b-in-process",
+      "backend": "local",
+      "model": "Qwen/Qwen2.5-Coder-3B-Instruct",
+      "local_transport": "in_process"
+    },
+    {
+      "name": "local-finetuned-qwen25coder-3b-in-process",
+      "backend": "local",
+      "model": "Qwen/Qwen2.5-Coder-3B-Instruct",
+      "adapter_path": "artifacts/adapters/m4-max-qwen25coder-3b",
+      "local_transport": "in_process"
+    },
+    {
+      "name": "local-base-bonsai-8b-1bit-in-process",
+      "backend": "local",
+      "model": "prism-ml/Bonsai-8B-mlx-1bit",
+      "local_transport": "in_process"
+    }
+  ]
+}

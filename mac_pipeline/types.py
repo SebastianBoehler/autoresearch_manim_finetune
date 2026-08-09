@@ -70,6 +70,7 @@ class TrainConfig:
     fine_tune_type: str = "lora"
     optimizer: str = "adamw"
     mask_prompt: bool = True
+    resume_adapter_file: str | None = None
     num_layers: int = 12
     batch_size: int = 1
     iters: int = 300
@@ -96,6 +97,21 @@ class GenerationConfig:
     top_p: float = 0.95
     top_k: int = 0
     seed: int = 42
+    local_transport: str = "in_process"
+    draft_model: str | None = None
+    num_draft_tokens: int = 3
+    repetition_penalty: float | None = None
+    repetition_context_size: int = 64
+    presence_penalty: float | None = None
+    presence_context_size: int = 128
+    frequency_penalty: float | None = None
+    frequency_context_size: int = 128
+    suppressed_token_texts: list[str] = field(default_factory=list)
+    dynamic_manim_stop: bool = False
+    dynamic_stop_min_tokens: int = 160
+    dynamic_stop_check_interval: int = 1
+    dynamic_stop_target_ratio: float = 0.85
+    dynamic_stop_default_duration_seconds: float = 15.0
 
 
 @dataclass
@@ -113,6 +129,7 @@ class EvaluationConfig:
     max_cases: int = 0
     render_quality: str = "low"
     max_render_seconds: int = 120
+    allow_code_repair: bool = False
     allowed_render_regression: float = 0.05
     min_loss_delta: float = 0.01
     tie_loss_delta: float = 0.003
@@ -139,6 +156,9 @@ class BenchmarkTargetConfig:
     skill_path: str | None = None
     route: str | None = None
     transforms: list[str] = field(default_factory=list)
+    local_transport: str | None = None
+    draft_model: str | None = None
+    num_draft_tokens: int | None = None
 
 
 @dataclass

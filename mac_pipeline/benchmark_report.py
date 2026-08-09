@@ -41,6 +41,8 @@ def _normalize_entry(entry: dict[str, Any]) -> dict[str, Any]:
             "num_cases": summary.get("num_cases"),
             "syntax_success_rate": summary.get("syntax_success_rate"),
             "render_success_rate": summary.get("render_success_rate"),
+            "quality_success_rate": summary.get("quality_success_rate"),
+            "production_success_rate": summary.get("production_success_rate"),
             "mean_case_score": summary.get("mean_case_score"),
             "test_loss": summary.get("test_loss"),
         },
@@ -56,6 +58,8 @@ def build_benchmark_report(
     leaderboard = sorted(
         completed,
         key=lambda item: (
+            item["summary"].get("production_success_rate") or 0.0,
+            item["summary"].get("quality_success_rate") or 0.0,
             item["summary"].get("mean_case_score") or 0.0,
             item["summary"].get("render_success_rate") or 0.0,
             item["summary"].get("syntax_success_rate") or 0.0,

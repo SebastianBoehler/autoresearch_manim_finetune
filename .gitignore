@@ -19,6 +19,8 @@ queue/
 # Agent prompt files (generated per-session by launchers)
 CLAUDE.md
 AGENTS.md
+.learnings/
+.journal/
 
 # Experimental code/artifacts
 dev/
@@ -27,3 +29,4 @@ media/
 
 # Results file
 results.tsv
+data/promotion_summary.json

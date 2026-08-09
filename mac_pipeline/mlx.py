@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from mac_pipeline.types import ExperimentConfig, GenerationConfig
+from mac_pipeline.types import ExperimentConfig
 from mac_pipeline.utils import ensure_parent
 
 FLOAT_PATTERN = r"([0-9]+(?:\.[0-9]+)?)"
@@ -151,7 +151,13 @@ def _restore_best_checkpoint(adapter_path: Path, best_checkpoint_path: Path, bes
 
 
 def _train_single_run(config: ExperimentConfig, dataset_dir: Path, adapter_path: Path, log_path: Path) -> str:
-    command = _base_lora_command(config, dataset_dir, adapter_path)
+    resume_file = _configured_resume_file(config)
+    command = _base_lora_command(
+        config,
+        dataset_dir,
+        adapter_path,
+        resume_adapter_file=resume_file,
+    )
     command.append("--train")
     return _run(command, log_path)
 
@@ -178,7 +184,11 @@ def _train_with_early_stopping(
 
     while completed_iters < total_iters:
         current_iters = min(chunk_size, total_iters - completed_iters)
-        resume_file = adapter_path / "adapters.safetensors" if completed_iters > 0 else None
+        resume_file = (
+            adapter_path / "adapters.safetensors"
+            if completed_iters > 0
+            else _configured_resume_file(config)
+        )
         _append_log_message(
             log_path,
             f"[mac_pipeline] chunk_start completed={completed_iters} current_iters={current_iters}",
@@ -240,6 +250,12 @@ def _train_with_early_stopping(
     return log_path.read_text()
 
 
+def _configured_resume_file(config: ExperimentConfig) -> Path | None:
+    if not config.train.resume_adapter_file:
+        return None
+    return Path(config.train.resume_adapter_file)
+
+
 def train_adapter(config: ExperimentConfig, dataset_dir: Path, adapter_path: Path, log_path: Path) -> str:
     if config.train.early_stopping_patience <= 0:
         return _train_single_run(config, dataset_dir, adapter_path, log_path)
@@ -272,39 +288,3 @@ def evaluate_loss(
     metrics = parse_loss_metrics(raw_output)
     metrics["log_path"] = str(log_path)
     return metrics
-
-
-def generate_completion(
-    base_model: str,
-    adapter_path: Path | None,
-    prompt: str,
-    system_prompt: str | None,
-    generation: GenerationConfig,
-) -> str:
-    command = [
-        sys.executable,
-        "-m",
-        "mlx_lm",
-        "generate",
-        "--model",
-        base_model,
-        "--prompt",
-        prompt,
-        "--max-tokens",
-        str(generation.max_tokens),
-        "--temp",
-        str(generation.temperature),
-        "--top-p",
-        str(generation.top_p),
-        "--seed",
-        str(generation.seed),
-        "--verbose",
-        "False",
-    ]
-    if adapter_path is not None:
-        command.extend(["--adapter-path", str(adapter_path)])
-    if generation.top_k > 0:
-        command.extend(["--top-k", str(generation.top_k)])
-    if system_prompt:
-        command.extend(["--system-prompt", system_prompt])
-    return _run(command, include_stderr=False).strip()

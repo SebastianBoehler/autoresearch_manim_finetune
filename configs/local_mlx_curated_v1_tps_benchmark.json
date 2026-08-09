@@ -1,0 +1,24 @@
+{
+  "name": "local-mlx-curated-v1-tps-benchmark",
+  "dataset_dir": "data/curated/manim_v0_20_1",
+  "output_dir": "artifacts/benchmarks/local-mlx-curated-v1-tps",
+  "generation": {
+    "max_tokens": 1800,
+    "temperature": 0.2,
+    "top_p": 0.95,
+    "top_k": 40,
+    "seed": 42,
+    "local_transport": "in_process",
+    "dynamic_manim_stop": true,
+    "dynamic_stop_min_tokens": 240,
+    "dynamic_stop_target_ratio": 0.65,
+    "dynamic_stop_default_duration_seconds": 15.0
+  },
+  "evaluation": {"run_render": false, "max_cases": 6, "render_quality": "low", "max_render_seconds": 120},
+  "targets": [
+    {"name": "qwen25coder-3b-base", "backend": "local", "model": "Qwen/Qwen2.5-Coder-3B-Instruct"},
+    {"name": "qwen25coder-3b-curated", "backend": "local", "model": "Qwen/Qwen2.5-Coder-3B-Instruct", "adapter_path": "artifacts/adapters/m4-max-qwen25coder-3b-curated-v1"},
+    {"name": "qwen25coder-3b-curated-speculative", "backend": "local", "model": "Qwen/Qwen2.5-Coder-3B-Instruct", "adapter_path": "artifacts/adapters/m4-max-qwen25coder-3b-curated-v1", "draft_model": "mlx-community/Qwen2.5-Coder-0.5B-Instruct-4bit", "num_draft_tokens": 3},
+    {"name": "qwen25coder-1p5b-base", "backend": "local", "model": "mlx-community/Qwen2.5-Coder-1.5B-Instruct-4bit"}
+  ]
+}

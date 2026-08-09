@@ -1,0 +1,49 @@
+{
+  "name": "openrouter-manim-xiaomi-gptmini-smoke",
+  "dataset_dir": "artifacts/datasets/m4-max-qwen25coder-3b",
+  "output_dir": "artifacts/benchmarks/openrouter-manim-xiaomi-gptmini-smoke",
+  "generation": {
+    "max_tokens": 2560,
+    "temperature": 0.2,
+    "top_p": 0.95,
+    "top_k": 40,
+    "seed": 42
+  },
+  "evaluation": {
+    "run_render": true,
+    "max_cases": 6,
+    "render_quality": "low",
+    "max_render_seconds": 120,
+    "allowed_render_regression": 0.05,
+    "min_loss_delta": 0.01,
+    "tie_loss_delta": 0.003,
+    "metric_weights": {
+      "syntax": 0.25,
+      "scene_class": 0.15,
+      "required_snippets": 0.25,
+      "forbidden_snippets": 0.05,
+      "render": 0.3
+    }
+  },
+  "openrouter": {
+    "api_base": "https://openrouter.ai/api/v1",
+    "api_key_env": "OPENROUTER_API_KEY",
+    "site_url": "https://github.com/SebastianBoehler/autoresearch_manim_finetune",
+    "app_name": "autoresearch-manim-finetune",
+    "timeout_seconds": 180,
+    "route": null,
+    "transforms": []
+  },
+  "targets": [
+    {
+      "name": "xiaomi-mimo-v2-pro",
+      "backend": "openrouter",
+      "model": "xiaomi/mimo-v2-pro"
+    },
+    {
+      "name": "openai-gpt-5-4-mini",
+      "backend": "openrouter",
+      "model": "openai/gpt-5.4-mini"
+    }
+  ]
+}

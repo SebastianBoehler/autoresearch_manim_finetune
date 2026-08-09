@@ -25,6 +25,19 @@ PASSTHROUGH_FIELDS = [
     "requires_manual_conversion",
     "target_duration_seconds",
     "target_duration_tolerance_seconds",
+    "manim_version",
+    "python_version",
+    "renderers_tested",
+    "api_symbols",
+    "api_methods",
+    "corpus_roles",
+    "dataset_version",
+    "curation_decision",
+    "curation_reason",
+    "render_verified",
+    "render_verified_version",
+    "render_quality",
+    "split_group",
 ]
 
 
@@ -118,7 +131,6 @@ def case_to_chat_record(case: dict[str, Any]) -> dict[str, Any]:
         "case_id": case["case_id"],
         "system": case["system"],
         "prompt": case["prompt"],
-        "completion": case["completion"],
         "tags": case["tags"],
         "entry_scene": case.get("entry_scene"),
         "must_contain": case["must_contain"],

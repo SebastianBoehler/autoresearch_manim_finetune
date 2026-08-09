@@ -40,6 +40,27 @@ class Demo(Scene):
         self.assertNotIn("add_caption", normalized)
         self.assertTrue(notes)
 
+    def test_normalize_generated_code_rewrites_learning_app_benchmark_failures(self) -> None:
+        code = """from manim import *
+
+class Demo(Scene):
+    def construct(self):
+        line = NumberLine(0, 1, 4)
+        line.add_tip(Triangle().scale(0.5).set_color(RED))
+        band = SurroundingRectangle(line, color=GREEN, buff=0.05, opacity=0.2)
+        faint_line = Line(LEFT, RIGHT, color=GREEN, opacity=0.5)
+        vector = Vector(1, 0, 0)
+        self.play(Delay(1))
+"""
+        normalized, notes = normalize_generated_code(code)
+        self.assertIn("NumberLine(x_range=[0, 1, 0.25])", normalized)
+        self.assertNotIn("add_tip", normalized)
+        self.assertIn("fill_opacity=0.2", normalized)
+        self.assertIn("stroke_opacity=0.5", normalized)
+        self.assertIn("Vector([1, 0, 0])", normalized)
+        self.assertIn("self.wait(1)", normalized)
+        self.assertTrue(notes)
+
     def test_normalize_generated_code_handles_residual_runtime_failure_patterns(self) -> None:
         code = """from manim import *
 
@@ -55,6 +76,7 @@ class Demo(ThreeDScene):
         self.assertIn("ThreeDAxes(", normalized)
         self.assertNotIn("ThreeDThreeDAxes", normalized)
         self.assertIn("ORIGIN", normalized)
+        self.assertNotIn("vector_fieldORIGIN", normalized)
         self.assertIn("phase_caption", normalized)
         self.assertIn('("A", "B")', normalized)
         self.assertIn("dot.animate.move_to(shell)", normalized)
@@ -75,6 +97,23 @@ class Demo(Scene):
         )
         self.assertIn("frontier.animate.set_points_smoothly", repaired)
         self.assertIn("highlight.animate.become", repaired)
+        self.assertTrue(notes)
+
+    def test_repair_generated_code_animates_raw_setter_calls(self) -> None:
+        code = """from manim import *
+
+class Demo(Scene):
+    def construct(self):
+        weights = VGroup(MathTex("0"))
+        output = VGroup(DecimalNumber(0))
+        self.play(weights[0].set_color(YELLOW), output[0].set_value(1), run_time=1)
+"""
+        repaired, notes = repair_generated_code(
+            code,
+            "TypeError: Unexpected argument MathTex('0') passed to Scene.play().",
+        )
+        self.assertIn("weights[0].animate.set_color", repaired)
+        self.assertIn("output[0].animate.set_value", repaired)
         self.assertTrue(notes)
 
 

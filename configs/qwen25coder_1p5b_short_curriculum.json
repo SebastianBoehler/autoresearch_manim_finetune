@@ -1,0 +1,55 @@
+{
+  "name": "qwen25coder-1p5b-short-curriculum",
+  "base_model": "mlx-community/Qwen2.5-Coder-1.5B-Instruct-4bit",
+  "source_dataset": "artifacts/datasets/targeted-short-curriculum-source.jsonl",
+  "dataset_dir": "artifacts/datasets/qwen25coder-1p5b-short-curriculum",
+  "adapter_path": "artifacts/adapters/qwen25coder-1p5b-short-curriculum",
+  "eval_output_path": "artifacts/evals/qwen25coder-1p5b-short-curriculum.json",
+  "results_tsv": "results.tsv",
+  "run_loss_eval": false,
+  "dataset_filter": {
+    "include_tags": [],
+    "exclude_tags": []
+  },
+  "splits": {
+    "train_fraction": 0.75,
+    "valid_fraction": 0.125,
+    "seed": 42
+  },
+  "train": {
+    "fine_tune_type": "lora",
+    "optimizer": "adamw",
+    "mask_prompt": true,
+    "num_layers": 12,
+    "batch_size": 1,
+    "iters": 150,
+    "val_batches": 10,
+    "learning_rate": 0.0001,
+    "steps_per_report": 10,
+    "steps_per_eval": 25,
+    "grad_accumulation_steps": 8,
+    "save_every": 25,
+    "test_batches": -1,
+    "max_seq_length": 2048,
+    "grad_checkpoint": true,
+    "seed": 42,
+    "early_stopping_patience": 3,
+    "early_stopping_min_delta": 0.01,
+    "early_stopping_chunk_size": 25,
+    "restore_best_checkpoint": true
+  },
+  "generation": {
+    "max_tokens": 1600,
+    "temperature": 0.2,
+    "top_p": 0.95,
+    "top_k": 40,
+    "seed": 42,
+    "local_transport": "in_process"
+  },
+  "evaluation": {
+    "run_render": true,
+    "max_cases": 0,
+    "render_quality": "low",
+    "max_render_seconds": 120
+  }
+}

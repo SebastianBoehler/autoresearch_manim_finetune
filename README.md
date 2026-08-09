@@ -120,12 +120,14 @@ uv run python -m mac_pipeline.cli run \
   --config configs/m4_max_qwen25coder_3b.json
 ```
 
-Export the current canonical dataset into a Hugging Face dataset staging folder with both canonical `cases` rows and train-ready `chat` splits:
+Export the accepted, versioned corpus into a Hugging Face staging folder with curated
+`cases` rows and the frozen, concept-grouped `chat` splits:
 
 ```bash
 uv run python -m mac_pipeline.cli export-hf-dataset \
-  --config configs/m4_max_qwen25coder_3b.json \
+  --config configs/m4_max_qwen25coder_3b_curated_v1.json \
   --output-dir artifacts/hf_datasets/autoresearch-manim \
+  --frozen-splits-dir data/curated/manim_v0_20_1 \
   --repo-id sebastianboehler/autoresearch-manim \
   --pretty-name "Autoresearch Manim" \
   --license mit \
@@ -349,11 +351,11 @@ Or use an explicit Hugging Face source:
 
 The recommended Hub layout exported by `export-hf-dataset` is:
 
-- `cases.jsonl` for the canonical unsplit source-of-truth rows
+- `cases.jsonl` for accepted, exact-render-verified, versioned rows
 - `chat/train.jsonl`
 - `chat/validation.jsonl`
 - `chat/test.jsonl`
-- `README.md` with the dataset card and split config YAML
+- `README.md` with the dataset card, runtime/API contract, and split config YAML
 
 The training pipeline still builds local `train.jsonl`, `valid.jsonl`, and `test.jsonl` artifacts before fine-tuning, so HF support only changes the dataset source boundary rather than the trainer itself.
 
